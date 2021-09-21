@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using PathfinderHonorManager.DataAccess;
+
 
 namespace PathfinderHonorManager
 {

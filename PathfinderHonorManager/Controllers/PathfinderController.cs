@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using PathfinderHonorManager.Models;
+using PathfinderHonorManager.DataAccess;
+
+
 
 namespace PathfinderHonorManager.Controllers
 {

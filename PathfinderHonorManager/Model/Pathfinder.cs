@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 
-namespace PathfinderHonorManager
+namespace PathfinderHonorManager.Models
 {
     [Table("pathfinder")]
     public class Pathfinder

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace PathfinderHonorManager
+namespace PathfinderHonorManager.Models
 {
     [Table("pathfinder_honor")]
     public class PathfinderHonor
@@ -32,8 +32,6 @@ namespace PathfinderHonorManager
     [Table("pathfinder_honor_status")]
         public class PathfinderHonorStatus
     {
-        [Key, Column("pathfinder_honor_status_id")]
-        public Guid PathfinderStatusHonorID { get; set; }
         [Key, Column("status_code")]
         public int StatusCode { get; set; }
         [Column("name")]

@@ -16,6 +16,9 @@
     <None Remove="Model\" />
     <None Remove="Microsoft.EntityFrameworkCore.Proxies" />
     <None Remove=".DS_Store" />
+    <None Remove="Model\Enum\" />
+    <None Remove="Services\" />
+    <None Remove="StyleCop" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
@@ -25,9 +28,12 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
     <PackageReference Include="Npgsql" Version="5.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.10" />
+    <PackageReference Include="StyleCop" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataAccess\" />
     <Folder Include="Model\" />
+    <Folder Include="Model\Enum\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 </Project>
