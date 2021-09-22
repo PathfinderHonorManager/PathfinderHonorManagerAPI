@@ -17,7 +17,6 @@
     <None Remove="Microsoft.EntityFrameworkCore.Proxies" />
     <None Remove=".DS_Store" />
     <None Remove="Model\Enum\" />
-    <None Remove="Services\" />
     <None Remove="StyleCop" />
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +33,5 @@
     <Folder Include="DataAccess\" />
     <Folder Include="Model\" />
     <Folder Include="Model\Enum\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 </Project>

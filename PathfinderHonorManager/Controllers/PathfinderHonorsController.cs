@@ -5,20 +5,21 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using PathfinderHonorManager.Models;
 using PathfinderHonorManager.DataAccess;
-
+using System.Threading;
+using System;
 
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class HonorsController : ControllerBase
+    public class PathfinderHonorsController : ControllerBase
     {
 
-        private readonly ILogger<HonorsController> _logger;
+        private readonly ILogger<PathfinderHonorsController> _logger;
 
         private readonly PostgresContext _context;
 
-        public HonorsController(PostgresContext context, ILogger<HonorsController> logger)
+        public PathfinderHonorsController(PostgresContext context, ILogger<PathfinderHonorsController> logger)
         {
             _context = context;
             _logger = logger;
@@ -26,9 +27,19 @@ namespace PathfinderHonorManager.Controllers
 
         // GET Honors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Honor>>> GetHonors()
+        public async Task<ActionResult<IEnumerable<PathfinderHonor>>> GetPathfinderHonors()
         {
-            return await _context.Honors.ToListAsync();
+            return await _context.PathfinderHonors.Include(h => h.Honor)
+                .ToListAsync();
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<PathfinderHonor>> GetByIdAsync(Guid id)
+        {
+
+            return await _context.PathfinderHonors.Include(h => h.Honor)
+                .SingleOrDefaultAsync(p => p.PathfinderHonorID == id);
+
         }
     }
 }

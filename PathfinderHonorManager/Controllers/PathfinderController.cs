@@ -32,7 +32,18 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pathfinder>>> GetPathfinders()
         {
-            return await _context.Pathfinders.ToListAsync();
+            return await _context.Pathfinders
+                .ToListAsync();
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<Pathfinder>> GetByIdAsync(Guid id)
+        {
+
+            return await _context.Pathfinders.Include(ph => ph.PathfinderHonors)
+                .ThenInclude(h => h.Honor)
+                .SingleOrDefaultAsync(p => p.PathfinderID == id);
+
         }
     }
 }
