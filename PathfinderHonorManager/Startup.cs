@@ -13,6 +13,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using PathfinderHonorManager.DataAccess;
+using PathfinderHonorManager.Mapping;
+using PathfinderHonorManager.Service;
+using PathfinderHonorManager.Service.Interfaces;
 
 
 namespace PathfinderHonorManager
@@ -29,9 +32,16 @@ namespace PathfinderHonorManager
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddDbContext<PostgresContext>(options =>
+            services
+                .AddControllers();
+            services
+                .AddDbContext<PathfinderContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("PathfinderCS")));
+            services
+                .AddAutoMapper(typeof(AutoMapperConfig));
+            services
+                .AddScoped<IPathfinderService, PathfinderService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -17,9 +17,9 @@ namespace PathfinderHonorManager.Controllers
 
         private readonly ILogger<PathfinderHonorsController> _logger;
 
-        private readonly PostgresContext _context;
+        private readonly PathfinderContext _context;
 
-        public PathfinderHonorsController(PostgresContext context, ILogger<PathfinderHonorsController> logger)
+        public PathfinderHonorsController(PathfinderContext context, ILogger<PathfinderHonorsController> logger)
         {
             _context = context;
             _logger = logger;
@@ -34,12 +34,13 @@ namespace PathfinderHonorManager.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<PathfinderHonor>> GetByIdAsync(Guid id)
+        public async Task<ActionResult<PathfinderHonor>> GetPathinderHonor(Guid id)
         {
 
             return await _context.PathfinderHonors.Include(h => h.Honor)
                 .SingleOrDefaultAsync(p => p.PathfinderHonorID == id);
 
         }
+
     }
 }

@@ -16,9 +16,9 @@ namespace PathfinderHonorManager.Controllers
 
         private readonly ILogger<HonorsController> _logger;
 
-        private readonly PostgresContext _context;
+        private readonly PathfinderContext _context;
 
-        public HonorsController(PostgresContext context, ILogger<HonorsController> logger)
+        public HonorsController(PathfinderContext context, ILogger<HonorsController> logger)
         {
             _context = context;
             _logger = logger;

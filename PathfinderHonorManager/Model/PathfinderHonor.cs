@@ -19,10 +19,10 @@ namespace PathfinderHonorManager.Models
         [Column("status_code")]
         public int StatusCode { get; set; }
 
-        [Column("create_timestamp")]
+        [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
         [ForeignKey("HonorFk")]
-        public virtual Honor Honor { get; set; }
+        public Honor Honor { get; set; }
         [Column("pathfinder_id")]
         public Guid PathfinderFk { get; set; }
 

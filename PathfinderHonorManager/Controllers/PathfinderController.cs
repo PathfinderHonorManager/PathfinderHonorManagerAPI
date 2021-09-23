@@ -8,8 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using PathfinderHonorManager.Models;
 using PathfinderHonorManager.DataAccess;
-
-
+using PathfinderHonorManager.Service;
+using PathfinderHonorManager.Service.Interfaces;
+using PathfinderHonorManager.Dto;
+using Microsoft.AspNetCore.Http;
+using AutoMapper;
+using System.Threading;
 
 namespace PathfinderHonorManager.Controllers
 {
@@ -18,32 +22,43 @@ namespace PathfinderHonorManager.Controllers
     public class PathfindersController : ControllerBase
     {
 
-        private readonly ILogger<PathfindersController> _logger;
+        private readonly IPathfinderService _pathfinderService;
 
-        private readonly PostgresContext _context;
+        private readonly PathfinderContext _context;
 
-        public PathfindersController(PostgresContext context, ILogger<PathfindersController> logger)
+        public PathfindersController(IPathfinderService pathfinderService)
         {
-            _context = context;
-            _logger = logger;
+            _pathfinderService = pathfinderService;
         }
 
         // GET Pathfinders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Pathfinder>>> GetPathfinders()
+        public async Task<ActionResult<IEnumerable<Pathfinder>>> GetPathfinders(CancellationToken token)
         {
-            return await _context.Pathfinders
-                .ToListAsync();
+            var pathfinder = await _pathfinderService.GetAllAsync(token);
+
+            if (pathfinder == default)
+            {
+                return NotFound();
+            }
+
+            return Ok(pathfinder);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<Pathfinder>> GetByIdAsync(Guid id)
+        public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
 
-            return await _context.Pathfinders.Include(ph => ph.PathfinderHonors)
-                .ThenInclude(h => h.Honor)
-                .SingleOrDefaultAsync(p => p.PathfinderID == id);
+            var pathfinder = await _pathfinderService.GetByIdAsync(id, token);
+
+            if (pathfinder == default)
+            {
+                return NotFound();
+            }
+
+            return Ok(pathfinder);
 
         }
+
     }
 }

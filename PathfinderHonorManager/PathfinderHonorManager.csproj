@@ -18,6 +18,12 @@
     <None Remove=".DS_Store" />
     <None Remove="Model\Enum\" />
     <None Remove="StyleCop" />
+    <None Remove="Dto\" />
+    <None Remove="Service\" />
+    <None Remove="AutoMapper" />
+    <None Remove="AutoMapper.Extensions.Microsoft.DependencyInjection" />
+    <None Remove="Mapping\" />
+    <None Remove="Service\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
@@ -27,11 +33,16 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
     <PackageReference Include="Npgsql" Version="5.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.10" />
-    <PackageReference Include="StyleCop" Version="6.2.0" />
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataAccess\" />
     <Folder Include="Model\" />
     <Folder Include="Model\Enum\" />
+    <Folder Include="Dto\" />
+    <Folder Include="Service\" />
+    <Folder Include="Mapping\" />
+    <Folder Include="Service\Interfaces\" />
   </ItemGroup>
 </Project>

@@ -18,13 +18,13 @@ namespace PathfinderHonorManager.Models
         public String LastName { get; set; }
         [Column("email")]
         public String Email { get; set; }
-        [Column("create_timestamp")]
+        [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
-        [Column("update_timestamp")]
+        [Column("update_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; }
 
         [ForeignKey("PathfinderFk")]
-        public virtual ICollection<PathfinderHonor> PathfinderHonors { get; set; }
+        public ICollection<PathfinderHonor> PathfinderHonors { get; set; }
 
     }
 }
