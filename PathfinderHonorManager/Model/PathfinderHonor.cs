@@ -12,26 +12,18 @@ namespace PathfinderHonorManager.Models
 
         [Column("honor_id")]
         public Guid HonorID { get; set; }
-
         [Column("status_code")]
         public int StatusCode { get; set; }
-
         [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
-        [ForeignKey("HonorID")]
-        public Honor Honor { get; set; }
         [Column("pathfinder_id")]
         public Guid PathfinderID { get; set; }
 
-    }
+        [ForeignKey("HonorID")]
+        public Honor Honor { get; set; }
 
+        [ForeignKey("StatusCode")]
+        public PathfinderHonorStatus PathfinderHonorStatus { get; set; }
 
-    [Table("pathfinder_honor_status")]
-        public class PathfinderHonorStatus
-    {
-        [Key, Column("status_code")]
-        public int StatusCode { get; set; }
-        [Column("name")]
-        public String Status { get; set; }
     }
 }

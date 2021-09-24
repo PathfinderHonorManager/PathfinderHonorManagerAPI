@@ -22,9 +22,9 @@ namespace PathfinderHonorManager.Models
         [Column("update_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; }
 
+
         [ForeignKey("PathfinderID")]
         public ICollection<PathfinderHonor> PathfinderHonors { get; set; }
-        [ForeignKey("HonorID")]
-        public ICollection<Honor> Honors { get; set; }
+
     }
 }

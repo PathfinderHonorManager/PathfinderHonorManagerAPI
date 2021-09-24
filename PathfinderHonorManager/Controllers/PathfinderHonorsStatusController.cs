@@ -11,14 +11,14 @@ namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PathfinderHonorsStatusController : ControllerBase
+    public class HonorsController : ControllerBase
     {
 
         private readonly ILogger<HonorsController> _logger;
 
         private readonly PathfinderContext _context;
 
-        public PathfinderHonorsStatusController(PathfinderContext context, ILogger<HonorsController> logger)
+        public HonorsController(PathfinderContext context, ILogger<HonorsController> logger)
         {
             _context = context;
             _logger = logger;
@@ -26,16 +26,16 @@ namespace PathfinderHonorManager.Controllers
 
         // GET Honors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PathfinderHonorStatus>>> GetHonors()
+        public async Task<ActionResult<IEnumerable<Honor>>> GetHonors()
         {
-            return await _context.PathfinderHonorStatuses.ToListAsync();
+            return await _context.Honors.ToListAsync();
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<PathfinderHonorStatus>> GetByIdAsync(Guid id)
+        public async Task<ActionResult<Honor>> GetByIdAsync(Guid id)
         {
 
-            return await _context.PathfinderHonorStatuses.FindAsync(id);
+            return await _context.Honors.FindAsync(id);
 
         }
     }

@@ -11,6 +11,8 @@ namespace PathfinderHonorManager.DataAccess
 
         public DbSet<PathfinderHonor> PathfinderHonors { get; set; }
 
+        public DbSet<PathfinderHonorStatus> PathfinderHonorStatuses { get; set; }
+
         public PathfinderContext(DbContextOptions<PathfinderContext> options)
         : base(options)
         {
