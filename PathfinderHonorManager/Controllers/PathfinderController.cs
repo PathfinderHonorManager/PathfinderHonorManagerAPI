@@ -24,8 +24,6 @@ namespace PathfinderHonorManager.Controllers
 
         private readonly IPathfinderService _pathfinderService;
 
-        private readonly PathfinderContext _context;
-
         public PathfindersController(IPathfinderService pathfinderService)
         {
             _pathfinderService = pathfinderService;

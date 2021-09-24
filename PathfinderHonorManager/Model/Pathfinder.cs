@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.Serialization;
 
 namespace PathfinderHonorManager.Models
 {
@@ -23,8 +22,9 @@ namespace PathfinderHonorManager.Models
         [Column("update_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; }
 
-        [ForeignKey("PathfinderFk")]
+        [ForeignKey("PathfinderID")]
         public ICollection<PathfinderHonor> PathfinderHonors { get; set; }
-
+        [ForeignKey("HonorID")]
+        public ICollection<Honor> Honors { get; set; }
     }
 }

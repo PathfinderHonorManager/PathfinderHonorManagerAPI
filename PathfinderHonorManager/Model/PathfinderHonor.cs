@@ -1,9 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace PathfinderHonorManager.Models
 {
@@ -14,17 +11,17 @@ namespace PathfinderHonorManager.Models
         public Guid PathfinderHonorID { get; set; }
 
         [Column("honor_id")]
-        public Guid HonorFk { get; set; }
+        public Guid HonorID { get; set; }
 
         [Column("status_code")]
         public int StatusCode { get; set; }
 
         [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
-        [ForeignKey("HonorFk")]
+        [ForeignKey("HonorID")]
         public Honor Honor { get; set; }
         [Column("pathfinder_id")]
-        public Guid PathfinderFk { get; set; }
+        public Guid PathfinderID { get; set; }
 
     }
 
