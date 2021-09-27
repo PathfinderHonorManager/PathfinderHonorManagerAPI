@@ -10,7 +10,8 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
-using PathfinderHonorManager.Dto;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
+using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using System.Threading;
@@ -56,6 +57,16 @@ namespace PathfinderHonorManager.Controllers
 
             return Ok(pathfinder);
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostAsync([FromBody] Incoming.PathfinderDto newPathfinder, CancellationToken token)
+        {
+            var pathfinder = await _pathfinderService.AddAsync(newPathfinder, token);
+
+            return CreatedAtRoute(
+                GetByIdAsync(pathfinder.PathfinderID, token),
+                pathfinder);
         }
 
     }
