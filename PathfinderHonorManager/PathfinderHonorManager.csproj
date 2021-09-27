@@ -24,6 +24,8 @@
     <None Remove="AutoMapper.Extensions.Microsoft.DependencyInjection" />
     <None Remove="Mapping\" />
     <None Remove="Service\Interfaces\" />
+    <None Remove="Dto\Incoming\" />
+    <None Remove="Dto\Outgoing\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
@@ -44,5 +46,7 @@
     <Folder Include="Service\" />
     <Folder Include="Mapping\" />
     <Folder Include="Service\Interfaces\" />
+    <Folder Include="Dto\Incoming\" />
+    <Folder Include="Dto\Outgoing\" />
   </ItemGroup>
 </Project>

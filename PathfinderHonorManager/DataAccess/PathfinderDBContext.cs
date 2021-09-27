@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PathfinderHonorManager.Models;
+using PathfinderHonorManager.Model;
 
 namespace PathfinderHonorManager.DataAccess
 {

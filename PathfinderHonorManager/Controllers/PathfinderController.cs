@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using PathfinderHonorManager.Models;
+using PathfinderHonorManager.Model;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
