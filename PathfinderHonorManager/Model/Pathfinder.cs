@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace PathfinderHonorManager.Model
 {
     [Table("pathfinder")]
+    [Index(nameof(Email), IsUnique = true)]
+
     public class Pathfinder
     {
         [Key]
@@ -16,6 +19,7 @@ namespace PathfinderHonorManager.Model
         [Column("last_name")]
         public String LastName { get; set; }
         [Column("email")]
+
         public String Email { get; set; }
         [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }

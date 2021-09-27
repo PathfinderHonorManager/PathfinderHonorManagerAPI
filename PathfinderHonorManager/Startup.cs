@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -16,6 +18,7 @@ using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Mapping;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
+using PathfinderHonorManager.Validators;
 
 
 namespace PathfinderHonorManager
@@ -41,6 +44,8 @@ namespace PathfinderHonorManager
                 .AddAutoMapper(typeof(AutoMapperConfig));
             services
                 .AddScoped<IPathfinderService, PathfinderService>();
+            services.AddMvc()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>());
 
         }
 
@@ -51,6 +56,11 @@ namespace PathfinderHonorManager
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();

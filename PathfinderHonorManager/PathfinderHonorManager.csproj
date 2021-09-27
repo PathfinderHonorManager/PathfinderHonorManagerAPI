@@ -30,6 +30,9 @@
     <None Remove="Pathfinder-DB\Data\" />
     <None Remove="Pathfinder-DB\Functions\" />
     <None Remove="Pathfinder-DB\Tables\" />
+    <None Remove="Validators\" />
+    <None Remove="FluentValidation" />
+    <None Remove="FluentValidation.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
@@ -41,6 +44,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.10" />
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="FluentValidation" Version="10.3.3" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataAccess\" />
@@ -56,5 +61,6 @@
     <Folder Include="Pathfinder-DB\Data\" />
     <Folder Include="Pathfinder-DB\Functions\" />
     <Folder Include="Pathfinder-DB\Tables\" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 </Project>
