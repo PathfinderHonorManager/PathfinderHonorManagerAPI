@@ -30,17 +30,7 @@
     <None Remove="Validators\" />
     <None Remove="FluentValidation" />
     <None Remove="FluentValidation.AspNetCore" />
-    <None Remove="Pathfinder-DB\Tables\public.pathfinder_honor.sql" />
-    <None Remove="Pathfinder-DB\Tables\public.honor.sql" />
-    <None Remove="Pathfinder-DB\Tables\public.pathfinder.sql" />
-    <None Remove="Pathfinder-DB\Tables\public.category.sql" />
-    <None Remove="Pathfinder-DB\Tables\public.pathfinder_honor_status.sql" />
-    <None Remove="Pathfinder-DB\Functions\public.trigger_set_updated_timestamp.sql" />
-    <None Remove="Pathfinder-DB\Functions\public.extension.uuid-ossp.sql" />
-    <None Remove="Pathfinder-DB\Functions\public.triger_set_created_timestamp.sql" />
-    <None Remove="Pathfinder-DB\Data\public.pathfinder_honor_status_data.sql" />
-    <None Remove="Pathfinder-DB\Data\public.honor_data.sql" />
-    <None Remove="Pathfinder-DB\Data\public.category_data.sql" />
+    <None Remove="Pathfinder-DB\.DS_Store" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
