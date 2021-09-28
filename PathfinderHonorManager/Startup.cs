@@ -43,7 +43,8 @@ namespace PathfinderHonorManager
             services
                 .AddAutoMapper(typeof(AutoMapperConfig));
             services
-                .AddScoped<IPathfinderService, PathfinderService>();
+                .AddScoped<IPathfinderService, PathfinderService>()
+                .AddScoped<IHonorService, HonorService>();
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>());
 

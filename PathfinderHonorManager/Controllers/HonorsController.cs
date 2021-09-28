@@ -1,41 +1,61 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.DataAccess;
-using System;
+using PathfinderHonorManager.Service;
+using PathfinderHonorManager.Service.Interfaces;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
+using Outgoing = PathfinderHonorManager.Dto.Outgoing;
+using Microsoft.AspNetCore.Http;
+using AutoMapper;
+using System.Threading;
 
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PathfinderHonorsStatusController : ControllerBase
+    public class HonorsController : ControllerBase
     {
 
-        private readonly ILogger<HonorsController> _logger;
+        private readonly IHonorService _honorService;
 
-        private readonly PathfinderContext _context;
-
-        public PathfinderHonorsStatusController(PathfinderContext context, ILogger<HonorsController> logger)
+        public HonorsController(IHonorService honorService)
         {
-            _context = context;
-            _logger = logger;
+            _honorService = honorService;
         }
 
-        // GET Honors
+        // GET Pathfinders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PathfinderHonorStatus>>> GetHonors()
+        public async Task<ActionResult<IEnumerable<Honor>>> GetHonors(CancellationToken token)
         {
-            return await _context.PathfinderHonorStatuses.ToListAsync();
+            var honors = await _honorService.GetAllAsync(token);
+
+            if (honors == default)
+            {
+                return NotFound();
+            }
+
+            return Ok(honors);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<PathfinderHonorStatus>> GetByIdAsync(Guid id)
+        public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
 
-            return await _context.PathfinderHonorStatuses.FindAsync(id);
+            var honor = await _honorService.GetByIdAsync(id, token);
+
+            if (honor == default)
+            {
+                return NotFound();
+            }
+
+            return Ok(honor);
 
         }
     }
