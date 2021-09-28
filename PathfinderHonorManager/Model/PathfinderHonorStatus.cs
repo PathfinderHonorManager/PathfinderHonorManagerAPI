@@ -11,7 +11,5 @@ namespace PathfinderHonorManager.Model
         public int StatusCode { get; set; }
         [Column("name")]
         public String Status { get; set; }
-        //[ForeignKey("StatusCode")]
-        //public PathfinderHonor PathfinderHonor { get; set; }
     }
 }
