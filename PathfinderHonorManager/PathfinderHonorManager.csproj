@@ -7,22 +7,6 @@
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'PathfinderHonorManager' " />
   <ItemGroup>
-    <None Remove="Microsoft.EntityFrameworkCore" />
-    <None Remove="Microsoft.Extensions.Logging" />
-    <None Remove="Microsoft.Extensions.DependencyInjection" />
-    <None Remove="Newtonsoft.Json" />
-    <None Remove="Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <None Remove="Npgsql" />
-    <None Remove="Microsoft.EntityFrameworkCore.Proxies" />
-    <None Remove=".DS_Store" />
-    <None Remove="StyleCop" />
-    <None Remove="AutoMapper" />
-    <None Remove="AutoMapper.Extensions.Microsoft.DependencyInjection" />
-    <None Remove="FluentValidation" />
-    <None Remove="FluentValidation.AspNetCore" />
-    <None Remove="Pathfinder-DB\.DS_Store" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
