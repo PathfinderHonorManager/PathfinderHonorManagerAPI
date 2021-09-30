@@ -10,6 +10,8 @@ namespace PathfinderHonorManager.Service.Interfaces
 
     public interface IPathfinderHonorService
     {
+        Task<ICollection<Outgoing.PathfinderHonorDto>> GetAllAsync(Guid pathfinderId, CancellationToken token);
+
         Task<Outgoing.PathfinderHonorChildDto> GetByIdAsync(
         Guid pathfinderId,
         Guid pathfinderHonorId,

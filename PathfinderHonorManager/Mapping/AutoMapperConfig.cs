@@ -34,9 +34,9 @@ namespace PathfinderHonorManager.Mapping
             CreateMap<Honor, Outgoing.PathfinderHonorDto>();
             CreateMap<Honor, Outgoing.PathfinderHonorChildDto>();
             CreateMap<Incoming.PathfinderHonorDto, PathfinderHonor>();
-            CreateMap<PathfinderHonor, Outgoing.PathfinderHonorChildDto>()
-                .IncludeMembers(s => s.Honor, s => s.PathfinderHonorStatus);
             CreateMap<PathfinderHonor, Outgoing.PathfinderHonorDto>()
+                .IncludeMembers(s => s.Honor, s => s.PathfinderHonorStatus);
+            CreateMap<PathfinderHonor, Outgoing.PathfinderHonorChildDto>()
                 .IncludeMembers(s => s.Honor, s => s.PathfinderHonorStatus);
             CreateMap<PathfinderHonorStatus, Outgoing.PathfinderHonorDto>();
             CreateMap<PathfinderHonorStatus, Outgoing.PathfinderHonorChildDto>();

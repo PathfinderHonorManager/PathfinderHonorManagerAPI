@@ -29,6 +29,18 @@ namespace PathfinderHonorManager.Controllers
             _PathfinderHonorService = PathfinderHonorService;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PathfinderHonor>>> GetAll(Guid pathfinderId, CancellationToken token)
+        {
+            var pathfinder = await _PathfinderHonorService.GetAllAsync(pathfinderId, token);
+
+            if (pathfinder == default)
+            {
+                return NotFound();
+            }
+
+            return Ok(pathfinder);
+        }
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid pathfinderId, Guid id, CancellationToken token)

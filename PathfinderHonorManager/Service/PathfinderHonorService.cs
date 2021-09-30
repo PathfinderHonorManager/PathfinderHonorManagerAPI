@@ -38,6 +38,17 @@ namespace PathfinderHonorManager.Service
             _validator = validator;
         }
 
+        public async Task<ICollection<Outgoing.PathfinderHonorDto>> GetAllAsync(Guid pathfinderId, CancellationToken token)
+        {
+            var pathfinderhonors = await _dbContext.PathfinderHonors
+                .Include(phs => phs.PathfinderHonorStatus)
+                .Include(h => h.Honor)
+                .Where(p => p.PathfinderID == pathfinderId )
+                .ToListAsync(token);
+
+            return _mapper.Map<ICollection<Outgoing.PathfinderHonorDto>>(pathfinderhonors);
+
+        }
 
         public async Task<Outgoing.PathfinderHonorChildDto> GetByIdAsync(Guid pathfinderId, Guid pathfinderHonorId, CancellationToken token)
         {

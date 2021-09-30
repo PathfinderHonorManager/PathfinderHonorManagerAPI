@@ -32,7 +32,7 @@ namespace PathfinderHonorManager.Controllers
 
         // GET Pathfinders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Pathfinder>>> GetPathfinders(CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Pathfinder>>> GetAll(CancellationToken token)
         {
             var pathfinder = await _pathfinderService.GetAllAsync(token);
 
