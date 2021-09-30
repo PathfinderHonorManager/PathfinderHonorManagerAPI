@@ -19,7 +19,7 @@ using System.Threading;
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/pathfinders/{pathfinderId:guid}/[controller]")]
     public class PathfinderHonorsController : ControllerBase
     {
         private readonly IPathfinderHonorService _PathfinderHonorService;
@@ -31,10 +31,10 @@ namespace PathfinderHonorManager.Controllers
 
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
+        public async Task<IActionResult> GetByIdAsync(Guid pathfinderId, Guid id, CancellationToken token)
         {
 
-            var pathfinder = await _PathfinderHonorService.GetByIdAsync(id, token);
+            var pathfinder = await _PathfinderHonorService.GetByIdAsync(pathfinderId, id, token);
 
             if (pathfinder == default)
             {
@@ -46,12 +46,12 @@ namespace PathfinderHonorManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] Incoming.PathfinderHonorDto newPathfinderHonor, CancellationToken token)
+        public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.PathfinderHonorDto newPathfinderHonor, CancellationToken token)
         {
             var pathfinderHonor = await _PathfinderHonorService.AddAsync(newPathfinderHonor, token);
 
             return CreatedAtRoute(
-                GetByIdAsync(pathfinderHonor.PathfinderHonorID, token),
+                GetByIdAsync(pathfinderHonor.PathfinderID, pathfinderHonor.PathfinderHonorID, token),
                 pathfinderHonor);
         }
 

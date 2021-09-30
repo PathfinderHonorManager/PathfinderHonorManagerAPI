@@ -6,6 +6,6 @@ namespace PathfinderHonorManager.Dto.Incoming
     {
         public Guid HonorID { get; set; }
         public Guid PathfinderID { get; set; }
-        public string StatusCode { get; set; }
+        public int StatusCode { get; set; }
     }
 }

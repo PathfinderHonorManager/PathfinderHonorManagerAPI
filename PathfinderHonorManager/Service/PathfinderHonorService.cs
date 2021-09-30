@@ -39,21 +39,21 @@ namespace PathfinderHonorManager.Service
         }
 
 
-        public async Task<Outgoing.PathfinderHonorDto> GetByIdAsync(Guid id, CancellationToken token)
+        public async Task<Outgoing.PathfinderHonorChildDto> GetByIdAsync(Guid pathfinderId, Guid pathfinderHonorId, CancellationToken token)
         {
             PathfinderHonor entity;
 
-            entity = await _dbContext.PathfinderHonors
-                .Include(h => h.Honor)
+            entity = await GetFilteredPathfinderHonors(pathfinderId, pathfinderHonorId, token)
                 .Include(phs => phs.PathfinderHonorStatus)
-                .SingleOrDefaultAsync(p => p.PathfinderHonorID == id, token);
+                .Include(h => h.Honor)
+                .SingleOrDefaultAsync();
 
             return entity == default
                 ? default
-                : _mapper.Map<Outgoing.PathfinderHonorDto>(entity);
+                : _mapper.Map<Outgoing.PathfinderHonorChildDto>(entity);
         }
 
-        public async Task<Outgoing.PathfinderHonorDto> AddAsync(Incoming.PathfinderHonorDto newPathfinderHonor, CancellationToken token)
+        public async Task<Outgoing.PathfinderHonorChildDto> AddAsync(Incoming.PathfinderHonorDto newPathfinderHonor, CancellationToken token)
         {
             await _validator.ValidateAsync(
                 newPathfinderHonor,
@@ -66,8 +66,16 @@ namespace PathfinderHonorManager.Service
             await _dbContext.SaveChangesAsync(token);
             _logger.LogInformation($"Pathfinder honor(Id: {newEntity.PathfinderHonorID} added to database.");
 
-            return _mapper.Map<Outgoing.PathfinderHonorDto>(newEntity);
+            return _mapper.Map<Outgoing.PathfinderHonorChildDto>(newEntity);
         }
 
+        public IQueryable<PathfinderHonor> GetFilteredPathfinderHonors(Guid pathfinderId, Guid pathfinderHonorId,CancellationToken token)
+        { 
+            return pathfinderId == null
+            ? _dbContext.PathfinderHonors
+            : _dbContext.PathfinderHonors
+                .Where(p => p.PathfinderID == pathfinderId)
+                .Where(ph => ph.PathfinderHonorID == pathfinderHonorId);
+        }
     }
 }

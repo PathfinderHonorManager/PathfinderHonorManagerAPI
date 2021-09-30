@@ -21,11 +21,11 @@ namespace PathfinderHonorManager.Validators
 
         private void SetUpValidation()
         {
-            //RuleFor(ph => ph.Status).NotEmpty();
+            /*RuleFor(ph => ph.Status).NotEmpty();
             RuleFor(p => p.HonorID)
                 .MustAsync(async (honorid, token) => !await _dbContext.PathfinderHonors.AnyAsync(h => h.HonorID == honorid, token))
                 .WithMessage(
-                    p => $"Pathfinder honor already added.");
+                    p => $"Pathfinder honor already added.");*/
         }
 
 
