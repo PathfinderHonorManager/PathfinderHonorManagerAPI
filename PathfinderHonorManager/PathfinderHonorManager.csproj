@@ -35,16 +35,4 @@
     <PackageReference Include="FluentValidation" Version="10.3.3" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DataAccess\" />
-    <Folder Include="Model\" />
-    <Folder Include="Model\Enum\" />
-    <Folder Include="Dto\" />
-    <Folder Include="Service\" />
-    <Folder Include="Mapping\" />
-    <Folder Include="Service\Interfaces\" />
-    <Folder Include="Dto\Incoming\" />
-    <Folder Include="Dto\Outgoing\" />
-    <Folder Include="Validators\" />
-  </ItemGroup>
 </Project>

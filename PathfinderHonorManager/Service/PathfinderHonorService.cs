@@ -69,8 +69,8 @@ namespace PathfinderHonorManager.Service
             return _mapper.Map<Outgoing.PathfinderHonorChildDto>(newEntity);
         }
 
-        public IQueryable<PathfinderHonor> GetFilteredPathfinderHonors(Guid pathfinderId, Guid pathfinderHonorId,CancellationToken token)
-        { 
+        public IQueryable<PathfinderHonor> GetFilteredPathfinderHonors(Guid pathfinderId, Guid pathfinderHonorId, CancellationToken token)
+        {
             return pathfinderId == null
             ? _dbContext.PathfinderHonors
             : _dbContext.PathfinderHonors
