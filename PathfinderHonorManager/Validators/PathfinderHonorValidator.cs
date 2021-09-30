@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Linq;
 using FluentValidation;
 
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +21,17 @@ namespace PathfinderHonorManager.Validators
 
         private void SetUpValidation()
         {
-            /*RuleFor(ph => ph.Status).NotEmpty();
-            RuleFor(p => p.HonorID)
-                .MustAsync(async (honorid, token) => !await _dbContext.PathfinderHonors.AnyAsync(h => h.HonorID == honorid, token))
+            RuleFor(p => p)
+                .MustAsync(
+                    async (dto, token) =>
+                         !await _dbContext.PathfinderHonors
+                            .Where(p => p.HonorID == dto.HonorID)
+                            .Where(p => p.PathfinderID == dto.PathfinderID)
+                            .AnyAsync()
+                    )
+                .WithName(nameof(PathfinderHonorDto.HonorID))
                 .WithMessage(
-                    p => $"Pathfinder honor already added.");*/
+                    dto => $"Pathfinder {dto.PathfinderID} already has honor {dto.HonorID}.");
         }
 
 
