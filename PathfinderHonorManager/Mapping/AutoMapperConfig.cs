@@ -2,6 +2,7 @@
 using AutoMapper;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
+using PathfinderHonorManager.Model.Enum;
 using PathfinderHonorManager.Model;
 
 namespace PathfinderHonorManager.Mapping
@@ -41,6 +42,7 @@ namespace PathfinderHonorManager.Mapping
             CreateMap<PathfinderHonorStatus, Outgoing.PathfinderHonorDto>();
             CreateMap<PathfinderHonorStatus, Outgoing.PathfinderHonorChildDto>();
             CreateMap<PathfinderHonorStatus, Outgoing.PathfinderHonorStatusDto>();
+            CreateMap<HonorStatus, Outgoing.PathfinderHonorStatusDto>();
         }
     }
 }

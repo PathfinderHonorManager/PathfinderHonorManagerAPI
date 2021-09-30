@@ -21,6 +21,9 @@ namespace PathfinderHonorManager.Validators
 
         private void SetUpValidation()
         {
+            //RuleFor(p => p.StatusCode).GreaterThan(0)
+            //    .WithMessage(
+            //        dto => $"Honor status {dto.Status} is invalid. Valid statuses are: Planned, Earned, Awarded.");
             RuleFor(p => p)
                 .MustAsync(
                     async (dto, token) =>

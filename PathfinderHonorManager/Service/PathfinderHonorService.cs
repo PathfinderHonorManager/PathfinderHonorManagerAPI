@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using PathfinderHonorManager.Model;
+using PathfinderHonorManager.Model.Enum;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Service.Interfaces;
 using System.Collections.Generic;
@@ -24,7 +25,6 @@ namespace PathfinderHonorManager.Service
         private readonly ILogger _logger;
 
         private readonly IValidator<Incoming.PathfinderHonorDto> _validator;
-
 
         public PathfinderHonorService(
             PathfinderContext context,
@@ -66,10 +66,33 @@ namespace PathfinderHonorManager.Service
 
         public async Task<Outgoing.PathfinderHonorChildDto> AddAsync(Incoming.PathfinderHonorDto newPathfinderHonor, CancellationToken token)
         {
+            //if (Enum.TryParse(newPathfinderHonor.Status, out HonorStatus.AssetType statusEntity))
+            //{
+            var statusEntity = (HonorStatus.AssetType)Enum.Parse(typeof(HonorStatus.AssetType), newPathfinderHonor.Status);
+            switch (statusEntity)
+            {
+                case HonorStatus.AssetType.Awarded:
+                    newPathfinderHonor.StatusCode = (int)HonorStatus.AssetType.Awarded;
+                    break;
+                case HonorStatus.AssetType.Earned:
+                    newPathfinderHonor.StatusCode = (int)HonorStatus.AssetType.Earned;
+                    break;
+                case HonorStatus.AssetType.Planned:
+                    newPathfinderHonor.StatusCode = (int)HonorStatus.AssetType.Planned;
+                    break;
+                default:
+                    newPathfinderHonor.StatusCode = -1;
+                    break;
+            }
+
+            //}
+
             await _validator.ValidateAsync(
                 newPathfinderHonor,
                 opts => opts.ThrowOnFailures(),
                 token);
+
+
 
             var newEntity = _mapper.Map<PathfinderHonor>(newPathfinderHonor);
 
