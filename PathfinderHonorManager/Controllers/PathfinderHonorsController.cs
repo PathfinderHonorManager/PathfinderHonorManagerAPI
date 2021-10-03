@@ -64,10 +64,8 @@ namespace PathfinderHonorManager.Controllers
             var pathfinderHonor = await _PathfinderHonorService.AddAsync(pathfinderId, newPathfinderHonor, token);
 
             return CreatedAtRoute(
-                GetByIdAsync(pathfinderHonor.PathfinderID, pathfinderHonor.PathfinderHonorID, token),
+                new { pathfinderId = pathfinderHonor.PathfinderID, id = pathfinderHonor.PathfinderHonorID },
                 pathfinderHonor);
         }
-
-
     }
 }
