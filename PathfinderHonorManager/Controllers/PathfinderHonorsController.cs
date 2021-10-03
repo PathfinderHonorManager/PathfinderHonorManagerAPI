@@ -60,7 +60,8 @@ namespace PathfinderHonorManager.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.PathfinderHonorDto newPathfinderHonor, CancellationToken token)
         {
-            var pathfinderHonor = await _PathfinderHonorService.AddAsync(newPathfinderHonor, token);
+
+            var pathfinderHonor = await _PathfinderHonorService.AddAsync(pathfinderId, newPathfinderHonor, token);
 
             return CreatedAtRoute(
                 GetByIdAsync(pathfinderHonor.PathfinderID, pathfinderHonor.PathfinderHonorID, token),

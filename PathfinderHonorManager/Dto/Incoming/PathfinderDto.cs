@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace PathfinderHonorManager.Dto.Incoming
 {
     public class PathfinderDto
     {
+        [Required]
         public String FirstName { get; set; }
+        [Required]
         public String LastName { get; set; }
+        [Required]
         public String Email { get; set; }
 
     }
