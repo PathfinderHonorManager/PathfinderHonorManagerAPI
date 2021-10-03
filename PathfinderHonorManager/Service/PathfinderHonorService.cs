@@ -68,23 +68,13 @@ namespace PathfinderHonorManager.Service
         {
 
             var statusEntity = (HonorStatus)Enum.Parse(typeof(HonorStatus), incomingPathfinderHonor.Status);
-            int newStatusCode;
-            switch (statusEntity)
+            var newStatusCode = statusEntity switch
             {
-                case HonorStatus.Awarded:
-                    newStatusCode = (int)HonorStatus.Awarded;
-                    break;
-                case HonorStatus.Earned:
-                    newStatusCode = (int)HonorStatus.Earned;
-                    break;
-                case HonorStatus.Planned:
-                    newStatusCode = (int)HonorStatus.Planned;
-                    break;
-                default:
-                    newStatusCode = -1;
-                    break;
-            }
-
+                HonorStatus.Awarded => (int)HonorStatus.Awarded,
+                HonorStatus.Earned => (int)HonorStatus.Earned,
+                HonorStatus.Planned => (int)HonorStatus.Planned,
+                _ => -1,
+            };
             Incoming.PathfinderHonorDto newPathfinderHonor = new()
             {
                 HonorID = incomingPathfinderHonor.HonorID,
