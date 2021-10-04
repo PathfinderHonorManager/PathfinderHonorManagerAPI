@@ -95,13 +95,7 @@ namespace PathfinderHonorManager.Service
                 token);
 
             var newEntity = _mapper.Map<PathfinderHonor>(newPathfinderHonor);//,
-                //opt =>
-                //{
-                //    opt.AfterMap((src, dest) =>
-                //     {
-                //         dest.PathfinderID = pathfinderId;
-                //     });
-                //});
+
 
 
             await _dbContext.AddAsync(newEntity, token);
