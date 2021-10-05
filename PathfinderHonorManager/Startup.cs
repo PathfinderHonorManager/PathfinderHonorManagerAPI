@@ -61,8 +61,6 @@ namespace PathfinderHonorManager
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pathfinder Honor Manager v1"));
             }
             else
             {
@@ -70,6 +68,8 @@ namespace PathfinderHonorManager
                 app.UseHsts();
             }
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pathfinder Honor Manager v1"));
             app.UseHttpsRedirection();
 
             app.UseRouting();
