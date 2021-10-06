@@ -28,10 +28,7 @@ namespace PathfinderHonorManager.Validators
                 .MustAsync(
                     async (dto, token) =>
                          !await _dbContext.PathfinderHonors
-                            .Where(p => p.HonorID == dto.HonorID)
-                            .Where(p => p.PathfinderID == dto.PathfinderID)
-                            .AnyAsync()
-                    )
+                            .AnyAsync(p => p.HonorID == dto.HonorID && p.PathfinderID == dto.PathfinderID))
                 .WithName(nameof(PathfinderHonorDto.HonorID))
                 .WithMessage(
                     dto => $"Pathfinder {dto.PathfinderID} already has honor {dto.HonorID}.");
