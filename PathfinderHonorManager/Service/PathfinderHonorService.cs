@@ -26,6 +26,8 @@ namespace PathfinderHonorManager.Service
 
         private readonly IValidator<Incoming.PathfinderHonorDto> _validator;
 
+        private int newStatusCode { get; set; }
+
         public PathfinderHonorService(
             PathfinderContext context,
             IMapper mapper,
@@ -67,14 +69,22 @@ namespace PathfinderHonorManager.Service
         public async Task<Outgoing.PathfinderHonorChildDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
 
-            var statusEntity = (HonorStatus)Enum.Parse(typeof(HonorStatus), incomingPathfinderHonor.Status);
-            var newStatusCode = statusEntity switch
+            if (Enum.TryParse(incomingPathfinderHonor.Status, out HonorStatus statusEntity))
             {
-                HonorStatus.Awarded => (int)HonorStatus.Awarded,
-                HonorStatus.Earned => (int)HonorStatus.Earned,
-                HonorStatus.Planned => (int)HonorStatus.Planned,
-                _ => -1,
-            };
+                //var statusEntity = (HonorStatus)Enum.Parse(typeof(HonorStatus), incomingPathfinderHonor.Status);
+                newStatusCode = statusEntity switch
+                {
+                    HonorStatus.Awarded => (int)HonorStatus.Awarded,
+                    HonorStatus.Earned => (int)HonorStatus.Earned,
+                    HonorStatus.Planned => (int)HonorStatus.Planned,
+                    _ => -1,
+                };
+            }
+            else
+            {
+                newStatusCode = -1;
+            }
+
             Incoming.PathfinderHonorDto newPathfinderHonor = new()
             {
                 HonorID = incomingPathfinderHonor.HonorID,
@@ -83,11 +93,6 @@ namespace PathfinderHonorManager.Service
                 StatusCode = newStatusCode
             };
 
-            //if (Enum.TryParse(newPathfinderHonor.Status, out HonorStatus statusEntity))
-            //{
-
-
-            //}
 
             await _validator.ValidateAsync(
                 newPathfinderHonor,
