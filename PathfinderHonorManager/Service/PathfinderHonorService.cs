@@ -64,7 +64,7 @@ namespace PathfinderHonorManager.Service
                 : _mapper.Map<Outgoing.PathfinderHonorChildDto>(entity);
         }
 
-        public async Task<Outgoing.PathfinderHonorChildDto> AddAsync(Guid pathfinderId, Incoming.PathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
+        public async Task<Outgoing.PathfinderHonorChildDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
 
             var statusEntity = (HonorStatus)Enum.Parse(typeof(HonorStatus), incomingPathfinderHonor.Status);

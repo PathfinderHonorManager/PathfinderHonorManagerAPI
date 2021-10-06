@@ -21,10 +21,10 @@ namespace PathfinderHonorManager.Dto.Outgoing
         public Guid HonorID { get; set; }
         public String Name { get; set; }
         public string Status { get; set; }
-        public int Level { get; set; }
+        //public int Level { get; set; }
         //public String Description { get; set; }
-        public Uri PatchPath { get; set; }
-        public Uri WikiPath { get; set; }
+        //public Uri PatchPath { get; set; }
+        //public Uri WikiPath { get; set; }
     }
 }
 

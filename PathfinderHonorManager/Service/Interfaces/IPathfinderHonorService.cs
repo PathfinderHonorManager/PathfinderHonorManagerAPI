@@ -19,7 +19,7 @@ namespace PathfinderHonorManager.Service.Interfaces
 
         Task<Outgoing.PathfinderHonorChildDto> AddAsync(
             Guid pathfinderId,
-            Incoming.PathfinderHonorDto newPathfinder,
+            Incoming.PostPathfinderHonorDto newPathfinder,
             CancellationToken token);
     }
 

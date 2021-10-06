@@ -12,4 +12,12 @@ namespace PathfinderHonorManager.Dto.Incoming
         [Required]
         public string Status { get; set; }
     }
+
+    public class PostPathfinderHonorDto
+    {
+        [Required]
+        public Guid HonorID { get; set; }
+        [Required]
+        public string Status { get; set; }
+    }
 }
