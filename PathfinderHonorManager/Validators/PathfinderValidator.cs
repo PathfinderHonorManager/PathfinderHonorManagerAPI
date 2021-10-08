@@ -25,7 +25,10 @@ namespace PathfinderHonorManager.Validators
             RuleFor(p => p.LastName).NotEmpty();
             RuleFor(p => p.Email).EmailAddress();
             RuleFor(p => p.Email)
-                .MustAsync(async (email, token) => !await _dbContext.Pathfinders.AnyAsync(p => p.Email == email, token))
+                .MustAsync(
+                    async (email, token) =>
+                        !await _dbContext.Pathfinders
+                            .AnyAsync(p => p.Email == email, token))
                 .WithMessage(
                     p => $"Pathfinder email address ({p.Email}) is taken.");
         }
