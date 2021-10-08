@@ -60,12 +60,25 @@ namespace PathfinderHonorManager.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.PostPathfinderHonorDto newPathfinderHonor, CancellationToken token)
         {
+            try
+            {
+                var pathfinderHonor = await _PathfinderHonorService.AddAsync(pathfinderId, newPathfinderHonor, token);
 
-            var pathfinderHonor = await _PathfinderHonorService.AddAsync(pathfinderId, newPathfinderHonor, token);
+                return CreatedAtRoute(
+                    new { pathfinderId = pathfinderHonor.PathfinderID, id = pathfinderHonor.PathfinderHonorID },
+                    pathfinderHonor);
+            }
 
-            return CreatedAtRoute(
-                new { pathfinderId = pathfinderHonor.PathfinderID, id = pathfinderHonor.PathfinderHonorID },
-                pathfinderHonor);
+            catch (FluentValidation.ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
     }
 }
