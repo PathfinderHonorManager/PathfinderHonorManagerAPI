@@ -31,6 +31,7 @@ namespace PathfinderHonorManager.Controllers
         }
 
         // GET Pathfinders
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pathfinder>>> GetAll(CancellationToken token)
         {
@@ -43,7 +44,8 @@ namespace PathfinderHonorManager.Controllers
 
             return Ok(pathfinder);
         }
-
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
@@ -60,6 +62,8 @@ namespace PathfinderHonorManager.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostAsync([FromBody] Incoming.PathfinderDto newPathfinder, CancellationToken token)
         {
             try

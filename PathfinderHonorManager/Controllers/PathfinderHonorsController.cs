@@ -29,6 +29,8 @@ namespace PathfinderHonorManager.Controllers
             _PathfinderHonorService = PathfinderHonorService;
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PathfinderHonor>>> GetAll(Guid pathfinderId, CancellationToken token)
         {
@@ -42,6 +44,8 @@ namespace PathfinderHonorManager.Controllers
             return Ok(pathfinder);
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid pathfinderId, Guid id, CancellationToken token)
         {
@@ -57,6 +61,9 @@ namespace PathfinderHonorManager.Controllers
 
         }
 
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPost]
         public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.PostPathfinderHonorDto newPathfinderHonor, CancellationToken token)
         {

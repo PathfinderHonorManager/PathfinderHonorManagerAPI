@@ -30,7 +30,7 @@ namespace PathfinderHonorManager.Controllers
             _honorService = honorService;
         }
 
-        // GET Pathfinders
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Honor>>> GetHonors(CancellationToken token)
         {
@@ -44,6 +44,8 @@ namespace PathfinderHonorManager.Controllers
             return Ok(honors);
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
