@@ -66,32 +66,10 @@ namespace PathfinderHonorManager.Service
                 : _mapper.Map<Outgoing.PathfinderHonorDto>(entity);
         }
 
-        public async Task<Outgoing.PathfinderHonorDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
+        public async Task<Outgoing.PathfinderHonorDto> AddAsync(Guid pathfinderId, Incoming.UpsertPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
 
-            if (Enum.TryParse(incomingPathfinderHonor.Status, out HonorStatus statusEntity))
-            {
-                //var statusEntity = (HonorStatus)Enum.Parse(typeof(HonorStatus), incomingPathfinderHonor.Status);
-                newStatusCode = statusEntity switch
-                {
-                    HonorStatus.Awarded => (int)HonorStatus.Awarded,
-                    HonorStatus.Earned => (int)HonorStatus.Earned,
-                    HonorStatus.Planned => (int)HonorStatus.Planned,
-                    _ => -1,
-                };
-            }
-            else
-            {
-                newStatusCode = -1;
-            }
-
-            Incoming.PathfinderHonorDto newPathfinderHonor = new()
-            {
-                HonorID = incomingPathfinderHonor.HonorID,
-                PathfinderID = pathfinderId,
-                Status = incomingPathfinderHonor.Status,
-                StatusCode = newStatusCode
-            };
+            Incoming.PathfinderHonorDto newPathfinderHonor = MapStatus(pathfinderId, incomingPathfinderHonor);
 
 
             await _validator.ValidateAsync(
@@ -115,6 +93,34 @@ namespace PathfinderHonorManager.Service
             return _dbContext.PathfinderHonors
                 .Where(p => p.PathfinderID == pathfinderId)
                 .Where(ph => ph.HonorID == honorId);
+        }
+
+        private Incoming.PathfinderHonorDto MapStatus(Guid pathfinderId, Incoming.UpsertPathfinderHonorDto upsertPathfinderHonor)
+        {
+            if (Enum.TryParse(upsertPathfinderHonor.Status, out HonorStatus statusEntity))
+            {
+                newStatusCode = statusEntity switch
+                {
+                    HonorStatus.Awarded => (int)HonorStatus.Awarded,
+                    HonorStatus.Earned => (int)HonorStatus.Earned,
+                    HonorStatus.Planned => (int)HonorStatus.Planned,
+                    _ => -1,
+                };
+            }
+            else
+            {
+                newStatusCode = -1;
+            }
+
+            Incoming.PathfinderHonorDto mappedPathfinderHonor = new()
+            {
+                HonorID = upsertPathfinderHonor.HonorID,
+                PathfinderID = pathfinderId,
+                Status = upsertPathfinderHonor.Status,
+                StatusCode = newStatusCode
+            };
+
+            return mappedPathfinderHonor;
         }
     }
 }
