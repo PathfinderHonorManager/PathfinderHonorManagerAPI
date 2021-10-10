@@ -65,7 +65,7 @@ namespace PathfinderHonorManager.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPost]
-        public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.PostPathfinderHonorDto newPathfinderHonor, CancellationToken token)
+        public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.UpsertPathfinderHonorDto newPathfinderHonor, CancellationToken token)
         {
             try
             {

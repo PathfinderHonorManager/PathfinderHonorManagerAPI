@@ -13,7 +13,7 @@ namespace PathfinderHonorManager.Dto.Incoming
         public string Status { get; set; }
     }
 
-    public class PostPathfinderHonorDto
+    public class UpsertPathfinderHonorDto
     {
         [Required]
         public Guid HonorID { get; set; }
