@@ -32,7 +32,7 @@ namespace PathfinderHonorManager.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PathfinderHonor>>> GetAll(Guid pathfinderId, CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAll(Guid pathfinderId, CancellationToken token)
         {
             var pathfinder = await _PathfinderHonorService.GetAllAsync(pathfinderId, token);
 
