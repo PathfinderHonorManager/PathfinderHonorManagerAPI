@@ -90,7 +90,11 @@ namespace PathfinderHonorManager.Service
 
         public async Task<Outgoing.PathfinderHonorDto> UpdateAsync(Guid pathfinderId, Guid honorId, Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
-            var targetPathfinderHonor = await _dbContext.PathfinderHonors.SingleOrDefaultAsync(p => p.PathfinderID == pathfinderId && p.HonorID == honorId, token);
+            var targetPathfinderHonor = await _dbContext.PathfinderHonors
+                                                .Where(p => p.PathfinderID == pathfinderId && p.HonorID ==honorId)
+                                                .Include(phs => phs.PathfinderHonorStatus)
+                                                .Include(h => h.Honor)
+                                                .SingleOrDefaultAsync(token);
 
             if (targetPathfinderHonor == default)
             {
