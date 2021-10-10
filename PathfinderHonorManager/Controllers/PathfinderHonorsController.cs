@@ -46,11 +46,11 @@ namespace PathfinderHonorManager.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetByIdAsync(Guid pathfinderId, Guid id, CancellationToken token)
+        [HttpGet("{honorId:guid}")]
+        public async Task<IActionResult> GetByIdAsync(Guid pathfinderId, Guid honorId, CancellationToken token)
         {
 
-            var pathfinder = await _PathfinderHonorService.GetByIdAsync(pathfinderId, id, token);
+            var pathfinder = await _PathfinderHonorService.GetByIdAsync(pathfinderId, honorId, token);
 
             if (pathfinder == default)
             {
@@ -72,7 +72,7 @@ namespace PathfinderHonorManager.Controllers
                 var pathfinderHonor = await _PathfinderHonorService.AddAsync(pathfinderId, newPathfinderHonor, token);
 
                 return CreatedAtRoute(
-                    new { pathfinderId = pathfinderHonor.PathfinderID, id = pathfinderHonor.PathfinderHonorID },
+                    new { pathfinderId = pathfinderHonor.PathfinderID, id = pathfinderHonor.HonorID },
                     pathfinderHonor);
             }
 
@@ -85,7 +85,6 @@ namespace PathfinderHonorManager.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
         }
     }
 }

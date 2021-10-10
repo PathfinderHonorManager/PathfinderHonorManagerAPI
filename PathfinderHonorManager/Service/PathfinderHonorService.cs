@@ -52,21 +52,21 @@ namespace PathfinderHonorManager.Service
 
         }
 
-        public async Task<Outgoing.PathfinderHonorChildDto> GetByIdAsync(Guid pathfinderId, Guid pathfinderHonorId, CancellationToken token)
+        public async Task<Outgoing.PathfinderHonorDto> GetByIdAsync(Guid pathfinderId, Guid honorId, CancellationToken token)
         {
             PathfinderHonor entity;
 
-            entity = await GetFilteredPathfinderHonors(pathfinderId, pathfinderHonorId, token)
+            entity = await GetFilteredPathfinderHonors(pathfinderId, honorId, token)
                 .Include(phs => phs.PathfinderHonorStatus)
                 .Include(h => h.Honor)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken: token);
 
             return entity == default
                 ? default
-                : _mapper.Map<Outgoing.PathfinderHonorChildDto>(entity);
+                : _mapper.Map<Outgoing.PathfinderHonorDto>(entity);
         }
 
-        public async Task<Outgoing.PathfinderHonorChildDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
+        public async Task<Outgoing.PathfinderHonorDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
 
             if (Enum.TryParse(incomingPathfinderHonor.Status, out HonorStatus statusEntity))
@@ -107,16 +107,14 @@ namespace PathfinderHonorManager.Service
             await _dbContext.SaveChangesAsync(token);
             _logger.LogInformation($"Pathfinder honor(Id: {newEntity.PathfinderHonorID} added to database.");
 
-            return _mapper.Map<Outgoing.PathfinderHonorChildDto>(newEntity);
+            return _mapper.Map<Outgoing.PathfinderHonorDto>(newEntity);
         }
 
-        public IQueryable<PathfinderHonor> GetFilteredPathfinderHonors(Guid pathfinderId, Guid pathfinderHonorId, CancellationToken token)
+        public IQueryable<PathfinderHonor> GetFilteredPathfinderHonors(Guid pathfinderId, Guid honorId, CancellationToken token)
         {
-            return pathfinderId == null
-            ? _dbContext.PathfinderHonors
-            : _dbContext.PathfinderHonors
+            return _dbContext.PathfinderHonors
                 .Where(p => p.PathfinderID == pathfinderId)
-                .Where(ph => ph.PathfinderHonorID == pathfinderHonorId);
+                .Where(ph => ph.HonorID == honorId);
         }
     }
 }

@@ -33,14 +33,10 @@ namespace PathfinderHonorManager.Mapping
         private void RegisterPathfinderHonorMappings()
         {
             CreateMap<Honor, Outgoing.PathfinderHonorDto>();
-            CreateMap<Honor, Outgoing.PathfinderHonorChildDto>();
             CreateMap<Incoming.PathfinderHonorDto, PathfinderHonor>();
             CreateMap<PathfinderHonor, Outgoing.PathfinderHonorDto>()
                 .IncludeMembers(s => s.Honor, s => s.PathfinderHonorStatus);
-            CreateMap<PathfinderHonor, Outgoing.PathfinderHonorChildDto>()
-                .IncludeMembers(s => s.Honor, s => s.PathfinderHonorStatus);
             CreateMap<PathfinderHonorStatus, Outgoing.PathfinderHonorDto>();
-            CreateMap<PathfinderHonorStatus, Outgoing.PathfinderHonorChildDto>();
             CreateMap<PathfinderHonorStatus, Outgoing.PathfinderHonorStatusDto>();
             CreateMap<HonorStatus, Outgoing.PathfinderHonorStatusDto>();
         }
