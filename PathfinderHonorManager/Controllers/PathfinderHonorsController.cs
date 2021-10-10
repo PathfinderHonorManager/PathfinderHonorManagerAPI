@@ -29,9 +29,9 @@ namespace PathfinderHonorManager.Controllers
             _PathfinderHonorService = PathfinderHonorService;
         }
 
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet]
         public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAll(Guid pathfinderId, CancellationToken token)
         {
             var pathfinder = await _PathfinderHonorService.GetAllAsync(pathfinderId, token);
@@ -44,9 +44,9 @@ namespace PathfinderHonorManager.Controllers
             return Ok(pathfinder);
         }
 
+        [HttpGet("{honorId:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{honorId:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid pathfinderId, Guid honorId, CancellationToken token)
         {
 
@@ -61,11 +61,11 @@ namespace PathfinderHonorManager.Controllers
 
         }
 
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpPost]
-        public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.UpsertPathfinderHonorDto newPathfinderHonor, CancellationToken token)
+        public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.PostPathfinderHonorDto newPathfinderHonor, CancellationToken token)
         {
             try
             {
@@ -74,6 +74,32 @@ namespace PathfinderHonorManager.Controllers
                 return CreatedAtRoute(
                     new { pathfinderId = pathfinderHonor.PathfinderID, id = pathfinderHonor.HonorID },
                     pathfinderHonor);
+            }
+
+            catch (FluentValidation.ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{honorId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PutAsync(Guid pathfinderId, Guid honorId,[FromBody] Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
+        {
+            try
+            {
+                var pathfinderHonor = await _PathfinderHonorService.UpdateAsync(pathfinderId, honorId, incomingPathfinderHonor, token);
+
+                return pathfinderHonor != default
+                ? Ok(pathfinderHonor)
+                : NotFound();
             }
 
             catch (FluentValidation.ValidationException ex)

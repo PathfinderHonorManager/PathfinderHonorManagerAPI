@@ -19,7 +19,13 @@ namespace PathfinderHonorManager.Service.Interfaces
 
         Task<Outgoing.PathfinderHonorDto> AddAsync(
             Guid pathfinderId,
-            Incoming.UpsertPathfinderHonorDto newPathfinder,
+            Incoming.PostPathfinderHonorDto newPathfinder,
+            CancellationToken token);
+
+        Task<Outgoing.PathfinderHonorDto> UpdateAsync(
+            Guid pathfinderId,
+            Guid honorId,
+            Incoming.PutPathfinderHonorDto incomingPathfinderHonor,
             CancellationToken token);
     }
 

@@ -66,7 +66,7 @@ namespace PathfinderHonorManager.Service
                 : _mapper.Map<Outgoing.PathfinderHonorDto>(entity);
         }
 
-        public async Task<Outgoing.PathfinderHonorDto> AddAsync(Guid pathfinderId, Incoming.UpsertPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
+        public async Task<Outgoing.PathfinderHonorDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
 
             Incoming.PathfinderHonorDto newPathfinderHonor = MapStatus(pathfinderId, incomingPathfinderHonor);
@@ -74,12 +74,12 @@ namespace PathfinderHonorManager.Service
 
             await _validator.ValidateAsync(
                 newPathfinderHonor,
-                opts => opts.ThrowOnFailures(),
-                token);
+                opts => opts.ThrowOnFailures()
+                            .IncludeRulesNotInRuleSet()
+                            .IncludeRuleSets("post"),
+                        token);
 
-            var newEntity = _mapper.Map<PathfinderHonor>(newPathfinderHonor);//,
-
-
+            var newEntity = _mapper.Map<PathfinderHonor>(newPathfinderHonor);
 
             await _dbContext.AddAsync(newEntity, token);
             await _dbContext.SaveChangesAsync(token);
@@ -88,14 +88,38 @@ namespace PathfinderHonorManager.Service
             return _mapper.Map<Outgoing.PathfinderHonorDto>(newEntity);
         }
 
-        public IQueryable<PathfinderHonor> GetFilteredPathfinderHonors(Guid pathfinderId, Guid honorId, CancellationToken token)
+        public async Task<Outgoing.PathfinderHonorDto> UpdateAsync(Guid pathfinderId, Guid honorId, Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
+        {
+            var targetPathfinderHonor = await _dbContext.PathfinderHonors.SingleOrDefaultAsync(p => p.PathfinderID == pathfinderId && p.HonorID == honorId, token);
+
+            if (targetPathfinderHonor == default)
+            {
+                return default;
+            }
+
+            Incoming.PathfinderHonorDto updatedPathfinderHonor = MapStatus(pathfinderId, incomingPathfinderHonor, honorId);
+
+            await _validator.ValidateAsync(
+                updatedPathfinderHonor,
+                opts => opts.ThrowOnFailures()
+                            .IncludeRulesNotInRuleSet(),
+                        token);
+
+            targetPathfinderHonor.StatusCode = updatedPathfinderHonor.StatusCode;
+
+            await _dbContext.SaveChangesAsync(token);
+
+            return _mapper.Map<Outgoing.PathfinderHonorDto>(targetPathfinderHonor);
+        }
+
+        private IQueryable<PathfinderHonor> GetFilteredPathfinderHonors(Guid pathfinderId, Guid honorId, CancellationToken token)
         {
             return _dbContext.PathfinderHonors
                 .Where(p => p.PathfinderID == pathfinderId)
                 .Where(ph => ph.HonorID == honorId);
         }
 
-        private Incoming.PathfinderHonorDto MapStatus(Guid pathfinderId, Incoming.UpsertPathfinderHonorDto upsertPathfinderHonor)
+        private Incoming.PathfinderHonorDto MapStatus(Guid pathfinderId, dynamic upsertPathfinderHonor, Guid honorId = new Guid())
         {
             if (Enum.TryParse(upsertPathfinderHonor.Status, out HonorStatus statusEntity))
             {
@@ -112,9 +136,14 @@ namespace PathfinderHonorManager.Service
                 newStatusCode = -1;
             }
 
+            if (honorId == Guid.Empty)
+            {
+                honorId = upsertPathfinderHonor.HonorID;
+            }
+
             Incoming.PathfinderHonorDto mappedPathfinderHonor = new()
             {
-                HonorID = upsertPathfinderHonor.HonorID,
+                HonorID = honorId,
                 PathfinderID = pathfinderId,
                 Status = upsertPathfinderHonor.Status,
                 StatusCode = newStatusCode

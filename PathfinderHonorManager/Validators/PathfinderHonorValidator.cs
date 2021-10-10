@@ -24,14 +24,19 @@ namespace PathfinderHonorManager.Validators
             RuleFor(p => p.StatusCode).GreaterThan(0)
                 .WithMessage(
                     dto => $"Honor status {dto.Status} is invalid. Valid statuses are: Planned, Earned, Awarded.");
-            RuleFor(p => p)
-                .MustAsync(
-                    async (dto, token) =>
-                         !await _dbContext.PathfinderHonors
-                            .AnyAsync(p => p.HonorID == dto.HonorID && p.PathfinderID == dto.PathfinderID))
-                .WithName(nameof(PathfinderHonorDto.HonorID))
-                .WithMessage(
-                    dto => $"Pathfinder {dto.PathfinderID} already has honor {dto.HonorID}.");
+            RuleSet(
+                "post",
+                () =>
+                {
+                    RuleFor(p => p)
+                    .MustAsync(
+                        async (dto, token) =>
+                             !await _dbContext.PathfinderHonors
+                                .AnyAsync(p => p.HonorID == dto.HonorID && p.PathfinderID == dto.PathfinderID))
+                    .WithName(nameof(PathfinderHonorDto.HonorID))
+                    .WithMessage(
+                        dto => $"Pathfinder {dto.PathfinderID} already has honor {dto.HonorID}.");
+                });
         }
     }
 }
