@@ -85,7 +85,12 @@ namespace PathfinderHonorManager.Service
             await _dbContext.SaveChangesAsync(token);
             _logger.LogInformation($"Pathfinder honor(Id: {newEntity.PathfinderHonorID} added to database.");
 
-            return _mapper.Map<Outgoing.PathfinderHonorDto>(newEntity);
+            var createdEntity = await GetFilteredPathfinderHonors(newEntity.PathfinderID, newEntity.HonorID, token)
+                .Include(phs => phs.PathfinderHonorStatus)
+                .Include(h => h.Honor)
+                .SingleOrDefaultAsync(cancellationToken: token);
+
+            return _mapper.Map<Outgoing.PathfinderHonorDto>(createdEntity);
         }
 
         public async Task<Outgoing.PathfinderHonorDto> UpdateAsync(Guid pathfinderId, Guid honorId, Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
