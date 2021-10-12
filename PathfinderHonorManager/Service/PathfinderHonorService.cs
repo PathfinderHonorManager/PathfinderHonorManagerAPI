@@ -26,7 +26,7 @@ namespace PathfinderHonorManager.Service
 
         private readonly IValidator<Incoming.PathfinderHonorDto> _validator;
 
-        private int newStatusCode { get; set; }
+        private int NewStatusCode { get; set; }
 
         public PathfinderHonorService(
             PathfinderContext context,
@@ -132,7 +132,7 @@ namespace PathfinderHonorManager.Service
         {
             if (Enum.TryParse(upsertPathfinderHonor.Status, out HonorStatus statusEntity))
             {
-                newStatusCode = statusEntity switch
+                NewStatusCode = statusEntity switch
                 {
                     HonorStatus.Awarded => (int)HonorStatus.Awarded,
                     HonorStatus.Earned => (int)HonorStatus.Earned,
@@ -142,7 +142,7 @@ namespace PathfinderHonorManager.Service
             }
             else
             {
-                newStatusCode = -1;
+                NewStatusCode = -1;
             }
 
             if (honorId == Guid.Empty)
@@ -155,7 +155,7 @@ namespace PathfinderHonorManager.Service
                 HonorID = honorId,
                 PathfinderID = pathfinderId,
                 Status = upsertPathfinderHonor.Status,
-                StatusCode = newStatusCode
+                StatusCode = NewStatusCode
             };
 
             return mappedPathfinderHonor;
