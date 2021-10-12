@@ -78,12 +78,16 @@ namespace PathfinderHonorManager.Controllers
 
             catch (FluentValidation.ValidationException ex)
             {
-                return BadRequest(ex.Message);
+                return Problem(
+                    detail: ex.Message,
+                    statusCode: 400);
             }
 
             catch (DbUpdateException ex)
             {
-                return BadRequest(ex.Message);
+                return Problem(
+                    detail: ex.Message,
+                    statusCode: 400);
             }
         }
 
@@ -104,12 +108,16 @@ namespace PathfinderHonorManager.Controllers
 
             catch (FluentValidation.ValidationException ex)
             {
-                return BadRequest(ex.Message);
+                return Problem(
+                    detail: ex.Message,
+                    statusCode: 400);
             }
 
             catch (DbUpdateException ex)
             {
-                return BadRequest(ex.Message);
+                return Problem(
+                    detail: ex.Message,
+                    statusCode: 400);
             }
         }
     }
