@@ -1,20 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using PathfinderHonorManager.Model;
-using PathfinderHonorManager.DataAccess;
-using PathfinderHonorManager.Service;
-using PathfinderHonorManager.Service.Interfaces;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
-using Outgoing = PathfinderHonorManager.Dto.Outgoing;
-using Microsoft.AspNetCore.Http;
-using AutoMapper;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using PathfinderHonorManager.Model;
+using PathfinderHonorManager.Service.Interfaces;
 
 namespace PathfinderHonorManager.Controllers
 {

@@ -1,20 +1,13 @@
-﻿using System.Collections.Generic;
-using System;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using PathfinderHonorManager.Model;
-using PathfinderHonorManager.DataAccess;
-using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
-using Microsoft.AspNetCore.Http;
-using AutoMapper;
-using System.Threading;
 
 namespace PathfinderHonorManager.Controllers
 {
@@ -71,23 +64,19 @@ namespace PathfinderHonorManager.Controllers
             {
                 var pathfinderHonor = await _PathfinderHonorService.AddAsync(pathfinderId, newPathfinderHonor, token);
 
-                return CreatedAtRoute(
-                    new { pathfinderId = pathfinderHonor.PathfinderID, id = pathfinderHonor.HonorID },
-                    pathfinderHonor);
+                return CreatedAtRoute(routeValues: GetByIdAsync(pathfinderHonor.PathfinderID, pathfinderHonor.HonorID, token),
+                                      pathfinderHonor);
             }
 
             catch (FluentValidation.ValidationException ex)
             {
-                return Problem(
-                    detail: ex.Message,
-                    statusCode: 400);
+                UpdateModelState(ex);
+                return ValidationProblem(ModelState);
             }
 
             catch (DbUpdateException ex)
             {
-                return Problem(
-                    detail: ex.Message,
-                    statusCode: 400);
+                return ValidationProblem(ex.Message);
             }
         }
 
@@ -108,16 +97,23 @@ namespace PathfinderHonorManager.Controllers
 
             catch (FluentValidation.ValidationException ex)
             {
-                return Problem(
-                    detail: ex.Message,
-                    statusCode: 400);
+                UpdateModelState(ex);
+                return ValidationProblem(ModelState);
             }
 
             catch (DbUpdateException ex)
             {
-                return Problem(
-                    detail: ex.Message,
-                    statusCode: 400);
+                return ValidationProblem(ex.Message);
+
+            }
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public void UpdateModelState(FluentValidation.ValidationException validationException)
+        {
+            foreach (var error in validationException.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
         }
     }
