@@ -13,7 +13,7 @@ namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
     [Route("api/pathfinders/{pathfinderId:guid}/[controller]")]
-    public class PathfinderHonorsController : ControllerBase
+    public class PathfinderHonorsController : ApiController
     {
         private readonly IPathfinderHonorService _PathfinderHonorService;
 
@@ -108,13 +108,5 @@ namespace PathfinderHonorManager.Controllers
             }
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public void UpdateModelState(FluentValidation.ValidationException validationException)
-        {
-            foreach (var error in validationException.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
-        }
     }
 }
