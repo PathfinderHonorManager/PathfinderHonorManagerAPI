@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Npgsql;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Mapping;
@@ -38,6 +39,8 @@ namespace PathfinderHonorManager
             services
                 .AddControllers();
             services
+                .AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pathfinder Honor Manager", Version = "v1" }));
+            services
                 .AddDbContext<PathfinderContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("PathfinderCS")));
             services
@@ -47,8 +50,7 @@ namespace PathfinderHonorManager
                 .AddScoped<IHonorService, HonorService>()
                 .AddScoped<IPathfinderHonorService, PathfinderHonorService>();
             services.AddMvc()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>())
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderHonorValidator>());
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>());
 
         }
 
@@ -66,6 +68,8 @@ namespace PathfinderHonorManager
                 app.UseHsts();
             }
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pathfinder Honor Manager v1"));
             app.UseHttpsRedirection();
 
             app.UseRouting();

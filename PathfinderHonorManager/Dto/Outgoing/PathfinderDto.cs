@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
-namespace PathfinderHonorManager.Dto.Incoming
+namespace PathfinderHonorManager.Dto.Outgoing
 {
     public class PathfinderDto
     {
-        [Required]
+        public Guid PathfinderID { get; set; }
         public String FirstName { get; set; }
-        [Required]
         public String LastName { get; set; }
-        [Required]
-        public String Email { get; set; }
+        //public String Email { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime Updated { get; set; }
 
     }
-/*
+
     public class PathfinderDependantDto
     {
         public Guid PathfinderID { get; set; }
@@ -26,5 +25,5 @@ namespace PathfinderHonorManager.Dto.Incoming
 
         public ICollection<PathfinderHonorDto> PathfinderHonors { get; set; }
     }
-*/
+
 }
