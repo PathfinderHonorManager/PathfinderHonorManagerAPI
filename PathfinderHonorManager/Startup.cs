@@ -21,7 +21,6 @@ using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Validators;
 
-
 namespace PathfinderHonorManager
 {
     public class Startup
@@ -51,11 +50,9 @@ namespace PathfinderHonorManager
                 .AddScoped<IPathfinderHonorService, PathfinderHonorService>();
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>());
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

@@ -9,7 +9,7 @@ namespace PathfinderHonorManager.Controllers
         {
             foreach (var error in validationException.Errors)
             {
-                this.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
             }
         }
     }

@@ -1,17 +1,17 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using FluentValidation;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
-using Outgoing = PathfinderHonorManager.Dto.Outgoing;
-using PathfinderHonorManager.Model;
-using PathfinderHonorManager.DataAccess;
-using PathfinderHonorManager.Service.Interfaces;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using PathfinderHonorManager.DataAccess;
+using PathfinderHonorManager.Model;
+using PathfinderHonorManager.Service.Interfaces;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
+using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 
 namespace PathfinderHonorManager.Service
 {

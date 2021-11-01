@@ -13,25 +13,25 @@ namespace PathfinderHonorManager.Controllers
     [Route("api/[controller]")]
     public class HonorsController : ControllerBase
     {
-        private readonly IHonorService honorService;
+        private readonly IHonorService _honorService;
 
         public HonorsController(IHonorService honorService)
         {
-            this.honorService = honorService;
+            _honorService = honorService;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Honor>>> GetHonors(CancellationToken token)
         {
-            var honors = await this.honorService.GetAllAsync(token);
+            var honors = await this._honorService.GetAllAsync(token);
 
             if (honors == default)
             {
-                return this.NotFound();
+                return NotFound();
             }
 
-            return this.Ok(honors);
+            return Ok(honors);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -39,15 +39,14 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
-
-            var honor = await this.honorService.GetByIdAsync(id, token);
+            var honor = await this._honorService.GetByIdAsync(id, token);
 
             if (honor == default)
             {
-                return this.NotFound();
+                return NotFound();
             }
 
-            return this.Ok(honor);
+            return Ok(honor);
         }
     }
 }
