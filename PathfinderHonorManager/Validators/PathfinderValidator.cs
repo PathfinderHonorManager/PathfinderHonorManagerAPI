@@ -23,8 +23,9 @@ namespace PathfinderHonorManager.Validators
         {
             RuleFor(p => p.FirstName).NotEmpty();
             RuleFor(p => p.LastName).NotEmpty();
-            RuleFor(p => p.Email).EmailAddress();
             RuleFor(p => p.Email)
+                .EmailAddress()
+                .NotEmpty()
                 .MustAsync(
                     async (email, token) =>
                         !await _dbContext.Pathfinders
