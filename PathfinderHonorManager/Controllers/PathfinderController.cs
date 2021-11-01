@@ -15,7 +15,6 @@ namespace PathfinderHonorManager.Controllers
     [Route("api/[controller]")]
     public class PathfindersController : ApiController
     {
-
         private readonly IPathfinderService _pathfinderService;
 
         public PathfindersController(IPathfinderService pathfinderService)
@@ -37,12 +36,12 @@ namespace PathfinderHonorManager.Controllers
 
             return Ok(pathfinder);
         }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
-
             var pathfinder = await _pathfinderService.GetByIdAsync(id, token);
 
             if (pathfinder == default)
@@ -51,7 +50,6 @@ namespace PathfinderHonorManager.Controllers
             }
 
             return Ok(pathfinder);
-
         }
 
         [HttpPost]
@@ -63,22 +61,19 @@ namespace PathfinderHonorManager.Controllers
             {
                 var pathfinder = await _pathfinderService.AddAsync(newPathfinder, token);
 
-                return CreatedAtRoute(routeValues: GetByIdAsync(pathfinder.PathfinderID, token),
-                                      pathfinder);
+                return CreatedAtRoute(
+                    routeValues: GetByIdAsync(pathfinder.PathfinderID, token),
+                    pathfinder);
             }
-
             catch (FluentValidation.ValidationException ex)
             {
                 UpdateModelState(ex);
                 return ValidationProblem(ModelState);
             }
-
             catch (DbUpdateException ex)
             {
                 return ValidationProblem(ex.Message);
-
             }
-
         }
     }
 }
