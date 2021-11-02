@@ -7,8 +7,11 @@ namespace PathfinderHonorManager.Dto.Incoming
     {
         [Required]
         public Guid HonorID { get; set; }
+
         public Guid PathfinderID { get; set; }
+
         public int StatusCode { get; set; }
+
         [Required]
         public string Status { get; set; }
     }
@@ -17,6 +20,7 @@ namespace PathfinderHonorManager.Dto.Incoming
     {
         [Required]
         public Guid HonorID { get; set; }
+
         [Required]
         public string Status { get; set; }
     }

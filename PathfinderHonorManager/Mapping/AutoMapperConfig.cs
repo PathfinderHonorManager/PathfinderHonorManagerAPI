@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using AutoMapper;
-using Outgoing = PathfinderHonorManager.Dto.Outgoing;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
-using PathfinderHonorManager.Model.Enum;
+﻿using AutoMapper;
 using PathfinderHonorManager.Model;
+using PathfinderHonorManager.Model.Enum;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
+using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 
 namespace PathfinderHonorManager.Mapping
 {
@@ -23,7 +22,6 @@ namespace PathfinderHonorManager.Mapping
             CreateMap<Incoming.PathfinderDto, Pathfinder>();
             CreateMap<PathfinderHonor, Outgoing.PathfinderDependantDto>();
         }
-
 
         private void RegisterHonorMappings()
         {

@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
 
 namespace PathfinderHonorManager.Service.Interfaces
 {
-
     public interface IHonorService
     {
         Task<Outgoing.HonorDto> GetByIdAsync(
@@ -15,7 +13,5 @@ namespace PathfinderHonorManager.Service.Interfaces
             CancellationToken token);
 
         Task<ICollection<Outgoing.HonorDto>> GetAllAsync(CancellationToken token);
-
     }
-
 }

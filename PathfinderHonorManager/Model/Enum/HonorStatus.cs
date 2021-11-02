@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace PathfinderHonorManager.Model.Enum
@@ -12,5 +11,3 @@ namespace PathfinderHonorManager.Model.Enum
         Awarded = 300
     }
 }
-
-
