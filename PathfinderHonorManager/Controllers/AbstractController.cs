@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PathfinderHonorManager.Model;
-using PathfinderHonorManager.Service.Interfaces;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace PathfinderHonorManager.Controllers
 {
-    
     public class ApiController : ControllerBase
     {
         [ApiExplorerSettings(IgnoreApi = true)]

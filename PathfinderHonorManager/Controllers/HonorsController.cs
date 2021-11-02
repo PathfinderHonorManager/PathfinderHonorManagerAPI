@@ -13,7 +13,6 @@ namespace PathfinderHonorManager.Controllers
     [Route("api/[controller]")]
     public class HonorsController : ControllerBase
     {
-
         private readonly IHonorService _honorService;
 
         public HonorsController(IHonorService honorService)
@@ -25,7 +24,7 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Honor>>> GetHonors(CancellationToken token)
         {
-            var honors = await _honorService.GetAllAsync(token);
+            var honors = await this._honorService.GetAllAsync(token);
 
             if (honors == default)
             {
@@ -40,8 +39,7 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
-
-            var honor = await _honorService.GetByIdAsync(id, token);
+            var honor = await this._honorService.GetByIdAsync(id, token);
 
             if (honor == default)
             {
@@ -49,7 +47,6 @@ namespace PathfinderHonorManager.Controllers
             }
 
             return Ok(honor);
-
         }
     }
 }
