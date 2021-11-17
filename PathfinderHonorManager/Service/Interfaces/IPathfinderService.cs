@@ -14,7 +14,7 @@ namespace PathfinderHonorManager.Service.Interfaces
             Guid id,
             CancellationToken token);
 
-        Task<ICollection<Outgoing.PathfinderDto>> GetAllAsync(CancellationToken token);
+        Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(CancellationToken token);
 
         Task<Outgoing.PathfinderDto> AddAsync(
             Incoming.PathfinderDto newPathfinder,
