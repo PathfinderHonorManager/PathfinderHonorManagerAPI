@@ -41,6 +41,7 @@ namespace PathfinderHonorManager.Service
         public async Task<ICollection<Outgoing.HonorDto>> GetAllAsync(CancellationToken token)
         {
             var honors = await _dbContext.Honors
+                .OrderBy(h => h.Name).ThenBy(h => h.Level)
                 .ToListAsync(token);
 
             return _mapper.Map<ICollection<Outgoing.HonorDto>>(honors);
@@ -52,7 +53,7 @@ namespace PathfinderHonorManager.Service
             Honor entity;
 
             entity = await _dbContext.Honors
-                .SingleOrDefaultAsync(p => p.HonorID == id, token);
+                .SingleOrDefaultAsync(p => p.HonorID == id, token);            
 
             return entity == default
                 ? default

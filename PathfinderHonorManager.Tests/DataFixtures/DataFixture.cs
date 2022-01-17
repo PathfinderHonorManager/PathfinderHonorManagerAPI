@@ -24,13 +24,14 @@ namespace PathfinderHonorManager.Tests.DataFixtures
         private static DbConnection CreateInMemoryDatabase()
         {
             var connection = new SqliteConnection("Data Source=Sharable;Mode=Memory;Cache=Shared");
-
             connection.Open();
 
             return connection;
         }
 
-        public void Dispose() => _connection.Dispose();
-
+        public void Dispose()
+        {
+            //_connection.Dispose();
+        }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
+using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 
 namespace PathfinderHonorManager.Controllers
@@ -25,7 +26,7 @@ namespace PathfinderHonorManager.Controllers
         // GET Pathfinders
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Pathfinder>>> GetAll(CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderDependantDto>>> GetAll(CancellationToken token)
         {
             var pathfinder = await _pathfinderService.GetAllAsync(token);
 
