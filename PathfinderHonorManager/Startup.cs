@@ -55,7 +55,9 @@ namespace PathfinderHonorManager
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>());
             services.AddHttpLogging(logging =>
                 {
-                    logging.LoggingFields = HttpLoggingFields.All;
+                    logging.LoggingFields = HttpLoggingFields.RequestProtocol |
+                        HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath |
+                        HttpLoggingFields.ResponseStatusCode;
                     logging.RequestBodyLogLimit = 4096;
                     logging.ResponseBodyLogLimit = 4096;
 
@@ -83,7 +85,7 @@ namespace PathfinderHonorManager
 
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pathfinder Honor Manager v1"));
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseHttpLogging();
 
             app.UseRouting();
