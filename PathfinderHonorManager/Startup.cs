@@ -22,6 +22,7 @@ using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Validators;
 using PathfinderHonorManager.Healthcheck;
+using Microsoft.AspNetCore.HttpLogging;
 
 namespace PathfinderHonorManager
 {
@@ -52,6 +53,13 @@ namespace PathfinderHonorManager
                 .AddScoped<IPathfinderHonorService, PathfinderHonorService>();
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>());
+            services.AddHttpLogging(logging =>
+                {
+                    logging.LoggingFields = HttpLoggingFields.All;
+                    logging.RequestBodyLogLimit = 4096;
+                    logging.ResponseBodyLogLimit = 4096;
+
+                });
             services.AddHealthChecks()
                 .AddCheck(
                 "PathfinderDB-check",
@@ -76,6 +84,7 @@ namespace PathfinderHonorManager
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pathfinder Honor Manager v1"));
             app.UseHttpsRedirection();
+            app.UseHttpLogging();
 
             app.UseRouting();
 
