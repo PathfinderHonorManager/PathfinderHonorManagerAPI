@@ -84,7 +84,7 @@ namespace PathfinderHonorManager
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks("/hc");
+                endpoints.MapHealthChecks("/health");
             });
         }
     }
