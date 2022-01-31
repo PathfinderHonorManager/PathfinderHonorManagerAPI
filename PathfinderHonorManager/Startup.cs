@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using PathfinderHonorManager.DataAccess;
@@ -20,6 +21,7 @@ using PathfinderHonorManager.Mapping;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Validators;
+using PathfinderHonorManager.Healthcheck;
 
 namespace PathfinderHonorManager
 {
@@ -50,6 +52,12 @@ namespace PathfinderHonorManager
                 .AddScoped<IPathfinderHonorService, PathfinderHonorService>();
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>());
+            services.AddHealthChecks()
+                .AddCheck(
+                "PathfinderDB-check",
+                new PostgresHealthCheck(Configuration.GetConnectionString("PathfinderCS")),
+                HealthStatus.Unhealthy,
+                new string[] { "pathfinderdb" });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,6 +84,7 @@ namespace PathfinderHonorManager
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/hc");
             });
         }
     }

@@ -18,5 +18,15 @@
     <PackageReference Include="FluentValidation" Version="10.3.6" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.6" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <None Remove="AspNetCore.HealthChecks.NpgSql" />
+    <None Remove="Healthcheck\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Healthcheck\" />
   </ItemGroup>
 </Project>
