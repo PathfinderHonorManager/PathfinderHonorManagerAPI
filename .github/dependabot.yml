@@ -9,4 +9,4 @@ updates:
     directory: "/PathfinderHonorManager" # Location of package manifests
     schedule:
       interval: "daily"
-      target-branch: "develop"
+    target-branch: "develop"
