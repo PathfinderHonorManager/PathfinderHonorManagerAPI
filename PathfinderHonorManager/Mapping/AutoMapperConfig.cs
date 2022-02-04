@@ -17,8 +17,12 @@ namespace PathfinderHonorManager.Mapping
 
         private void RegisterPathfinderMappings()
         {
-            CreateMap<Pathfinder, Outgoing.PathfinderDto>();
-            CreateMap<Pathfinder, Outgoing.PathfinderDependantDto>();
+            CreateMap<Pathfinder, Outgoing.PathfinderDto>()
+                .IncludeMembers(p => p.PathfinderClass);
+            CreateMap<PathfinderClass, Outgoing.PathfinderDto>();
+            CreateMap<Pathfinder, Outgoing.PathfinderDependantDto>()
+                .IncludeMembers(p => p.PathfinderClass);
+            CreateMap<PathfinderClass, Outgoing.PathfinderDependantDto>();
             CreateMap<Incoming.PathfinderDto, Pathfinder>();
             CreateMap<PathfinderHonor, Outgoing.PathfinderDependantDto>();
         }
