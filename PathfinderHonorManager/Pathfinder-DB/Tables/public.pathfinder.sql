@@ -1,15 +1,11 @@
-CREATE TABLE public.pathfinder
-(
-    pathfinder_id uuid NOT NULL DEFAULT uuid_generate_v1mc(),
-    first_name text COLLATE pg_catalog."default" NOT NULL,
-    last_name text COLLATE pg_catalog."default" NOT NULL,
-    email text COLLATE pg_catalog."default" NOT NULL,
+CREATE TABLE public.pathfinder (
+    pathfinder_id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    first_name text NOT NULL,
+    last_name text NOT NULL,
+    email text NOT NULL,
     create_timestamp timestamp with time zone NOT NULL,
     update_timestamp timestamp with time zone,
-    grade integer,
-    CONSTRAINT "User_pkey" PRIMARY KEY (pathfinder_id),
-    CONSTRAINT email_unique UNIQUE (email)
-        INCLUDE(email)
+    grade integer
 );
 ALTER TABLE ONLY public.pathfinder
     ADD CONSTRAINT "User_pkey" PRIMARY KEY (pathfinder_id);
