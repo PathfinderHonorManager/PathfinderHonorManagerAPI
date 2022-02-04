@@ -19,8 +19,9 @@ namespace PathfinderHonorManager.Model
         [Column("last_name")]
         public String LastName { get; set; }
         [Column("email")]
-
         public String Email { get; set; }
+        [Column("grade")]
+        public int? Grade { get; set; }
         [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
         [Column("update_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
