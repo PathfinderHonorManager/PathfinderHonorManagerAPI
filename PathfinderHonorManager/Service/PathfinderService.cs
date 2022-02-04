@@ -40,7 +40,8 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(CancellationToken token)
         {
-            var pathfinders = await _dbContext.Pathfinders
+            List<Pathfinder> pathfinders = await _dbContext.Pathfinders
+                .Include(pc => pc.PathfinderClass)
                 .Include(ph => ph.PathfinderHonors)
                     .ThenInclude(phs => phs.PathfinderHonorStatus)
                 .Include(ph => ph.PathfinderHonors)
@@ -56,6 +57,7 @@ namespace PathfinderHonorManager.Service
             Pathfinder entity;
 
             entity = await _dbContext.Pathfinders
+                .Include(pc => pc.PathfinderClass)
                 .Include(ph => ph.PathfinderHonors)
                     .ThenInclude(phs => phs.PathfinderHonorStatus)
                 .Include(ph => ph.PathfinderHonors)

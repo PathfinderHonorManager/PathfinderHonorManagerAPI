@@ -27,6 +27,8 @@ namespace PathfinderHonorManager.Model
         [Column("update_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; }
 
+        [ForeignKey("Grade")]
+        public PathfinderClass PathfinderClass { get; set; }
 
         [ForeignKey("PathfinderID")]
         public ICollection<PathfinderHonor> PathfinderHonors { get; set; }

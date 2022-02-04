@@ -25,5 +25,6 @@ namespace PathfinderHonorManager.Model
         [ForeignKey("StatusCode")]
         public PathfinderHonorStatus PathfinderHonorStatus { get; set; }
 
+
     }
 }
