@@ -12,6 +12,9 @@ namespace PathfinderHonorManager.Dto.Outgoing
         public string LastName { get; set; }
 
         // public string Email { get; set; }
+        
+        public int? Grade {get; set;}
+
         public DateTime Created { get; set; }
 
         public DateTime Updated { get; set; }
@@ -26,6 +29,9 @@ namespace PathfinderHonorManager.Dto.Outgoing
         public string LastName { get; set; }
 
         // public string Email { get; set; }
+
+        public int? Grade {get; set;}
+
         public DateTime Created { get; set; }
 
         public DateTime Updated { get; set; }

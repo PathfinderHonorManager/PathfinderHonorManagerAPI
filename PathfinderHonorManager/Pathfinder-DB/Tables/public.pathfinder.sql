@@ -4,7 +4,8 @@ CREATE TABLE public.pathfinder (
     last_name text NOT NULL,
     email text NOT NULL,
     create_timestamp timestamp with time zone NOT NULL,
-    update_timestamp timestamp with time zone
+    update_timestamp timestamp with time zone,
+    grade integer
 );
 ALTER TABLE ONLY public.pathfinder
     ADD CONSTRAINT "User_pkey" PRIMARY KEY (pathfinder_id);
