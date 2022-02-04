@@ -32,6 +32,7 @@ namespace PathfinderHonorManager.Validators
                             .AnyAsync(p => p.Email == email, token))
                 .WithMessage(
                     p => $"Pathfinder email address ({p.Email}) is taken.");
+            RuleFor(p => p.Grade).InclusiveBetween(5, 12);
         }
     }
 }
