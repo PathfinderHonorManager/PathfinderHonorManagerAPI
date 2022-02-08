@@ -53,7 +53,7 @@ namespace PathfinderHonorManager.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(Dto.Outgoing.PathfinderHonorDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PostAsync(Guid pathfinderId, [FromBody] Incoming.PostPathfinderHonorDto newPathfinderHonor, CancellationToken token)
@@ -78,7 +78,7 @@ namespace PathfinderHonorManager.Controllers
         }
 
         [HttpPut("{honorId:guid}")]
-        [ProducesResponseType(typeof(Dto.Outgoing.PathfinderHonorDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutAsync(Guid pathfinderId, Guid honorId,[FromBody] Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)

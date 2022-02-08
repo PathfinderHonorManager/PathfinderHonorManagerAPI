@@ -73,7 +73,8 @@ namespace PathfinderHonorManager.Service
         {
             await _validator.ValidateAsync(
                 newPathfinder,
-                opts => opts.ThrowOnFailures(),
+                opts => opts.ThrowOnFailures()
+                        .IncludeAllRuleSets(),
                 token);
 
             var newEntity = _mapper.Map<Pathfinder>(newPathfinder);
@@ -83,6 +84,40 @@ namespace PathfinderHonorManager.Service
             _logger.LogInformation($"Pathfinder(Id: {newEntity.PathfinderID} added to database.");
 
             return _mapper.Map<Outgoing.PathfinderDto>(newEntity);
+        }
+
+        public async Task<Outgoing.PathfinderDto> UpdateAsync(Guid pathfinderId, Incoming.PutPathfinderDto updatedPathfinder, CancellationToken token)
+        {
+            var targetPathfinder = await _dbContext.Pathfinders
+                .Where(p => p.PathfinderID == pathfinderId)
+                .Include(pc => pc.PathfinderClass)
+                .SingleOrDefaultAsync(token);
+
+            if (targetPathfinder == default)
+            {
+                return default;
+            }
+
+            Incoming.PathfinderDto mappedPathfinder = new()
+            {
+                FirstName = targetPathfinder.FirstName,
+                LastName = targetPathfinder.LastName,
+                Email = targetPathfinder.Email,
+                Grade = updatedPathfinder.Grade
+            };
+
+
+            await _validator.ValidateAsync(
+                mappedPathfinder,
+                opts => opts.ThrowOnFailures(),
+                token);
+
+            targetPathfinder.Grade = mappedPathfinder.Grade;
+
+            await _dbContext.SaveChangesAsync(token);
+
+            return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);      
+
         }
 
     }

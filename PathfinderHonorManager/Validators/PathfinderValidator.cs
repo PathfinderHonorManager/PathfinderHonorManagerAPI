@@ -23,16 +23,21 @@ namespace PathfinderHonorManager.Validators
         {
             RuleFor(p => p.FirstName).NotEmpty();
             RuleFor(p => p.LastName).NotEmpty();
-            RuleFor(p => p.Email)
-                .EmailAddress()
-                .NotEmpty()
-                .MustAsync(
-                    async (email, token) =>
-                        !await _dbContext.Pathfinders
-                            .AnyAsync(p => p.Email == email, token))
-                .WithMessage(
-                    p => $"Pathfinder email address ({p.Email}) is taken.");
             RuleFor(p => p.Grade).InclusiveBetween(5, 12);
+            RuleSet(
+                "post",
+                () =>
+                {
+                    RuleFor(p => p.Email)
+                        .EmailAddress()
+                        .NotEmpty()
+                        .MustAsync(
+                            async (email, token) =>
+                                !await _dbContext.Pathfinders
+                                    .AnyAsync(p => p.Email == email, token))
+                        .WithMessage(
+                            p => $"Pathfinder email address ({p.Email}) is taken.");
+                });
         }
     }
 }

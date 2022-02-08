@@ -75,6 +75,31 @@ namespace PathfinderHonorManager.Controllers
             {
                 return ValidationProblem(ex.Message);
             }
+
+        }
+
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> PutAsync(Guid pathfinderId, [FromBody] Incoming.PutPathfinderDto updatedPathfinder, CancellationToken token)
+        {
+            try
+            {
+                var pathfinder = await _pathfinderService.UpdateAsync(pathfinderId, updatedPathfinder, token);
+
+                return pathfinder != default
+                    ? Ok(pathfinder)
+                    : NotFound();
+            }
+            catch (FluentValidation.ValidationException ex)
+            {
+                UpdateModelState(ex);
+                return ValidationProblem(ModelState);
+            }
+            catch (DbUpdateException ex)
+            {
+                return ValidationProblem(ex.Message);
+            }
         }
     }
 }
