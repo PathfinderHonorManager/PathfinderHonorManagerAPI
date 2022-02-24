@@ -16,4 +16,9 @@ namespace PathfinderHonorManager.Dto.Incoming
         public int? Grade { get; set; }
 
     }
+
+    public class PutPathfinderDto
+    {
+        public int? Grade { get; set; }
+    }
 }
