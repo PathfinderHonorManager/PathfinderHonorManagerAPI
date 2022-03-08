@@ -110,7 +110,11 @@ namespace PathfinderHonorManager
                 .AddScoped<IHonorService, HonorService>()
                 .AddScoped<IPathfinderHonorService, PathfinderHonorService>();
             services.AddMvc()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>());
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>())
+                .AddJsonOptions(options => 
+                    {
+                        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+                    });
             services.AddHttpLogging(logging =>
                 {
                     logging.LoggingFields = HttpLoggingFields.RequestProtocol |
