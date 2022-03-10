@@ -83,7 +83,17 @@ namespace PathfinderHonorManager.Service
             await _dbContext.SaveChangesAsync(token);
             _logger.LogInformation($"Pathfinder(Id: {newEntity.PathfinderID} added to database.");
 
-            return _mapper.Map<Outgoing.PathfinderDto>(newEntity);
+            var createdPathfinder = await _dbContext.Pathfinders
+                .Where(p => p.PathfinderID == newEntity.PathfinderID)
+                .Include(pc => pc.PathfinderClass)
+                .SingleOrDefaultAsync(token);
+
+            if (createdPathfinder == default)
+            {
+                return default;
+            }
+
+            return _mapper.Map<Outgoing.PathfinderDto>(createdPathfinder);
         }
 
         public async Task<Outgoing.PathfinderDto> UpdateAsync(Guid pathfinderId, Incoming.PutPathfinderDto updatedPathfinder, CancellationToken token)
