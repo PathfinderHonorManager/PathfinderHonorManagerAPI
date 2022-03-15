@@ -31,7 +31,8 @@ namespace PathfinderHonorManager.Tests.DataFixtures
 
         public void Dispose()
         {
-            //_connection.Dispose();
+            // _connection.CloseAsync();
+            _connection.Dispose();
         }
     }
 }
