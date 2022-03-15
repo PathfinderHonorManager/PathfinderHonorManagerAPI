@@ -2,21 +2,12 @@
 using FluentValidation;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-
-//using PathfinderHonorManager.Tests.DataFixtures;
 using PathfinderHonorManager.DataAccess;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using PathfinderHonorManager.Validators;
 using PathfinderHonorManager.Model;
 using System.Threading.Tasks;
 using AutoMapper;
-
-
-using System.Data.Common;
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Data.Sqlite;
 using System;
 
 namespace PathfinderHonorManager.Tests
@@ -31,18 +22,15 @@ namespace PathfinderHonorManager.Tests
         }
 
         private PathfinderValidator _pathfinderValidator;
-        private DbContextOptions<PathfinderContext> options;
-
+        
         protected DbContextOptions<PathfinderContext> ContextOptions { get; }
-
-        private readonly IMapper _mapper;
 
         [SetUp]
         public void SetUp()
         {
-            using var context = new PathfinderContext(ContextOptions);
+            var context = new PathfinderContext(ContextOptions);
             _pathfinderValidator = new PathfinderValidator(context);
-            //AddPathfinders(context);
+            AddPathfinders(context);
         }
 
         // Email tests
@@ -60,7 +48,10 @@ namespace PathfinderHonorManager.Tests
             };
 
             var validationResult = await _pathfinderValidator
-                .TestValidateAsync(newPathfinder);
+                .TestValidateAsync(newPathfinder, options =>
+                {
+                    options.IncludeAllRuleSets();
+                });
 
             validationResult.ShouldHaveValidationErrorFor(p => p.Email)
                 .WithSeverity(Severity.Error);
@@ -93,7 +84,6 @@ namespace PathfinderHonorManager.Tests
         // LastName tests
         [TestCase("")]
         [TestCase(null)]
-        [TestCase("Cummings")]
         public async Task Validate_LastName_ValidationError(string lastName)
         {
             //using var context = new PathfinderContext(ContextOptions);
@@ -146,7 +136,7 @@ namespace PathfinderHonorManager.Tests
                         }
                 }); ;
 
-            context.SaveChanges();
+            context.SaveChangesAsync();
         }
         public static string RandomString(int length)
         {
