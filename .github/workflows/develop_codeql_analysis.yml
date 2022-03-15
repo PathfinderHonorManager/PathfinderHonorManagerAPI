@@ -18,10 +18,11 @@ on:
   #   # The branches below must be a subset of the branches above
   #   branches: [ main, develop ]
   schedule:
-    - cron: '29 17 * * 5'
+    - cron: '29 17 * * 1'
 
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
