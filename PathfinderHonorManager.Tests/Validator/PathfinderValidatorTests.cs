@@ -93,7 +93,6 @@ namespace PathfinderHonorManager.Tests
         // LastName tests
         [TestCase("")]
         [TestCase(null)]
-        [TestCase("Cummings")]
         public async Task Validate_LastName_ValidationError(string lastName)
         {
             //using var context = new PathfinderContext(ContextOptions);
