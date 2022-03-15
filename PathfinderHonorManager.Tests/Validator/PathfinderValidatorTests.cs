@@ -2,21 +2,12 @@
 using FluentValidation;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-
-//using PathfinderHonorManager.Tests.DataFixtures;
 using PathfinderHonorManager.DataAccess;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using PathfinderHonorManager.Validators;
 using PathfinderHonorManager.Model;
 using System.Threading.Tasks;
 using AutoMapper;
-
-
-using System.Data.Common;
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Data.Sqlite;
 using System;
 
 namespace PathfinderHonorManager.Tests
