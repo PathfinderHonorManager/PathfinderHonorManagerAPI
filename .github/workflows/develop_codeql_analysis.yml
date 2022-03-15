@@ -18,10 +18,27 @@ on:
   #   # The branches below must be a subset of the branches above
   #   branches: [ main, develop ]
   schedule:
-    - cron: '29 17 * * 5'
+    - cron: '29 17 * * 1'
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+          include-prerelease: false
+      
+      - name: Test with the dotnet CLI
+        run: dotnet test
+  
   analyze:
+    needs: test
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
