@@ -22,11 +22,8 @@ namespace PathfinderHonorManager.Tests
         }
 
         private PathfinderValidator _pathfinderValidator;
-        private DbContextOptions<PathfinderContext> options;
-
+        
         protected DbContextOptions<PathfinderContext> ContextOptions { get; }
-
-        private readonly IMapper _mapper;
 
         [SetUp]
         public void SetUp()
