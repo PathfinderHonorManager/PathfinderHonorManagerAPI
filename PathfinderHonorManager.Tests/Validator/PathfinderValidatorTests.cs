@@ -40,9 +40,9 @@ namespace PathfinderHonorManager.Tests
         [SetUp]
         public void SetUp()
         {
-            using var context = new PathfinderContext(ContextOptions);
+            var context = new PathfinderContext(ContextOptions);
             _pathfinderValidator = new PathfinderValidator(context);
-            //AddPathfinders(context);
+            AddPathfinders(context);
         }
 
         // Email tests
@@ -60,7 +60,10 @@ namespace PathfinderHonorManager.Tests
             };
 
             var validationResult = await _pathfinderValidator
-                .TestValidateAsync(newPathfinder);
+                .TestValidateAsync(newPathfinder, options =>
+                {
+                    options.IncludeAllRuleSets();
+                });
 
             validationResult.ShouldHaveValidationErrorFor(p => p.Email)
                 .WithSeverity(Severity.Error);
@@ -145,7 +148,7 @@ namespace PathfinderHonorManager.Tests
                         }
                 }); ;
 
-            context.SaveChanges();
+            context.SaveChangesAsync();
         }
         public static string RandomString(int length)
         {
