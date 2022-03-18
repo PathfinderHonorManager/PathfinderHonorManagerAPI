@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  # workflow_dispatch:
 
 jobs:
   test:
@@ -27,7 +27,6 @@ jobs:
         run: dotnet test
   
   analyze:
-    needs: test
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
@@ -75,7 +74,7 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
   build:
-    needs: analyze
+    needs: [analyze, test]
     runs-on: ubuntu-latest
 
     steps:

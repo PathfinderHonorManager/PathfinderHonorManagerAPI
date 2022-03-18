@@ -26,7 +26,7 @@ using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Validators;
 using PathfinderHonorManager.Healthcheck;
 using Microsoft.AspNetCore.HttpLogging;
-
+using PathfinderHonorManager.Auth;
 namespace PathfinderHonorManager
 {
     public class Startup
@@ -40,33 +40,33 @@ namespace PathfinderHonorManager
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // services
-            //     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //     .AddMicrosoftAccount(microsoftOptions =>
+            // services.AddCors(options =>
+            // {
+            //     options.AddPolicy("AllowSpecificOrigin",
+            //         builder =>
             //         {
-            //             microsoftOptions.ClientId = Configuration["AzureAD:ClientId"];
-            //             microsoftOptions.ClientSecret = Configuration["AzureAD:ClientSecret"];
-            //         })
-            //     .AddJwtBearer("Bearer", 
-            //         opt =>
-            //         {
-            //             opt.Audience = "https://localhost:5000/";
-            //             opt.Authority = "https://login.microsoftonline.com/eb971100-7f436/";
+            //             builder
+            //             .WithOrigins("http://localhost:8080")
+            //             .AllowAnyMethod()
+            //             .AllowAnyHeader()
+            //             .AllowCredentials();
             //         });
+            // });
+            var domain = $"https://{Configuration["Auth0:Domain"]}/";
+            var tokenUrl = $"https://{Configuration["Auth0:Domain"]}/oauth/token";
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(Configuration);
-            services.AddAuthorization(
-                opt =>
+                .AddJwtBearer(options =>
                 {
-                    var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
-                        JwtBearerDefaults.AuthenticationScheme,
-                        "Bearer");
-                    defaultAuthorizationPolicyBuilder =
-                        defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
-                    opt.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+                    options.Authority = domain;
+                    options.Audience = Configuration["Auth0:Audience"];
                 });
-            services
-                .AddControllers();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("read:pathfinders", policy => policy.Requirements.Add(new HasScopeRequirement("read:pathfinders", domain)));
+            });
+            services.AddControllers();
+            
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
             services.AddSwaggerGen(c =>
             {
@@ -80,11 +80,14 @@ namespace PathfinderHonorManager
                     {
                         AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri(Configuration["AzureAD:AuthURL"]),
-                            TokenUrl = new Uri(Configuration["AzureAD:TokenURL"]),
+                            AuthorizationUrl = new Uri(domain + "authorize?audience=" 
+                                + Configuration["Auth0:Audience"]),
+                            TokenUrl = new Uri(tokenUrl),
                             Scopes = new Dictionary<string, string>
                             {
-                                { Configuration["AzureAD:ApiScope"], "read the api" }
+                                { "openid", "openid" },
+                                { "profile", "profile"},
+                                { "email", "email"}
                             }
                         }
                     }
@@ -148,10 +151,10 @@ namespace PathfinderHonorManager
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pathfinder Honor Manager v1");
-                c.OAuthClientId(Configuration["AzureAD:ClientId"]);
+                c.OAuthClientId(Configuration["Auth0:ClientId"]);
                 c.OAuthUsePkce();
                 c.OAuthScopeSeparator(" ");
-                c.OAuthScopes(Configuration["ApiScope"]);
+                c.OAuthScopes("openid profile email");
             });
             
             // Commented out HTTPS redirection because Azure Healthcheck only uses HTTP and doesn't like 307
@@ -159,6 +162,8 @@ namespace PathfinderHonorManager
             app.UseHttpLogging();
 
             app.UseRouting();
+
+            // app.UseCors("AllowSpecificOrigin");
 
             app.UseAuthentication();
             app.UseAuthorization();

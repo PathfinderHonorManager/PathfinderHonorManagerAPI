@@ -38,7 +38,6 @@ jobs:
         run: dotnet test
   
   analyze:
-    needs: test
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
