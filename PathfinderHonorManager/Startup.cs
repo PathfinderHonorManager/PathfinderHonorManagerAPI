@@ -27,6 +27,9 @@ using PathfinderHonorManager.Validators;
 using PathfinderHonorManager.Healthcheck;
 using Microsoft.AspNetCore.HttpLogging;
 using PathfinderHonorManager.Auth;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+
 namespace PathfinderHonorManager
 {
     public class Startup
@@ -54,15 +57,25 @@ namespace PathfinderHonorManager
             // });
             var domain = $"https://{Configuration["Auth0:Domain"]}/";
             var tokenUrl = $"https://{Configuration["Auth0:Domain"]}/oauth/token";
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.Authority = domain;
                     options.Audience = Configuration["Auth0:Audience"];
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = ClaimTypes.NameIdentifier
+                    };
                 });
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("read:pathfinders", policy => policy.Requirements.Add(new HasScopeRequirement("read:pathfinders", domain)));
+                options.AddPolicy("ReadPathfinders", policy => policy.Requirements.Add(new HasScopeRequirement("read:pathfinders", domain)));
+                options.AddPolicy("ReadHonors", policy => policy.Requirements.Add(new HasScopeRequirement("read:honors", domain)));
+                // options.AddPolicy("ReadPathfinders", policy => 
+                //           policy.RequireClaim("permissions", "read:pathfinders"));
+                // options.AddPolicy("ReadHonors", policy => 
+                //           policy.RequireClaim("permissions", "read:honors"));
             });
             services.AddControllers();
             

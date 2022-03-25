@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PathfinderHonorManager.Model;
@@ -11,6 +12,7 @@ namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize("ReadHonors")]
     public class HonorsController : ControllerBase
     {
         private readonly IHonorService _honorService;

@@ -9,11 +9,14 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize("ReadPathfinders")]
     public class PathfindersController : ApiController
     {
         private readonly IPathfinderService _pathfinderService;
