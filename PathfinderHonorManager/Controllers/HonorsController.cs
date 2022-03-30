@@ -14,7 +14,7 @@ namespace PathfinderHonorManager.Controllers
     [Route("api/[controller]")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [Authorize("ReadHonors")]
+    // [Authorize("ReadHonors")]
     public class HonorsController : ControllerBase
     {
         private readonly IHonorService _honorService;

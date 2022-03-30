@@ -18,7 +18,7 @@ namespace PathfinderHonorManager.Controllers
     [Route("api/[controller]")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [Authorize("ReadPathfinders")]
+    // [Authorize("ReadPathfinders")]
     public class PathfindersController : ApiController
     {
         private readonly IPathfinderService _pathfinderService;
