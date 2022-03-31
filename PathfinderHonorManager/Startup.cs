@@ -72,10 +72,6 @@ namespace PathfinderHonorManager
             {
                 options.AddPolicy("ReadPathfinders", policy => policy.Requirements.Add(new HasScopeRequirement("read:pathfinders", domain)));
                 options.AddPolicy("ReadHonors", policy => policy.Requirements.Add(new HasScopeRequirement("read:honors", domain)));
-                // options.AddPolicy("ReadPathfinders", policy => 
-                //           policy.RequireClaim("permissions", "read:pathfinders"));
-                // options.AddPolicy("ReadHonors", policy => 
-                //           policy.RequireClaim("permissions", "read:honors"));
             });
             services.AddControllers();
             
@@ -124,7 +120,8 @@ namespace PathfinderHonorManager
             services
                 .AddScoped<IPathfinderService, PathfinderService>()
                 .AddScoped<IHonorService, HonorService>()
-                .AddScoped<IPathfinderHonorService, PathfinderHonorService>();
+                .AddScoped<IPathfinderHonorService, PathfinderHonorService>()
+                .AddScoped<IClubService, ClubService>();
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>())
                 .AddJsonOptions(options => 

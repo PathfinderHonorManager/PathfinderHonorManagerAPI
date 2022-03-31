@@ -13,6 +13,7 @@ namespace PathfinderHonorManager.Mapping
             RegisterPathfinderMappings();
             RegisterHonorMappings();
             RegisterPathfinderHonorMappings();
+            RegisterClubMappings();
         }
 
         private void RegisterPathfinderMappings()
@@ -31,6 +32,12 @@ namespace PathfinderHonorManager.Mapping
         private void RegisterHonorMappings()
         {
             CreateMap<Honor, Outgoing.HonorDto>();
+        }
+
+
+        private void RegisterClubMappings()
+        {
+            CreateMap<Club, Outgoing.ClubDto>();
         }
 
         private void RegisterPathfinderHonorMappings()
