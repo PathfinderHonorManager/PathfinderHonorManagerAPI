@@ -36,6 +36,14 @@ namespace PathfinderHonorManager.Validators
                     .WithName(nameof(PathfinderHonorDto.HonorID))
                     .WithMessage(
                         dto => $"Pathfinder {dto.PathfinderID} already has honor {dto.HonorID}.");
+                    RuleFor(p => p)
+                    .MustAsync(
+                        async (dto, token) =>
+                             await _dbContext.Honors
+                                .AnyAsync(p => p.HonorID == dto.HonorID))
+                    .WithName(nameof(PathfinderHonorDto.HonorID))
+                    .WithMessage(
+                        dto => $"Invalid Honor ID provided.");
                 });
         }
     }
