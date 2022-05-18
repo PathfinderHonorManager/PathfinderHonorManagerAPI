@@ -12,9 +12,9 @@ namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize("ReadClubs")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    // [Authorize("ReadClubs")]
     public class ClubsController : ControllerBase
     {
         private readonly IClubService _clubService;

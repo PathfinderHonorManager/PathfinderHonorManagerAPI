@@ -11,13 +11,13 @@ namespace PathfinderHonorManager.Model
         [Key, Column("honor_id")]
         public Guid HonorID { get; set; }
         [Column("name")]
-        public String Name { get; set; }
+        public string Name { get; set; }
         [Column("level")]
         public int Level { get; set; }
         [Column("description")]
-        public String Description { get; set; }
+        public string Description { get; set; }
         [Column("patch_path")]
-        public Uri PatchPath { get; set; }
+        public string PatchFilename { get; set; }
         [Column("wiki_path")]
         public Uri WikiPath { get; set; }
     }
