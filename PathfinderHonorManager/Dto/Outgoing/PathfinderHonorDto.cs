@@ -13,7 +13,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public string Status { get; set; }
 
-        public string PatchPath { get; set;}
+        public string PatchFilename { get; set;}
 
         public string WikiPath { get; set;}
     }
