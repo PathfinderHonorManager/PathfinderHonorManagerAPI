@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,9 @@ namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
     [Route("api/pathfinders/{pathfinderId:guid}/[controller]")]
+    [Authorize("ReadPathfinders")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class PathfinderHonorsController : ApiController
     {
         private readonly IPathfinderHonorService _pathfinderHonorService;

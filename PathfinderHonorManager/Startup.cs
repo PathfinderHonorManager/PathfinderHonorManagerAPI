@@ -72,6 +72,7 @@ namespace PathfinderHonorManager
             {
                 options.AddPolicy("ReadPathfinders", policy => policy.Requirements.Add(new HasScopeRequirement("read:pathfinders", domain)));
                 options.AddPolicy("ReadHonors", policy => policy.Requirements.Add(new HasScopeRequirement("read:honors", domain)));
+                options.AddPolicy("ReadClubs", policy => policy.Requirements.Add(new HasScopeRequirement("read:clubs", domain)));
             });
             services.AddControllers();
             
