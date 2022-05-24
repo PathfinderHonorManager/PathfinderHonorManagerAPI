@@ -11,7 +11,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
         public int Level { get; set; }
 
         // public String Description { get; set; }
-        public Uri PatchFilename { get; set; }
+        public string PatchFilename { get; set; }
 
         public Uri WikiPath { get; set; }
     }
