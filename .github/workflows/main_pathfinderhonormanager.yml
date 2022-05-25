@@ -102,7 +102,7 @@ jobs:
           App.ServerRootAddress: ${{ env.SERVER_ROOT_ADDRESS }}
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
