@@ -44,7 +44,7 @@ namespace PathfinderHonorManager.Service
                 .Include(pc => pc.PathfinderClass)
                 .Include(ph => ph.PathfinderHonors)
                     .ThenInclude(phs => phs.PathfinderHonorStatus)
-                .Include(ph => ph.PathfinderHonors)
+                .Include(ph => ph.PathfinderHonors.OrderBy(x => x.Honor.Name))
                     .ThenInclude(h => h.Honor)
                 .ToListAsync(token);
 
@@ -60,7 +60,7 @@ namespace PathfinderHonorManager.Service
                 .Include(pc => pc.PathfinderClass)
                 .Include(ph => ph.PathfinderHonors)
                     .ThenInclude(phs => phs.PathfinderHonorStatus)
-                .Include(ph => ph.PathfinderHonors)
+                .Include(ph => ph.PathfinderHonors.OrderBy(x => x.Honor.Name))
                     .ThenInclude(h => h.Honor)
                 .SingleOrDefaultAsync(p => p.PathfinderID == id, token);
 
