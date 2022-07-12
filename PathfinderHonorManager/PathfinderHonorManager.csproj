@@ -22,7 +22,7 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.7" />
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="6.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.6" />
     <PackageReference Include="Microsoft.Identity.Web" Version="1.25.1" />
