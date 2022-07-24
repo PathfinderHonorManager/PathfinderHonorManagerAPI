@@ -46,7 +46,8 @@ namespace PathfinderHonorManager.Service
                     .ThenInclude(phs => phs.PathfinderHonorStatus)
                 .Include(ph => ph.PathfinderHonors.OrderBy(x => x.Honor.Name))
                     .ThenInclude(h => h.Honor)
-                .OrderBy(p => p.LastName)
+                .OrderBy(p => p.Grade)
+                .ThenBy(p => p.LastName)
                 .ToListAsync(token);
 
             return _mapper.Map<ICollection<Outgoing.PathfinderDependantDto>>(pathfinders);
