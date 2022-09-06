@@ -26,7 +26,7 @@ namespace PathfinderHonorManager.Service
 
         private readonly IValidator<Incoming.PathfinderHonorDto> _validator;
 
-        private int newStatusCode { get; set; }
+        private PathfinderHonorStatus _honorStatus;
 
         public PathfinderHonorService(
             PathfinderContext context,
@@ -70,7 +70,7 @@ namespace PathfinderHonorManager.Service
         public async Task<Outgoing.PathfinderHonorDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
 
-            Incoming.PathfinderHonorDto newPathfinderHonor = MapStatus(pathfinderId, incomingPathfinderHonor);
+            Incoming.PathfinderHonorDto newPathfinderHonor = await MapStatus(pathfinderId, incomingPathfinderHonor, token);
 
 
             await _validator.ValidateAsync(
@@ -97,7 +97,7 @@ namespace PathfinderHonorManager.Service
         public async Task<Outgoing.PathfinderHonorDto> UpdateAsync(Guid pathfinderId, Guid honorId, Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
             var targetPathfinderHonor = await _dbContext.PathfinderHonors
-                                                .Where(p => p.PathfinderID == pathfinderId && p.HonorID ==honorId)
+                                                .Where(p => p.PathfinderID == pathfinderId && p.HonorID == honorId)
                                                 .Include(phs => phs.PathfinderHonorStatus)
                                                 .Include(h => h.Honor)
                                                 .SingleOrDefaultAsync(token);
@@ -107,7 +107,7 @@ namespace PathfinderHonorManager.Service
                 return default;
             }
 
-            Incoming.PathfinderHonorDto updatedPathfinderHonor = MapStatus(pathfinderId, incomingPathfinderHonor, honorId);
+            Incoming.PathfinderHonorDto updatedPathfinderHonor = await MapStatus(pathfinderId, incomingPathfinderHonor, token, honorId);
 
             await _validator.ValidateAsync(
                 updatedPathfinderHonor,
@@ -129,34 +129,41 @@ namespace PathfinderHonorManager.Service
                 .Where(ph => ph.HonorID == honorId);
         }
 
-        private Incoming.PathfinderHonorDto MapStatus(Guid pathfinderId, dynamic upsertPathfinderHonor, Guid honorId = new Guid())
+        private async Task<Incoming.PathfinderHonorDto> MapStatus(Guid pathfinderId, dynamic upsertPathfinderHonor, CancellationToken token,
+                            Guid honorId = new Guid())
         {
-            if (Enum.TryParse(upsertPathfinderHonor.Status, out HonorStatus statusEntity))
+
+
+            Enum.TryParse(upsertPathfinderHonor.Status, out HonorStatus statusEntity);
+
+            try
             {
-                newStatusCode = statusEntity switch
+                _honorStatus = await _dbContext.PathfinderHonorStatuses
+                    .Where(s => s.Status == statusEntity.ToString())
+                    .SingleAsync(token);
+            }
+            catch (Exception)
+            {
+                _honorStatus = new()
                 {
-                    HonorStatus.Awarded => (int)HonorStatus.Awarded,
-                    HonorStatus.Earned => (int)HonorStatus.Earned,
-                    HonorStatus.Planned => (int)HonorStatus.Planned,
-                    _ => -1,
+                    Status = "Unknown",
+                    StatusCode = -1
                 };
             }
-            else
-            {
-                newStatusCode = -1;
-            }
+ 
 
             if (honorId == Guid.Empty)
             {
                 honorId = upsertPathfinderHonor.HonorID;
             }
 
-            Incoming.PathfinderHonorDto mappedPathfinderHonor = new()
+
+                Incoming.PathfinderHonorDto mappedPathfinderHonor = new()
             {
                 HonorID = honorId,
                 PathfinderID = pathfinderId,
-                Status = upsertPathfinderHonor.Status,
-                StatusCode = newStatusCode
+                Status = _honorStatus.Status,
+                StatusCode = _honorStatus.StatusCode
             };
 
             return mappedPathfinderHonor;
