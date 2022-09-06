@@ -28,8 +28,6 @@ namespace PathfinderHonorManager.Service
 
         private PathfinderHonorStatus _honorStatus;
 
-        //private int newStatusCode { get; set; }
-
         public PathfinderHonorService(
             PathfinderContext context,
             IMapper mapper,
@@ -153,7 +151,6 @@ namespace PathfinderHonorManager.Service
                 };
             }
  
-
 
             if (honorId == Guid.Empty)
             {
