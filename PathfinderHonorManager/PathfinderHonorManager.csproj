@@ -25,7 +25,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.10" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="1.25.4" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="1.25.5" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Microsoft.Extensions.Diagnostics.HealthChecks" />
