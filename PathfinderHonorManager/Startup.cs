@@ -1,34 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentValidation;
+using System.Security.Claims;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Identity.Web;
+using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Npgsql;
+using PathfinderHonorManager.Auth;
 using PathfinderHonorManager.DataAccess;
+using PathfinderHonorManager.Healthcheck;
 using PathfinderHonorManager.Mapping;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Validators;
-using PathfinderHonorManager.Healthcheck;
-using Microsoft.AspNetCore.HttpLogging;
-using PathfinderHonorManager.Auth;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 
 namespace PathfinderHonorManager
 {
@@ -68,6 +60,7 @@ namespace PathfinderHonorManager
                         NameClaimType = ClaimTypes.NameIdentifier
                     };
                 });
+            services.AddApplicationInsightsTelemetry();
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("ReadPathfinders", policy => policy.Requirements.Add(new HasScopeRequirement("read:pathfinders", domain)));
