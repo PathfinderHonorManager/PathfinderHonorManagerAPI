@@ -26,6 +26,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.1" />
     <PackageReference Include="Microsoft.Identity.Web" Version="1.25.10" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Microsoft.Extensions.Diagnostics.HealthChecks" />
@@ -33,6 +35,8 @@
     <None Remove="Healthcheck\" />
     <None Remove="Microsoft.Extensions.Logging.AzureAppServices" />
     <None Remove="Microsoft.AspNetCore.Authentication.MicrosoftAccount" />
+    <None Remove="Microsoft.ApplicationInsights" />
+    <None Remove="Microsoft.ApplicationInsights.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Healthcheck\" />
