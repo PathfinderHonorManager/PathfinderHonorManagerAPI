@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Security.Claims;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,18 +37,6 @@ namespace PathfinderHonorManager
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddCors(options =>
-            // {
-            //     options.AddPolicy("AllowSpecificOrigin",
-            //         builder =>
-            //         {
-            //             builder
-            //             .WithOrigins("http://localhost:8080")
-            //             .AllowAnyMethod()
-            //             .AllowAnyHeader()
-            //             .AllowCredentials();
-            //         });
-            // });
             var domain = $"https://{Configuration["Auth0:Domain"]}/";
             var tokenUrl = $"https://{Configuration["Auth0:Domain"]}/oauth/token";
             services
@@ -68,12 +58,15 @@ namespace PathfinderHonorManager
                 options.AddPolicy("ReadClubs", policy => policy.Requirements.Add(new HasScopeRequirement("read:clubs", domain)));
             });
             services.AddControllers();
-            
+
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pathfinder Honor Manager", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
                 c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
                     Description = "OAuth2.0 Auth Code with PKCE",
@@ -83,7 +76,7 @@ namespace PathfinderHonorManager
                     {
                         AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri(domain + "authorize?audience=" 
+                            AuthorizationUrl = new Uri(domain + "authorize?audience="
                                 + Configuration["Auth0:Audience"]),
                             TokenUrl = new Uri(tokenUrl),
                             Scopes = new Dictionary<string, string>
@@ -118,7 +111,7 @@ namespace PathfinderHonorManager
                 .AddScoped<IClubService, ClubService>();
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PathfinderValidator>())
-                .AddJsonOptions(options => 
+                .AddJsonOptions(options =>
                     {
                         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
                     });
@@ -160,7 +153,7 @@ namespace PathfinderHonorManager
                 c.OAuthScopeSeparator(" ");
                 c.OAuthScopes("openid profile email");
             });
-            
+
             // Commented out HTTPS redirection because Azure Healthcheck only uses HTTP and doesn't like 307
             // app.UseHttpsRedirection();
             app.UseHttpLogging();
