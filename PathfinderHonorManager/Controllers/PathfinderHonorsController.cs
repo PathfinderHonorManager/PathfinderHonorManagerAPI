@@ -26,6 +26,12 @@ namespace PathfinderHonorManager.Controllers
             _pathfinderHonorService = pathfinderHonorService;
         }
 
+        // GET Pathfinders/{id}/Honors
+        /// <summary>
+        /// Get Pathfinder by Id
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -41,6 +47,12 @@ namespace PathfinderHonorManager.Controllers
             return Ok(pathfinder);
         }
 
+        // GET Pathfinders/{id}/Honors/{honorId}
+        /// <summary>
+        /// Get PathfinderHonor by Id
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet("{honorId:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -56,6 +68,13 @@ namespace PathfinderHonorManager.Controllers
             return Ok(pathfinder);
         }
 
+        // POST Pathfinders/{id}/Honors
+        /// <summary>
+        /// Add a new PathfinderHonor
+        /// </summary>
+        /// <param name="newPathfinderHonor"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -81,11 +100,19 @@ namespace PathfinderHonorManager.Controllers
             }
         }
 
+        // PUT Pathfinders/{id}/Honors/{honorId}
+        /// <summary>
+        /// Update a PathfinderHonor
+        /// </summary>
+        /// <param name="honorId"></param>
+        /// <param name="incomingPathfinderHonor"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpPut("{honorId:guid}")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutAsync(Guid pathfinderId, Guid honorId,[FromBody] Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
+        public async Task<IActionResult> PutAsync(Guid pathfinderId, Guid honorId, [FromBody] Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
             try
             {

@@ -24,6 +24,12 @@ namespace PathfinderHonorManager.Controllers
             _clubService = clubService;
         }
 
+        // GET Clubs
+        /// <summary>  
+        /// Get all Clubs
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Club>>> GetClubs(CancellationToken token)
@@ -38,6 +44,13 @@ namespace PathfinderHonorManager.Controllers
             return Ok(clubs);
         }
 
+        // GET Clubs/{id}
+        /// <summary>
+        /// Get a Club by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id:guid}")]
