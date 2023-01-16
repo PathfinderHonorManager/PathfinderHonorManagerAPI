@@ -13,6 +13,8 @@ namespace PathfinderHonorManager.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize("ReadClubs")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class ClubsController : ControllerBase

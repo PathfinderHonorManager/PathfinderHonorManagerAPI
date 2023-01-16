@@ -15,6 +15,8 @@ namespace PathfinderHonorManager.Controllers
     [ApiController]
     [Route("api/pathfinders/{pathfinderId:guid}/[controller]")]
     [Authorize("ReadPathfinders")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class PathfinderHonorsController : ApiController
@@ -30,6 +32,7 @@ namespace PathfinderHonorManager.Controllers
         /// <summary>
         /// Get Pathfinder by Id
         /// </summary>
+        /// <param name="pathfinderId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpGet]
@@ -51,6 +54,8 @@ namespace PathfinderHonorManager.Controllers
         /// <summary>
         /// Get PathfinderHonor by Id
         /// </summary>
+        /// <param name="pathfinderId"></param>
+        /// <param name="honorId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpGet("{honorId:guid}")]
@@ -72,7 +77,7 @@ namespace PathfinderHonorManager.Controllers
         /// <summary>
         /// Add a new PathfinderHonor
         /// </summary>
-        /// <param name="newPathfinderHonor"></param>
+        /// <param name="pathfinderId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpPost]
@@ -105,8 +110,8 @@ namespace PathfinderHonorManager.Controllers
         /// <summary>
         /// Update a PathfinderHonor
         /// </summary>
+        /// <param name="pathfinderId"></param>
         /// <param name="honorId"></param>
-        /// <param name="incomingPathfinderHonor"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpPut("{honorId:guid}")]

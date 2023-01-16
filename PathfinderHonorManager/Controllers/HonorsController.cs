@@ -13,6 +13,8 @@ namespace PathfinderHonorManager.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize("ReadHonors")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class HonorsController : ControllerBase
