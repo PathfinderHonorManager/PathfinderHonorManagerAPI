@@ -57,9 +57,9 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
+        [HttpGet("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
             var pathfinder = await _pathfinderService.GetByIdAsync(id, token);
@@ -80,6 +80,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize("CreatePathfinders")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> PostAsync([FromBody] Incoming.PathfinderDto newPathfinder, CancellationToken token)
@@ -113,6 +114,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpPut]
+        [Authorize("UpdatePathfinders")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutAsync(Guid pathfinderId, [FromBody] Incoming.PutPathfinderDto updatedPathfinder, CancellationToken token)
