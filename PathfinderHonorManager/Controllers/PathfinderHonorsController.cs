@@ -76,6 +76,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize("UpdatePathfinders")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -109,6 +110,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpPut("{honorId:guid}")]
+        [Authorize("UpdatePathfinders")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
