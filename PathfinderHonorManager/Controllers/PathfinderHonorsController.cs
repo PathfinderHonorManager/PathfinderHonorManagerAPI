@@ -35,7 +35,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="pathfinderId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        //[Route("api/pathfinders/{pathfinderId:guid}/[controller]")]
+        [Route("{pathfinderId:guid}")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,7 +51,7 @@ namespace PathfinderHonorManager.Controllers
             return Ok(pathfinder);
         }
 
-        // GET Pathfinders?status={honorStatus}
+        // GET Pathfinders?status={status}
         /// <summary>
         /// Get Pathfinder honors by status
         /// </summary>
@@ -82,8 +82,8 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="honorId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        //[Route("api/pathfinders/{pathfinderId:guid}/[controller]/{honorId:guid}")]
-        [HttpGet("{honorId:guid}")]
+        [Route("{pathfinderId:guid}/Honors/{honorId:guid}")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetByIdAsync(Guid pathfinderId, Guid honorId, CancellationToken token)
@@ -106,7 +106,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="newPathfinderHonor"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        //[Route("api/pathfinders/{pathfinderId:guid}/[controller]")]
+        [Route("{pathfinderId:guid}")]
         [HttpPost]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status201Created)]
@@ -142,8 +142,8 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="incomingPathfinderHonor"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        //[Route("api/pathfinders/{pathfinderId:guid}/[controller]/{honorId:guid}")]
-        [HttpPut("{honorId:guid}")]
+        [Route("{pathfinderId:guid}/Honor/{honorId:guid}")]
+        [HttpPut]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
