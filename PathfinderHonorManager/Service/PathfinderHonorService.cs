@@ -45,12 +45,24 @@ namespace PathfinderHonorManager.Service
             var pathfinderhonors = await _dbContext.PathfinderHonors
                 .Include(phs => phs.PathfinderHonorStatus)
                 .Include(h => h.Honor)
-                .Where(p => p.PathfinderID == pathfinderId )
+                .Where(p => p.PathfinderID == pathfinderId)
                 .OrderBy(ph => ph.Honor.Name)
                 .ToListAsync(token);
 
             return _mapper.Map<ICollection<Outgoing.PathfinderHonorDto>>(pathfinderhonors);
 
+        }
+
+        public async Task<ICollection<Outgoing.PathfinderHonorDto>> GetAllByStatusAsync(string honorStatus, CancellationToken token)
+        {
+            var pathfinderhonors = await _dbContext.PathfinderHonors
+                .Include(phs => phs.PathfinderHonorStatus)
+                .Include(h => h.Honor)
+                .Where(phs => phs.PathfinderHonorStatus.Status.ToLower() == honorStatus.ToLower())
+                .OrderBy(ph => ph.Honor.Name)
+                .ToListAsync(token);
+
+            return _mapper.Map<ICollection<Outgoing.PathfinderHonorDto>>(pathfinderhonors);
         }
 
         public async Task<Outgoing.PathfinderHonorDto> GetByIdAsync(Guid pathfinderId, Guid honorId, CancellationToken token)
@@ -150,7 +162,7 @@ namespace PathfinderHonorManager.Service
                     StatusCode = -1
                 };
             }
- 
+
 
             if (honorId == Guid.Empty)
             {
@@ -158,7 +170,7 @@ namespace PathfinderHonorManager.Service
             }
 
 
-                Incoming.PathfinderHonorDto mappedPathfinderHonor = new()
+            Incoming.PathfinderHonorDto mappedPathfinderHonor = new()
             {
                 HonorID = honorId,
                 PathfinderID = pathfinderId,
