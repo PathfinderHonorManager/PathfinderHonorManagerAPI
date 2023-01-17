@@ -58,11 +58,11 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="status"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("Honors")]
+        [Route("Honors/{status}")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAllByStatus([FromQuery] string status, CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAllByStatus([FromRoute] string status, CancellationToken token)
         {
             var pathfinder = await _pathfinderHonorService.GetAllByStatusAsync(status, token);
 
