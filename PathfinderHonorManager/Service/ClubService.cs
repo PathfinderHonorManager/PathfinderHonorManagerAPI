@@ -23,13 +23,13 @@ namespace PathfinderHonorManager.Service
 
         private readonly ILogger _logger;
 
-        private readonly IValidator<Incoming.PathfinderDto> _validator;
+        private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
 
 
         public ClubService(
             PathfinderContext context,
             IMapper mapper,
-            IValidator<Incoming.PathfinderDto> validator,
+            IValidator<Incoming.PathfinderDtoInternal> validator,
             ILogger<PathfinderService> logger)
         {
             _dbContext = context;
@@ -60,5 +60,16 @@ namespace PathfinderHonorManager.Service
                 : _mapper.Map<Outgoing.ClubDto>(entity);
         }
 
+        public async Task<Outgoing.ClubDto> GetByCodeAsync(string code, CancellationToken token)
+        {
+            Club entity;
+
+            entity = await _dbContext.Clubs
+                .SingleOrDefaultAsync(p => p.ClubCode == code, token);
+
+            return entity == default
+                ? default
+                : _mapper.Map<Outgoing.ClubDto>(entity);
+        }
     }
 }

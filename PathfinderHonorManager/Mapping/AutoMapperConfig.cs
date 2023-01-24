@@ -19,7 +19,9 @@ namespace PathfinderHonorManager.Mapping
         private void RegisterPathfinderMappings()
         {
             CreateMap<Pathfinder, Outgoing.PathfinderDto>()
-                .IncludeMembers(p => p.PathfinderClass);
+                .IncludeMembers(p => p.PathfinderClass)
+                .IncludeMembers(p => p.Club);
+            CreateMap<Club, Outgoing.PathfinderDto>();
             CreateMap<PathfinderClass, Outgoing.PathfinderDto>();
             CreateMap<Pathfinder, Outgoing.PathfinderDependantDto>()
                 .IncludeMembers(p => p.PathfinderClass);
@@ -27,6 +29,12 @@ namespace PathfinderHonorManager.Mapping
             CreateMap<PathfinderClass, Outgoing.PathfinderDependantDto>();
             CreateMap<Incoming.PathfinderDto, Pathfinder>();
             CreateMap<PathfinderHonor, Outgoing.PathfinderDependantDto>();
+            CreateMap<Incoming.PathfinderDto, Incoming.PathfinderDtoInternal>();
+            CreateMap<Pathfinder, Incoming.PathfinderDtoInternal>();
+            CreateMap<Incoming.PathfinderDtoInternal, Pathfinder>();
+            CreateMap<Incoming.PathfinderDtoInternal, Club>()
+                .ForMember(dest => dest.ClubID, opt => opt.MapFrom(src => src.ClubID));
+
         }
 
         private void RegisterHonorMappings()

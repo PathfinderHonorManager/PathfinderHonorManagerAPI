@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace PathfinderHonorManager.Dto.Incoming
 {
@@ -15,6 +16,11 @@ namespace PathfinderHonorManager.Dto.Incoming
 
         public int? Grade { get; set; }
 
+    }
+
+    public class PathfinderDtoInternal : PathfinderDto
+    {
+        public Guid? ClubID { get; set; }
     }
 
     public class PutPathfinderDto
