@@ -13,7 +13,7 @@ using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/pathfinders")]
     [Authorize("ReadPathfinders")]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -35,7 +35,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="pathfinderId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("{pathfinderId:guid}")]
+        [Route("{pathfinderId:guid}/Honors")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,18 +51,18 @@ namespace PathfinderHonorManager.Controllers
             return Ok(pathfinder);
         }
 
-        // GET Pathfinders?status={status}
+        // GET Pathfinders/Honors?status={status}
         /// <summary>
         /// Get Pathfinder honors by status
         /// </summary>
         /// <param name="status"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("Honors/{status}")]
         [HttpGet]
+        [Route("Honors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAllByStatus([FromRoute] string status, CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAllByStatus([FromQuery] string status, CancellationToken token)
         {
             var pathfinder = await _pathfinderHonorService.GetAllByStatusAsync(status, token);
 
@@ -106,7 +106,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="newPathfinderHonor"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("{pathfinderId:guid}")]
+        [Route("{pathfinderId:guid}/Honors")]
         [HttpPost]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status201Created)]
@@ -142,7 +142,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="incomingPathfinderHonor"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("{pathfinderId:guid}/Honor/{honorId:guid}")]
+        [Route("{pathfinderId:guid}/Honors/{honorId:guid}")]
         [HttpPut]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status200OK)]

@@ -55,6 +55,11 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.PathfinderHonorDto>> GetAllByStatusAsync(string honorStatus, CancellationToken token)
         {
+            if (string.IsNullOrWhiteSpace(honorStatus))
+            {
+                return new List<Outgoing.PathfinderHonorDto>();
+            }
+
             var pathfinderhonors = await _dbContext.PathfinderHonors
                 .Include(phs => phs.PathfinderHonorStatus)
                 .Include(h => h.Honor)
