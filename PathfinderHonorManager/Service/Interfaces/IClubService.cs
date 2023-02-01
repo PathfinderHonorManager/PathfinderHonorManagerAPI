@@ -12,6 +12,11 @@ namespace PathfinderHonorManager.Service.Interfaces
             Guid id,
             CancellationToken token);
 
-        Task<ICollection<Outgoing.ClubDto>> GetAllAsync(CancellationToken token);
+        Task<Outgoing.ClubDto> GetByCodeAsync(
+            string code,
+            CancellationToken token);
+
+        Task<ICollection<Outgoing.ClubDto>> GetAllAsync(
+            CancellationToken token);
     }
 }

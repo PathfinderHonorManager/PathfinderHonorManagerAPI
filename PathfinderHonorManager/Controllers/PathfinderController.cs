@@ -25,6 +25,12 @@ namespace PathfinderHonorManager.Controllers
     {
         private readonly IPathfinderService _pathfinderService;
 
+        private string GetClubCodeFromContext()
+        {
+            var clubCode = HttpContext.User.FindFirst("clubCode")?.Value;
+            return clubCode;
+        }
+
         public PathfindersController(IPathfinderService pathfinderService)
         {
             _pathfinderService = pathfinderService;
@@ -40,7 +46,8 @@ namespace PathfinderHonorManager.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Outgoing.PathfinderDependantDto>>> GetAll(CancellationToken token)
         {
-            var pathfinder = await _pathfinderService.GetAllAsync(token);
+            var clubCode = GetClubCodeFromContext();
+            var pathfinder = await _pathfinderService.GetAllAsync(clubCode, token);
 
             if (pathfinder == default)
             {
@@ -62,7 +69,8 @@ namespace PathfinderHonorManager.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
-            var pathfinder = await _pathfinderService.GetByIdAsync(id, token);
+            var clubCode = GetClubCodeFromContext();
+            var pathfinder = await _pathfinderService.GetByIdAsync(id, clubCode, token);
 
             if (pathfinder == default)
             {
@@ -85,9 +93,10 @@ namespace PathfinderHonorManager.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> PostAsync([FromBody] Incoming.PathfinderDto newPathfinder, CancellationToken token)
         {
+            var clubCode = GetClubCodeFromContext();
             try
             {
-                var pathfinder = await _pathfinderService.AddAsync(newPathfinder, token);
+                var pathfinder = await _pathfinderService.AddAsync(newPathfinder, clubCode, token);
 
                 return CreatedAtRoute(
                     routeValues: GetByIdAsync(pathfinder.PathfinderID, token),
@@ -119,9 +128,10 @@ namespace PathfinderHonorManager.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutAsync(Guid pathfinderId, [FromBody] Incoming.PutPathfinderDto updatedPathfinder, CancellationToken token)
         {
+            var clubCode = GetClubCodeFromContext();
             try
             {
-                var pathfinder = await _pathfinderService.UpdateAsync(pathfinderId, updatedPathfinder, token);
+                var pathfinder = await _pathfinderService.UpdateAsync(pathfinderId, updatedPathfinder, clubCode, token);
 
                 return pathfinder != default
                     ? Ok(pathfinder)

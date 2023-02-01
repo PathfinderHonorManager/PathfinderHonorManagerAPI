@@ -23,13 +23,13 @@ namespace PathfinderHonorManager.Service
 
         private readonly ILogger _logger;
 
-        private readonly IValidator<Incoming.PathfinderDto> _validator;
+        private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
 
 
         public HonorService(
             PathfinderContext context,
             IMapper mapper,
-            IValidator<Incoming.PathfinderDto> validator,
+            IValidator<Incoming.PathfinderDtoInternal> validator,
             ILogger<PathfinderService> logger)
         {
             _dbContext = context;

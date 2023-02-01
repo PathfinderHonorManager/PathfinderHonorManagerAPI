@@ -22,10 +22,15 @@ namespace PathfinderHonorManager.Model
         public String Email { get; set; }
         [Column("grade")]
         public int? Grade { get; set; }
+        [Column("club_id")]
+        public Guid ClubID { get; set; }
         [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
         [Column("update_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; }
+
+        [ForeignKey("ClubID")]
+        public Club Club { get; set; }
 
         [ForeignKey("Grade")]
         public PathfinderClass PathfinderClass { get; set; }

@@ -5,9 +5,12 @@ namespace PathfinderHonorManager.Dto.Outgoing
     public class PathfinderHonorDto
     {
         public Guid PathfinderHonorID { get; set; }
+
         public Guid PathfinderID { get; set; }
 
         public Guid HonorID { get; set; }
+
+        public Guid ClubID { get; set; }
 
         public string Name { get; set; }
 

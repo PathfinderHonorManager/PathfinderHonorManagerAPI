@@ -9,7 +9,7 @@ using PathfinderHonorManager.Dto.Incoming;
 
 namespace PathfinderHonorManager.Validators
 {
-    public class PathfinderValidator : AbstractValidator<PathfinderDto>
+    public class PathfinderValidator : AbstractValidator<PathfinderDtoInternal>, IValidator<PathfinderDtoInternal>
     {
         private readonly PathfinderContext _dbContext;
 
@@ -37,7 +37,12 @@ namespace PathfinderHonorManager.Validators
                                     .AnyAsync(p => p.Email == email, token))
                         .WithMessage(
                             p => $"Pathfinder email address ({p.Email}) is taken.");
+                    RuleFor(p => p.ClubID)
+                       .Must(id => id != Guid.Empty)
+                       .WithMessage("User must be associated with a valid club before adding a Pathfinder");
+
                 });
         }
     }
+
 }
