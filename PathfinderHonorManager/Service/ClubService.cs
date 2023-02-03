@@ -62,6 +62,8 @@ namespace PathfinderHonorManager.Service
 
         public async Task<Outgoing.ClubDto> GetByCodeAsync(string code, CancellationToken token)
         {
+            code = code.ToUpper();
+
             Club entity;
 
             entity = await _dbContext.Clubs
