@@ -119,7 +119,8 @@ namespace PathfinderHonorManager
             services
                 .AddFluentValidationAutoValidation()
                 .AddFluentValidationClientsideAdapters()
-                .AddValidatorsFromAssemblyContaining<PathfinderValidator>();
+                .AddValidatorsFromAssemblyContaining<PathfinderValidator>()
+                .AddValidatorsFromAssemblyContaining<HonorValidator>();
             services.AddMvc()
                 .AddJsonOptions(options =>
                     {

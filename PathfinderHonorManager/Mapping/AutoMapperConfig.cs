@@ -40,6 +40,7 @@ namespace PathfinderHonorManager.Mapping
         private void RegisterHonorMappings()
         {
             CreateMap<Honor, Outgoing.HonorDto>();
+            CreateMap<Incoming.HonorDto, Honor>();
         }
 
 

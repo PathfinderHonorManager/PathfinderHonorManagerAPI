@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
 
 namespace PathfinderHonorManager.Controllers
 {
@@ -65,7 +67,30 @@ namespace PathfinderHonorManager.Controllers
                 return NotFound();
             }
 
-            return Ok(honor);
+            return Ok(new { id = honor.HonorID, honor });
         }
+
+        // POST Honors
+        /// <summary>
+        /// Adds a new Honor
+        /// </summary>
+        /// <param name="newHonor"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [Authorize("CreateHonors")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [HttpPost]
+        public async Task<ActionResult<Honor>> Post([FromBody] Incoming.HonorDto newHonor, CancellationToken token)
+        {
+            var honor = await _honorService.AddAsync(newHonor, token);
+
+            return CreatedAtRoute(
+                routeValues: GetByIdAsync(honor.HonorID, token),
+                honor);
+        }
+
     }
 }

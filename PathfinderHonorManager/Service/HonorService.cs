@@ -1,17 +1,18 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using FluentValidation;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
-using Outgoing = PathfinderHonorManager.Dto.Outgoing;
-using PathfinderHonorManager.Model;
-using PathfinderHonorManager.DataAccess;
-using PathfinderHonorManager.Service.Interfaces;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using PathfinderHonorManager.DataAccess;
+using PathfinderHonorManager.Model;
+using PathfinderHonorManager.Service.Interfaces;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
+using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 
 namespace PathfinderHonorManager.Service
 {
@@ -23,13 +24,13 @@ namespace PathfinderHonorManager.Service
 
         private readonly ILogger _logger;
 
-        private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
+        private readonly IValidator<Incoming.HonorDto> _validator;
 
 
         public HonorService(
             PathfinderContext context,
             IMapper mapper,
-            IValidator<Incoming.PathfinderDtoInternal> validator,
+            IValidator<Incoming.HonorDto> validator,
             ILogger<PathfinderService> logger)
         {
             _dbContext = context;
@@ -60,5 +61,21 @@ namespace PathfinderHonorManager.Service
                 : _mapper.Map<Outgoing.HonorDto>(entity);
         }
 
+        public async Task<Outgoing.HonorDto> AddAsync(Incoming.HonorDto newHonor, CancellationToken token)
+        {
+
+            // Validate the incoming honor DTO using the created validator
+            _ = await _validator.ValidateAsync(newHonor,opt => opt.ThrowOnFailures(), token);
+
+            // Map the validated honor DTO to a Honor entity
+            var honor = _mapper.Map<Honor>(newHonor);
+
+            // Add the honor to the database
+            _dbContext.Honors.Add(honor);
+            await _dbContext.SaveChangesAsync(token);
+
+            // Map the added honor to an Outgoing Honor DTO and return it
+            return _mapper.Map<Outgoing.HonorDto>(honor);
+        }
     }
 }
