@@ -64,7 +64,12 @@ namespace PathfinderHonorManager.Service
         public async Task<Outgoing.HonorDto> AddAsync(Incoming.HonorDto newHonor, CancellationToken token)
         {
 
-            _ = await _validator.ValidateAsync(newHonor,opt => opt.ThrowOnFailures(), token);
+            _ = await _validator.ValidateAsync(
+                newHonor,
+                opt => opt
+                    .ThrowOnFailures()
+                    .IncludeAllRuleSets(),
+                token);
 
             var honor = _mapper.Map<Honor>(newHonor);
 
@@ -78,7 +83,7 @@ namespace PathfinderHonorManager.Service
         {
             _ = await _validator.ValidateAsync(updatedHonor, opt => opt.ThrowOnFailures(), token);
 
-            var existingHonor = await _dbContext.Honors.SingleOrDefaultAsync(h => h.HonorID == id, token);
+            var existingHonor = await GetByIdAsync(id, token);
 
             if (existingHonor == null)
             {
