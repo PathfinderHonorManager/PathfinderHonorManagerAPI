@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentValidation.TestHelper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using NUnit.Framework;
+using PathfinderHonorManager.DataAccess;
+using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Validators;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 
@@ -10,13 +14,43 @@ namespace PathfinderHonorManager.Tests
     [TestFixture]
     public class HonorValidatorTests
     {
+        private DbContextOptions<PathfinderContext> _dbContextOptions;
         private HonorValidator _validator;
 
         [SetUp]
         public void Setup()
         {
-            _validator = new HonorValidator();
+            _dbContextOptions = new DbContextOptionsBuilder<PathfinderContext>()
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
+
+            using (var context = new PathfinderContext(_dbContextOptions))
+            {
+                // Seed the database with some data
+                context.Honors.Add(new Honor
+                {
+                    HonorID = Guid.NewGuid(),
+                    Name = "Honor 1",
+                    Level = 1,
+                    PatchFilename = "patch1.png",
+                    WikiPath = new Uri("https://example.com/honor1")
+                });
+
+                context.Honors.Add(new Honor
+                {
+                    HonorID = Guid.NewGuid(),
+                    Name = "Honor 2",
+                    Level = 2,
+                    PatchFilename = "patch2.png",
+                    WikiPath = new Uri("https://example.com/honor2")
+                });
+
+                context.SaveChanges();
+            }
+
+            _validator = new HonorValidator(new PathfinderContext(_dbContextOptions));
         }
+
 
         [Test]
         public async Task Validate_HonorDto_WithValidData_ShouldPass()
@@ -110,6 +144,45 @@ namespace PathfinderHonorManager.Tests
             // Assert
             result.ShouldHaveValidationErrorFor(x => x.WikiPath);
         }
+
+        [Test]
+        public async Task Validate_HonorDto_WithDuplicateName_ShouldFail()
+        {
+            // Arrange
+            var honorDto = new Incoming.HonorDto
+            {
+                Name = "Test Honor",
+                Level = 1,
+                PatchFilename = "test.png",
+                WikiPath = new Uri("https://example.com")
+            };
+
+            using (var context = new PathfinderContext(_dbContextOptions))
+            {
+                // Add a duplicate honor to the database
+                var existingHonor = new Honor
+                {
+                    Name = honorDto.Name,
+                    Level = honorDto.Level,
+                    PatchFilename = honorDto.PatchFilename,
+                    WikiPath = honorDto.WikiPath
+                };
+                await context.Honors.AddAsync(existingHonor);
+                await context.SaveChangesAsync();
+            }
+
+            // Act
+            var result = await _validator
+                                .TestValidateAsync(honorDto, options =>
+                                {
+                                    options.IncludeAllRuleSets();
+                                });
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(x => x.Name);
+        }
+
+
 
     }
 }

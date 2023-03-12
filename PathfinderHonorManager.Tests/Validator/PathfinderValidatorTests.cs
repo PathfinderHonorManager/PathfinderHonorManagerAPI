@@ -38,7 +38,6 @@ namespace PathfinderHonorManager.Tests
         [TestCase("nonemailstring")]
         public async Task Validate_InvalidEmail_ValidationError(string email)
         {
-            //using var context = new PathfinderContext(ContextOptions);
             var newPathfinder = new Incoming.PathfinderDtoInternal
             {
                 FirstName = "test",
@@ -62,13 +61,11 @@ namespace PathfinderHonorManager.Tests
         [TestCase(null)]
         public async Task Validate_FirstName_ValidationError(string firstName)
         {
-            //using var context = new PathfinderContext(ContextOptions);
             var randEmail = RandomString(10);
             var newPathfinder = new Incoming.PathfinderDtoInternal
             {
                 FirstName = firstName,
                 LastName = "user",
-                //Email = $"{randEmail}@email.com"
                 Email = "test@email.com"
             };
 
@@ -85,7 +82,6 @@ namespace PathfinderHonorManager.Tests
         [TestCase(null)]
         public async Task Validate_LastName_ValidationError(string lastName)
         {
-            //using var context = new PathfinderContext(ContextOptions);
             var newPathfinder = new Incoming.PathfinderDtoInternal
             {
                 FirstName = "test",
