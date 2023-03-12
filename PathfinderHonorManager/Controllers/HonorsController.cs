@@ -80,8 +80,6 @@ namespace PathfinderHonorManager.Controllers
         [Authorize("CreateHonors")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [HttpPost]
         public async Task<ActionResult<Honor>> Post([FromBody] Incoming.HonorDto newHonor, CancellationToken token)
         {
@@ -92,5 +90,34 @@ namespace PathfinderHonorManager.Controllers
                 honor);
         }
 
+        // PUT Honors/{id}
+        /// <summary>
+        /// Updates an Honor by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="updatedHonor"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [Authorize("UpdateHonors")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Put(Guid id, [FromBody] Incoming.HonorDto updatedHonor, CancellationToken token)
+        {
+            var honor = await _honorService.GetByIdAsync(id, token);
+
+            if (honor == default)
+            {
+                return NotFound();
+            }
+
+            await _honorService.UpdateAsync(id, updatedHonor, token);
+
+            honor = await _honorService.GetByIdAsync(id, token);
+
+            return honor != default
+                ? Ok(honor)
+                : NotFound();
+        }
     }
 }

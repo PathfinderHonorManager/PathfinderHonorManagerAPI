@@ -64,18 +64,36 @@ namespace PathfinderHonorManager.Service
         public async Task<Outgoing.HonorDto> AddAsync(Incoming.HonorDto newHonor, CancellationToken token)
         {
 
-            // Validate the incoming honor DTO using the created validator
             _ = await _validator.ValidateAsync(newHonor,opt => opt.ThrowOnFailures(), token);
 
-            // Map the validated honor DTO to a Honor entity
             var honor = _mapper.Map<Honor>(newHonor);
 
-            // Add the honor to the database
             _dbContext.Honors.Add(honor);
             await _dbContext.SaveChangesAsync(token);
 
-            // Map the added honor to an Outgoing Honor DTO and return it
             return _mapper.Map<Outgoing.HonorDto>(honor);
         }
+
+        public async Task<Outgoing.HonorDto> UpdateAsync(Guid id, Incoming.HonorDto updatedHonor, CancellationToken token)
+        {
+            _ = await _validator.ValidateAsync(updatedHonor, opt => opt.ThrowOnFailures(), token);
+
+            var existingHonor = await _dbContext.Honors.SingleOrDefaultAsync(h => h.HonorID == id, token);
+
+            if (existingHonor == null)
+            {
+                return null;
+            }
+
+            existingHonor.Name = updatedHonor.Name;
+            existingHonor.Level = updatedHonor.Level;
+            existingHonor.PatchFilename = updatedHonor.PatchFilename;
+            existingHonor.WikiPath = updatedHonor.WikiPath;
+
+            await _dbContext.SaveChangesAsync(token);
+
+            return _mapper.Map<Outgoing.HonorDto>(existingHonor);
+        }
+
     }
 }

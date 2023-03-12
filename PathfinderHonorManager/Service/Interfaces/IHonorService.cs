@@ -19,5 +19,11 @@ namespace PathfinderHonorManager.Service.Interfaces
         Task<Outgoing.HonorDto> AddAsync(
             Incoming.HonorDto newHonor,
             CancellationToken token);
+
+        Task<Outgoing.HonorDto> UpdateAsync(
+            Guid id,
+            Incoming.HonorDto updatedHonor,
+            CancellationToken token);
+
     }
 }
