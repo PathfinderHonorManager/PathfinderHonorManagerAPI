@@ -1,14 +1,13 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 using PathfinderHonorManager.DataAccess;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
-using PathfinderHonorManager.Validators;
 using PathfinderHonorManager.Model;
-using System.Threading.Tasks;
-using AutoMapper;
-using System;
+using PathfinderHonorManager.Validators;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
 
 namespace PathfinderHonorManager.Tests
 {
