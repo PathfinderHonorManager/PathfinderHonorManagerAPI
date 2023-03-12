@@ -28,22 +28,37 @@ namespace PathfinderHonorManager.Controllers
 
         // GET Clubs
         /// <summary>  
-        /// Get all Clubs
+        /// Get all Clubs or Clubs matching the given clubcode.
         /// </summary>
+        /// <param name="clubcode">The club code of the club to retrieve</param>
         /// <param name="token"></param>
         /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Club>>> GetClubs(CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Club>>> GetClubs(CancellationToken token, [FromQuery] string clubcode = null)
         {
-            var clubs = await this._clubService.GetAllAsync(token);
-
-            if (clubs == default)
+            if (clubcode == null)
             {
-                return NotFound();
-            }
+                var clubs = await _clubService.GetAllAsync(token);
 
-            return Ok(clubs);
+                if (clubs == default)
+                {
+                    return NotFound();
+                }
+
+                return Ok(clubs);
+            }
+            else
+            {
+                var club = await _clubService.GetByCodeAsync(clubcode.ToUpper(), token);
+
+                if (club == default)
+                {
+                    return NotFound();
+                }
+
+                return Ok(club);
+            }
         }
 
         // GET Clubs/{id}
@@ -58,7 +73,7 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
-            var club = await this._clubService.GetByIdAsync(id, token);
+            var club = await _clubService.GetByIdAsync(id, token);
 
             if (club == default)
             {

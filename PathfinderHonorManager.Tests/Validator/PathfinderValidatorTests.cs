@@ -1,14 +1,13 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 using PathfinderHonorManager.DataAccess;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
-using PathfinderHonorManager.Validators;
 using PathfinderHonorManager.Model;
-using System.Threading.Tasks;
-using AutoMapper;
-using System;
+using PathfinderHonorManager.Validators;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
 
 namespace PathfinderHonorManager.Tests
 {
@@ -39,7 +38,6 @@ namespace PathfinderHonorManager.Tests
         [TestCase("nonemailstring")]
         public async Task Validate_InvalidEmail_ValidationError(string email)
         {
-            //using var context = new PathfinderContext(ContextOptions);
             var newPathfinder = new Incoming.PathfinderDtoInternal
             {
                 FirstName = "test",
@@ -63,13 +61,11 @@ namespace PathfinderHonorManager.Tests
         [TestCase(null)]
         public async Task Validate_FirstName_ValidationError(string firstName)
         {
-            //using var context = new PathfinderContext(ContextOptions);
             var randEmail = RandomString(10);
             var newPathfinder = new Incoming.PathfinderDtoInternal
             {
                 FirstName = firstName,
                 LastName = "user",
-                //Email = $"{randEmail}@email.com"
                 Email = "test@email.com"
             };
 
@@ -86,7 +82,6 @@ namespace PathfinderHonorManager.Tests
         [TestCase(null)]
         public async Task Validate_LastName_ValidationError(string lastName)
         {
-            //using var context = new PathfinderContext(ContextOptions);
             var newPathfinder = new Incoming.PathfinderDtoInternal
             {
                 FirstName = "test",
