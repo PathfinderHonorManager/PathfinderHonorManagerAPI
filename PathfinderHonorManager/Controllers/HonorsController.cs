@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
+using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace PathfinderHonorManager.Controllers
 {
@@ -19,7 +21,7 @@ namespace PathfinderHonorManager.Controllers
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public class HonorsController : ControllerBase
+    public class HonorsController : ApiController
     {
         private readonly IHonorService _honorService;
 
@@ -82,12 +84,24 @@ namespace PathfinderHonorManager.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
         public async Task<ActionResult<Honor>> Post([FromBody] Incoming.HonorDto newHonor, CancellationToken token)
-        {
-            var honor = await _honorService.AddAsync(newHonor, token);
+        {    
+            try
+            {
+                var honor = await _honorService.AddAsync(newHonor, token);
 
-            return CreatedAtRoute(
-                routeValues: GetByIdAsync(honor.HonorID, token),
-                honor);
+                return CreatedAtRoute(
+                    routeValues: GetByIdAsync(honor.HonorID, token),
+                    honor);
+            }
+            catch (FluentValidation.ValidationException ex)
+            {
+                UpdateModelState(ex);
+                return ValidationProblem(ModelState);
+            }
+            catch (DbUpdateException ex)
+            {
+                return ValidationProblem(ex.Message);
+            }
         }
 
         // PUT Honors/{id}
