@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FluentValidation;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -52,7 +53,7 @@ namespace PathfinderHonorManager.Tests
         }
 
 
-        [Test]
+        [TestCase]
         public async Task Validate_HonorDto_WithValidData_ShouldPass()
         {
             // Arrange
@@ -65,37 +66,45 @@ namespace PathfinderHonorManager.Tests
             };
 
             // Act
-            var result = await _validator.TestValidateAsync(honorDto);
+            var result = await _validator
+                .TestValidateAsync(honorDto);
 
             // Assert
-            result.ShouldNotHaveAnyValidationErrors();
+            result
+                .ShouldNotHaveAnyValidationErrors();
         }
 
-        [Test]
-        public async Task Validate_HonorDto_WithMissingName_ShouldFail()
+        [TestCase("")]
+        [TestCase(null)]
+        public async Task Validate_HonorDto_WithMissingName_ShouldFail(string name)
         {
             // Arrange
             var honorDto = new Incoming.HonorDto
             {
+                Name = name,
                 Level = 1,
                 PatchFilename = "test.png",
                 WikiPath = new Uri("https://example.com")
             };
 
             // Act
-            var result = await _validator.TestValidateAsync(honorDto);
+            var result = await _validator
+                .TestValidateAsync(honorDto);
 
             // Assert
-            result.ShouldHaveValidationErrorFor(x => x.Name);
+            result
+                .ShouldHaveValidationErrorFor(x => x.Name)
+                .WithSeverity(Severity.Error);
         }
 
-        [Test]
-        public async Task Validate_HonorDto_WithMissingLevel_ShouldFail()
+        [TestCase(null)]
+        public async Task Validate_HonorDto_WithMissingLevel_ShouldFail(int level)
         {
             // Arrange
             var honorDto = new Incoming.HonorDto
             {
                 Name = "Test Honor",
+                Level = level,
                 PatchFilename = "test.png",
                 WikiPath = new Uri("https://example.com")
             };
@@ -107,15 +116,15 @@ namespace PathfinderHonorManager.Tests
             result.ShouldHaveValidationErrorFor(x => x.Level);
         }
 
-        [Test]
-        public async Task Validate_HonorDto_WithInvalidPatchFilename_ShouldFail()
+        [TestCase("invalid")]
+        public async Task Validate_HonorDto_WithInvalidPatchFilename_ShouldFail(string patchFilename)
         {
             // Arrange
             var honorDto = new Incoming.HonorDto
             {
                 Name = "Test Honor",
                 Level = 1,
-                PatchFilename = "invalid",
+                PatchFilename = patchFilename,
                 WikiPath = new Uri("https://example.com")
             };
 
@@ -126,8 +135,8 @@ namespace PathfinderHonorManager.Tests
             result.ShouldHaveValidationErrorFor(x => x.PatchFilename);
         }
 
-        [Test]
-        public async Task Validate_HonorDto_WithInvalidWikiPath_ShouldFail()
+        [TestCase("invalid")]
+        public async Task Validate_HonorDto_WithInvalidWikiPath_ShouldFail(string wikiPath)
         {
             // Arrange
             var honorDto = new Incoming.HonorDto
@@ -135,7 +144,7 @@ namespace PathfinderHonorManager.Tests
                 Name = "Test Honor",
                 Level = 1,
                 PatchFilename = "test.png",
-                WikiPath = new Uri("invalid", UriKind.RelativeOrAbsolute)
+                WikiPath = new Uri(wikiPath, UriKind.RelativeOrAbsolute)
             };
 
             // Act
@@ -145,7 +154,7 @@ namespace PathfinderHonorManager.Tests
             result.ShouldHaveValidationErrorFor(x => x.WikiPath);
         }
 
-        [Test]
+        [TestCase]
         public async Task Validate_HonorDto_WithDuplicateName_ShouldFail()
         {
             // Arrange
@@ -181,8 +190,5 @@ namespace PathfinderHonorManager.Tests
             // Assert
             result.ShouldHaveValidationErrorFor(x => x.Name);
         }
-
-
-
     }
 }
