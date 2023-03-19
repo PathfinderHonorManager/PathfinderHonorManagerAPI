@@ -24,5 +24,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="FluentValidation.DependencyInjectionExtensions" />
+    <None Remove="Service\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Service\" />
   </ItemGroup>
 </Project>
