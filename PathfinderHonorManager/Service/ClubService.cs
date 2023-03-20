@@ -23,19 +23,14 @@ namespace PathfinderHonorManager.Service
 
         private readonly ILogger _logger;
 
-        private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
-
-
         public ClubService(
             PathfinderContext context,
             IMapper mapper,
-            IValidator<Incoming.PathfinderDtoInternal> validator,
-            ILogger<PathfinderService> logger)
+            ILogger<ClubService> logger)
         {
             _dbContext = context;
             _mapper = mapper;
             _logger = logger;
-            _validator = validator;
         }
 
         public async Task<ICollection<Outgoing.ClubDto>> GetAllAsync(CancellationToken token)
