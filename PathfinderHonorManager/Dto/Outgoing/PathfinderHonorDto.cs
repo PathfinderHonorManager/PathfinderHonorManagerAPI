@@ -10,8 +10,6 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public Guid HonorID { get; set; }
 
-        public Guid ClubID { get; set; }
-
         public string Name { get; set; }
 
         public string Status { get; set; }
