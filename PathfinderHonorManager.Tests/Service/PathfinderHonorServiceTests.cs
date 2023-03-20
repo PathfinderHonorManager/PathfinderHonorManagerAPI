@@ -28,8 +28,6 @@ public class PathfinderHonorServiceTests
 
     protected DbContextOptions<PathfinderContext> ContextOptions { get; }
 
-    private DbContextOptions<PathfinderContext> _dbContextOptions;
-    private PathfinderContext _dbContext;
     private PathfinderHonorService _pathfinderHonorService;
 
     private List<Pathfinder> _pathfinders;
