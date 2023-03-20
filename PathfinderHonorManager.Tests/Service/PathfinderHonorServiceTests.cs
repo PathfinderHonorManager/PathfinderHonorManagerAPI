@@ -247,7 +247,6 @@ public class PathfinderHonorServiceTests
                 HonorID = _honors[honorIndex].HonorID,
                 Status = honorStatus.ToString()
             };
-            TestContext.WriteLine(JsonConvert.SerializeObject(postPathfinderHonorDto, Formatting.Indented));
             CancellationToken token = new();
 
             // Act
@@ -256,6 +255,40 @@ public class PathfinderHonorServiceTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(_pathfinders[1].PathfinderID, result.PathfinderID);
+            Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
+            Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    [TestCase(0, 0, "awarded")]
+    [TestCase(1, 1, "earned")]
+    [TestCase(2, 2, "planned")]
+    public async Task UpdateAsync_UpdatesPathfinderHonorAndReturnsUpdatedDto(int honorIndex, int pathfinderHonorIndex, string honorStatus)
+    {
+        // Arrange
+        var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+        IMapper mapper = mapperConfiguration.CreateMapper();
+
+        var logger = new NullLogger<PathfinderHonorService>();
+
+        var validator = new DummyValidator<PathfinderHonorDto>();
+
+        using (var dbContext = new PathfinderContext(ContextOptions))
+        {
+            _pathfinderHonorService = new PathfinderHonorService(dbContext, mapper, validator, logger);
+
+            var putPathfinderHonorDto = new PutPathfinderHonorDto
+            {
+                Status = honorStatus.ToString()
+            };
+            CancellationToken token = new();
+
+            // Act
+            var result = await _pathfinderHonorService.UpdateAsync(_pathfinders[0].PathfinderID, _honors[honorIndex].HonorID, putPathfinderHonorDto, token);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(_pathfinders[0].PathfinderID, result.PathfinderID);
             Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
             Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
         }
