@@ -151,7 +151,7 @@ namespace PathfinderHonorManager.Service
         {
 
 
-            Enum.TryParse(upsertPathfinderHonor.Status, out HonorStatus statusEntity);
+            Enum.TryParse(upsertPathfinderHonor.Status, true, out HonorStatus statusEntity);
 
             try
             {
