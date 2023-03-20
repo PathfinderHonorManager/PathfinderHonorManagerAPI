@@ -32,8 +32,8 @@ public class PathfinderHonorServiceTests
     private PathfinderContext _dbContext;
     private PathfinderHonorService _pathfinderHonorService;
 
-    private Pathfinder _pathfinder;
-    private Honor _honor;
+    private List<Pathfinder> _pathfinders;
+    private List<Honor> _honors;
     private List<PathfinderHonor> _pathfinderHonors;
 
     [SetUp]
@@ -47,19 +47,36 @@ public class PathfinderHonorServiceTests
 
     private async Task SeedDatabase(PathfinderContext dbContext)
     {
-        _pathfinder = new Pathfinder
+        _pathfinders = new List<Pathfinder>
         {
-            PathfinderID = Guid.NewGuid(),
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "johndoe@example.com",
-            Grade = 1,
-            ClubID = Guid.NewGuid(),
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
+            new Pathfinder
+            {
+                PathfinderID = Guid.NewGuid(),
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "johndoe@example.com",
+                Grade = 1,
+                ClubID = Guid.NewGuid(),
+                Created = DateTime.UtcNow,
+                Updated = DateTime.UtcNow
+            },
+                new Pathfinder
+            {
+                PathfinderID = Guid.NewGuid(),
+                FirstName = "Addy",
+                LastName = "Addsome",
+                Email = "addyaddsome@example.com",
+                Grade = 1,
+                ClubID = Guid.NewGuid(),
+                Created = DateTime.UtcNow,
+                Updated = DateTime.UtcNow
+            }
+    };
 
-        _honor = new Honor
+
+        _honors = new List<Honor>
+    {
+        new Honor
         {
             HonorID = Guid.NewGuid(),
             Name = "Test Honor",
@@ -67,34 +84,54 @@ public class PathfinderHonorServiceTests
             Description = "Test description",
             PatchFilename = "test_patch.jpg",
             WikiPath = new Uri("https://example.com/test")
-        };
-        _pathfinderHonors = new List<PathfinderHonor>
+        },
+        new Honor
         {
+            HonorID = Guid.NewGuid(),
+            Name = "Test Honor 2",
+            Level = 1,
+            Description = "Test description 2",
+            PatchFilename = "test_patch2.jpg",
+            WikiPath = new Uri("https://example.com/test2")
+        },
+        new Honor
+        {
+            HonorID = Guid.NewGuid(),
+            Name = "Test Honor 3",
+            Level = 1,
+            Description = "Test description 3",
+            PatchFilename = "test_patch3.jpg",
+            WikiPath = new Uri("https://example.com/test3")
+        }
+    };
+
+        _pathfinderHonors = new List<PathfinderHonor>
+    {
         new PathfinderHonor
         {
             PathfinderHonorID = Guid.NewGuid(),
-            HonorID = _honor.HonorID,
+            HonorID = _honors[0].HonorID,
             StatusCode = (int)HonorStatus.Planned,
             Created = DateTime.UtcNow,
-            PathfinderID = _pathfinder.PathfinderID
+            PathfinderID = _pathfinders[0].PathfinderID
         },
         new PathfinderHonor
         {
             PathfinderHonorID = Guid.NewGuid(),
-            HonorID = _honor.HonorID,
+            HonorID = _honors[1].HonorID,
             StatusCode = (int)HonorStatus.Earned,
             Created = DateTime.UtcNow,
-            PathfinderID = _pathfinder.PathfinderID
+            PathfinderID = _pathfinders[0].PathfinderID
         },
         new PathfinderHonor
         {
             PathfinderHonorID = Guid.NewGuid(),
-            HonorID = _honor.HonorID,
+            HonorID = _honors[2].HonorID,
             StatusCode = (int)HonorStatus.Awarded,
             Created = DateTime.UtcNow,
-            PathfinderID = _pathfinder.PathfinderID
+            PathfinderID = _pathfinders[0].PathfinderID
         }
-        };
+    };
         var pathfinderHonorStatuses = new List<PathfinderHonorStatus>
         {
             new PathfinderHonorStatus
@@ -115,8 +152,8 @@ public class PathfinderHonorServiceTests
         };
 
         await dbContext.PathfinderHonorStatuses.AddRangeAsync(pathfinderHonorStatuses);
-        await dbContext.Pathfinders.AddAsync(_pathfinder);
-        await dbContext.Honors.AddAsync(_honor);
+        await dbContext.Pathfinders.AddRangeAsync(_pathfinders);
+        await dbContext.Honors.AddRangeAsync(_honors);
         await dbContext.PathfinderHonors.AddRangeAsync(_pathfinderHonors);
         await dbContext.SaveChangesAsync();
     }
@@ -148,6 +185,33 @@ public class PathfinderHonorServiceTests
         }
     }
 
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(2)]
+    public async Task GetByIdAsync_ReturnsPathfinderHonorsForPathfinderIdAndHonorId(int id)
+    {
+        var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+        IMapper mapper = mapperConfiguration.CreateMapper();
+
+        var logger = new NullLogger<PathfinderHonorService>();
+
+        var validator = new DummyValidator<PathfinderHonorDto>();
+
+        using (var dbContext = new PathfinderContext(ContextOptions))
+        {
+            _pathfinderHonorService = new PathfinderHonorService(dbContext, mapper, validator, logger);
+
+            // Act
+            CancellationToken token = new();
+            var result = await _pathfinderHonorService.GetByIdAsync(_pathfinders[0].PathfinderID, _pathfinderHonors[id].HonorID, token);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(_pathfinders[0].PathfinderID, result.PathfinderID);
+            Assert.AreEqual(_pathfinderHonors[id].HonorID, result.HonorID);
+        }
+    }
+
     public class DummyValidator<T> : AbstractValidator<T>
     {
         public override ValidationResult Validate(ValidationContext<T> context)
@@ -161,14 +225,50 @@ public class PathfinderHonorServiceTests
         }
     }
 
+    [TestCase(0, "earned")]
+    [TestCase(1, "planned")]
+    [TestCase(2, "awarded")]
+    public async Task AddAsync_AddsNewPathfinderHonorAndReturnsDto(int honorIndex, string honorStatus)
+    {
+        // Arrange
+        var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+        IMapper mapper = mapperConfiguration.CreateMapper();
+
+        var logger = new NullLogger<PathfinderHonorService>();
+
+        var validator = new DummyValidator<PathfinderHonorDto>();
+
+        using (var dbContext = new PathfinderContext(ContextOptions))
+        {
+            _pathfinderHonorService = new PathfinderHonorService(dbContext, mapper, validator, logger);
+
+            var postPathfinderHonorDto = new PostPathfinderHonorDto
+            {
+                HonorID = _honors[honorIndex].HonorID,
+                Status = honorStatus.ToString()
+            };
+            TestContext.WriteLine(JsonConvert.SerializeObject(postPathfinderHonorDto, Formatting.Indented));
+            CancellationToken token = new();
+
+            // Act
+            var result = await _pathfinderHonorService.AddAsync(_pathfinders[1].PathfinderID, postPathfinderHonorDto, token);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(_pathfinders[1].PathfinderID, result.PathfinderID);
+            Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
+            Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
     [TearDown]
     public async Task TearDown()
     {
         using var dbContext = new PathfinderContext(ContextOptions);
 
         dbContext.PathfinderHonors.RemoveRange(_pathfinderHonors);
-        dbContext.Honors.Remove(_honor);
-        dbContext.Pathfinders.Remove(_pathfinder);
+        dbContext.Honors.RemoveRange(_honors);
+        dbContext.Pathfinders.RemoveRange(_pathfinders);
         dbContext.PathfinderHonorStatuses.RemoveRange(dbContext.PathfinderHonorStatuses);
 
         await dbContext.SaveChangesAsync();
