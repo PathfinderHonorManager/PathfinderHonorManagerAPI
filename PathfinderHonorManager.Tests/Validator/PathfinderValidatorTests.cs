@@ -9,15 +9,17 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Validators;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 
-namespace PathfinderHonorManager.Tests
+namespace PathfinderHonorManager.Tests.Validator
 {
 
     [TestFixture]
-    public abstract class PathfinderValidatorTests
+    public class PathfinderValidatorTests
     {
-        protected PathfinderValidatorTests(DbContextOptions<PathfinderContext> contextOptions)
+        public PathfinderValidatorTests()
         {
-            ContextOptions = contextOptions;
+            ContextOptions = new DbContextOptionsBuilder<PathfinderContext>()
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
         }
 
         private PathfinderValidator _pathfinderValidator;
@@ -29,7 +31,7 @@ namespace PathfinderHonorManager.Tests
         {
             var context = new PathfinderContext(ContextOptions);
             _pathfinderValidator = new PathfinderValidator(context);
-            AddPathfinders(context);
+            SeedDatabase(context);
         }
 
         // Email tests
@@ -96,7 +98,7 @@ namespace PathfinderHonorManager.Tests
                 .WithSeverity(Severity.Error);
         }
 
-        public static void AddPathfinders(PathfinderContext context)
+        public static void SeedDatabase(PathfinderContext context)
         {
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();

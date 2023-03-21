@@ -70,7 +70,7 @@ namespace PathfinderHonorManager.Tests.Service
             await dbContext.SaveChangesAsync();
         }
 
-        [Test]
+        [TestCase]
         public async Task GetAllAsync_ReturnsAllClubs()
         {
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
@@ -90,6 +90,52 @@ namespace PathfinderHonorManager.Tests.Service
                 // Assert
                 Assert.IsNotNull(result);
                 Assert.AreEqual(3, result.Count);
+            }
+        }
+
+        // ...
+
+        [TestCase(0)]
+        public async Task GetByIdAsync_ClubExists_ReturnsClub(int clubIndex)
+        {
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            var logger = new NullLogger<ClubService>();
+
+            using (var dbContext = new PathfinderContext(ContextOptions))
+            {
+                _clubService = new ClubService(dbContext, mapper, logger);
+
+                // Act
+                CancellationToken token = new();
+                var clubId = _clubs[clubIndex].ClubID;
+                var result = await _clubService.GetByIdAsync(clubId, token);
+
+                // Assert
+                Assert.IsNotNull(result);
+                Assert.AreEqual(clubId, result.ClubID);
+                Assert.AreEqual(_clubs[0].Name, result.Name);
+            }
+        }
+
+        [TestCase]
+        public async Task GetByIdAsync_ClubDoesNotExist_ReturnsNull()
+        {
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            var logger = new NullLogger<ClubService>();
+
+            using (var dbContext = new PathfinderContext(ContextOptions))
+            {
+                _clubService = new ClubService(dbContext, mapper, logger);
+
+                // Act
+                CancellationToken token = new();
+                var clubId = Guid.NewGuid();
+                var result = await _clubService.GetByIdAsync(clubId, token);
+
+                // Assert
+                Assert.IsNull(result);
             }
         }
 

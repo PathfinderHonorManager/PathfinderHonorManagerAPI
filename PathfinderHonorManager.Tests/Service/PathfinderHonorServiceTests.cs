@@ -212,19 +212,6 @@ namespace PathfinderHonorManager.Tests.Service
             }
         }
 
-        private class DummyValidator<T> : AbstractValidator<T>
-        {
-            public override ValidationResult Validate(ValidationContext<T> context)
-            {
-                return new ValidationResult(new List<ValidationFailure>());
-            }
-
-            public override Task<ValidationResult> ValidateAsync(ValidationContext<T> context, CancellationToken cancellationToken = default)
-            {
-                return Task.FromResult(new ValidationResult(new List<ValidationFailure>()));
-            }
-        }
-
         [TestCase(0, "earned")]
         [TestCase(1, "planned")]
         [TestCase(2, "awarded")]
@@ -291,6 +278,19 @@ namespace PathfinderHonorManager.Tests.Service
                 Assert.AreEqual(_pathfinders[0].PathfinderID, result.PathfinderID);
                 Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
                 Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        private class DummyValidator<T> : AbstractValidator<T>
+        {
+            public override ValidationResult Validate(ValidationContext<T> context)
+            {
+                return new ValidationResult(new List<ValidationFailure>());
+            }
+
+            public override Task<ValidationResult> ValidateAsync(ValidationContext<T> context, CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult(new ValidationResult(new List<ValidationFailure>()));
             }
         }
 

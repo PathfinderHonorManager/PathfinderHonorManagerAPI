@@ -28,9 +28,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="FluentValidation.DependencyInjectionExtensions" />
-    <None Remove="Service\" />
+    <None Remove="StrykerOutput\2023-03-20.19-48-01\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Service\" />
+    <Folder Include="StrykerOutput\2023-03-20.19-48-01\" />
   </ItemGroup>
 </Project>
