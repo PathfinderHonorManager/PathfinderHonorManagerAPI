@@ -566,51 +566,49 @@
     },
     "/Users/briancummings/code/dotnet/PathfinderHonorManagerAPI/PathfinderHonorManager/Service/ClubService.cs": {
       "PathfinderHonorManager.Service.ClubService": {
-        "System.Void PathfinderHonorManager.Service.ClubService::.ctor(PathfinderHonorManager.DataAccess.PathfinderContext,AutoMapper.IMapper,FluentValidation.IValidator`1<PathfinderHonorManager.Dto.Incoming.PathfinderDtoInternal>,Microsoft.Extensions.Logging.ILogger`1<PathfinderHonorManager.Service.PathfinderService>)": {
+        "System.Void PathfinderHonorManager.Service.ClubService::.ctor(PathfinderHonorManager.DataAccess.PathfinderContext,AutoMapper.IMapper,Microsoft.Extensions.Logging.ILogger`1<PathfinderHonorManager.Service.ClubService>)": {
           "Lines": {
-            "29": 0,
-            "30": 0,
-            "31": 0,
-            "32": 0,
-            "33": 0,
-            "34": 0,
-            "35": 0,
-            "36": 0,
-            "37": 0,
-            "38": 0,
-            "39": 0
+            "26": 3,
+            "27": 3,
+            "28": 3,
+            "29": 3,
+            "30": 3,
+            "31": 3,
+            "32": 3,
+            "33": 3,
+            "34": 3
           },
           "Branches": []
         }
       },
-      "PathfinderHonorManager.Service.ClubService/<GetAllAsync>d__5": {
-        "System.Void PathfinderHonorManager.Service.ClubService/<GetAllAsync>d__5::MoveNext()": {
+      "PathfinderHonorManager.Service.ClubService/<GetAllAsync>d__4": {
+        "System.Void PathfinderHonorManager.Service.ClubService/<GetAllAsync>d__4::MoveNext()": {
           "Lines": {
-            "42": 0,
-            "43": 0,
-            "44": 0,
-            "45": 0,
-            "47": 0,
-            "49": 0
+            "37": 1,
+            "38": 1,
+            "39": 1,
+            "40": 1,
+            "42": 1,
+            "44": 1
           },
           "Branches": []
         }
       },
-      "PathfinderHonorManager.Service.ClubService/<GetByCodeAsync>d__7": {
-        "System.Void PathfinderHonorManager.Service.ClubService/<GetByCodeAsync>d__7::MoveNext()": {
+      "PathfinderHonorManager.Service.ClubService/<GetByCodeAsync>d__6": {
+        "System.Void PathfinderHonorManager.Service.ClubService/<GetByCodeAsync>d__6::MoveNext()": {
           "Lines": {
+            "59": 0,
+            "60": 0,
             "64": 0,
             "65": 0,
+            "67": 0,
+            "68": 0,
             "69": 0,
-            "70": 0,
-            "72": 0,
-            "73": 0,
-            "74": 0,
-            "75": 0
+            "70": 0
           },
           "Branches": [
             {
-              "Line": 72,
+              "Line": 67,
               "Offset": 319,
               "EndOffset": 321,
               "Path": 0,
@@ -618,7 +616,7 @@
               "Hits": 0
             },
             {
-              "Line": 72,
+              "Line": 67,
               "Offset": 319,
               "EndOffset": 345,
               "Path": 1,
@@ -628,33 +626,33 @@
           ]
         }
       },
-      "PathfinderHonorManager.Service.ClubService/<GetByIdAsync>d__6": {
-        "System.Void PathfinderHonorManager.Service.ClubService/<GetByIdAsync>d__6::MoveNext()": {
+      "PathfinderHonorManager.Service.ClubService/<GetByIdAsync>d__5": {
+        "System.Void PathfinderHonorManager.Service.ClubService/<GetByIdAsync>d__5::MoveNext()": {
           "Lines": {
-            "52": 0,
-            "55": 0,
-            "56": 0,
-            "58": 0,
-            "59": 0,
-            "60": 0,
-            "61": 0
+            "47": 2,
+            "50": 2,
+            "51": 2,
+            "53": 2,
+            "54": 2,
+            "55": 2,
+            "56": 2
           },
           "Branches": [
             {
-              "Line": 58,
+              "Line": 53,
               "Offset": 308,
               "EndOffset": 310,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 0
+              "Hits": 1
             },
             {
-              "Line": 58,
+              "Line": 53,
               "Offset": 308,
               "EndOffset": 334,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 0
+              "Hits": 1
             }
           ]
         }
@@ -1293,19 +1291,19 @@
       "PathfinderHonorManager.Model.Club": {
         "System.Guid PathfinderHonorManager.Model.Club::get_ClubID()": {
           "Lines": {
-            "12": 0
+            "12": 14
           },
           "Branches": []
         },
         "System.String PathfinderHonorManager.Model.Club::get_ClubCode()": {
           "Lines": {
-            "15": 0
+            "15": 4
           },
           "Branches": []
         },
         "System.String PathfinderHonorManager.Model.Club::get_Name()": {
           "Lines": {
-            "18": 0
+            "18": 14
           },
           "Branches": []
         }
@@ -1503,67 +1501,67 @@
       "PathfinderHonorManager.Mapping.AutoMapperConfig": {
         "System.Void PathfinderHonorManager.Mapping.AutoMapperConfig::RegisterPathfinderMappings()": {
           "Lines": {
-            "20": 12,
-            "21": 12,
-            "22": 12,
-            "23": 12,
-            "24": 12,
-            "25": 12,
-            "26": 12,
-            "27": 12,
-            "28": 12,
-            "29": 12,
-            "30": 12,
-            "31": 12,
-            "32": 12,
-            "33": 12,
-            "34": 12,
-            "35": 12,
-            "36": 24,
-            "38": 12
+            "20": 15,
+            "21": 15,
+            "22": 15,
+            "23": 15,
+            "24": 15,
+            "25": 15,
+            "26": 15,
+            "27": 15,
+            "28": 15,
+            "29": 15,
+            "30": 15,
+            "31": 15,
+            "32": 15,
+            "33": 15,
+            "34": 15,
+            "35": 15,
+            "36": 30,
+            "38": 15
           },
           "Branches": []
         },
         "System.Void PathfinderHonorManager.Mapping.AutoMapperConfig::RegisterHonorMappings()": {
           "Lines": {
-            "41": 12,
-            "42": 12,
-            "43": 12,
-            "44": 12
+            "41": 15,
+            "42": 15,
+            "43": 15,
+            "44": 15
           },
           "Branches": []
         },
         "System.Void PathfinderHonorManager.Mapping.AutoMapperConfig::RegisterClubMappings()": {
           "Lines": {
-            "48": 12,
-            "49": 12,
-            "50": 12
+            "48": 15,
+            "49": 15,
+            "50": 15
           },
           "Branches": []
         },
         "System.Void PathfinderHonorManager.Mapping.AutoMapperConfig::RegisterPathfinderHonorMappings()": {
           "Lines": {
-            "53": 12,
-            "54": 12,
-            "55": 12,
-            "56": 12,
-            "57": 12,
-            "58": 12,
-            "59": 12,
-            "60": 12,
-            "61": 12
+            "53": 15,
+            "54": 15,
+            "55": 15,
+            "56": 15,
+            "57": 15,
+            "58": 15,
+            "59": 15,
+            "60": 15,
+            "61": 15
           },
           "Branches": []
         },
         "System.Void PathfinderHonorManager.Mapping.AutoMapperConfig::.ctor()": {
           "Lines": {
-            "11": 12,
-            "12": 12,
-            "13": 12,
-            "14": 12,
-            "15": 12,
-            "16": 12,
-            "17": 12
+            "11": 15,
+            "12": 15,
+            "13": 15,
+            "14": 15,
+            "15": 15,
+            "16": 15,
+            "17": 15
           },
           "Branches": []
         }
@@ -1666,19 +1664,19 @@
       "PathfinderHonorManager.Dto.Outgoing.ClubDto": {
         "System.Guid PathfinderHonorManager.Dto.Outgoing.ClubDto::get_ClubID()": {
           "Lines": {
-            "7": 0
+            "7": 5
           },
           "Branches": []
         },
         "System.String PathfinderHonorManager.Dto.Outgoing.ClubDto::get_ClubCode()": {
           "Lines": {
-            "9": 0
+            "9": 4
           },
           "Branches": []
         },
         "System.String PathfinderHonorManager.Dto.Outgoing.ClubDto::get_Name()": {
           "Lines": {
-            "11": 0
+            "11": 5
           },
           "Branches": []
         }
@@ -2020,45 +2018,45 @@
       "PathfinderHonorManager.DataAccess.PathfinderContext": {
         "Microsoft.EntityFrameworkCore.DbSet`1<PathfinderHonorManager.Model.Pathfinder> PathfinderHonorManager.DataAccess.PathfinderContext::get_Pathfinders()": {
           "Lines": {
-            "13": 92
+            "13": 101
           },
           "Branches": []
         },
         "Microsoft.EntityFrameworkCore.DbSet`1<PathfinderHonorManager.Model.PathfinderClass> PathfinderHonorManager.DataAccess.PathfinderContext::get_PathfinderClasses()": {
           "Lines": {
-            "15": 58
+            "15": 67
           },
           "Branches": []
         },
         "Microsoft.EntityFrameworkCore.DbSet`1<PathfinderHonorManager.Model.Honor> PathfinderHonorManager.DataAccess.PathfinderContext::get_Honors()": {
           "Lines": {
-            "17": 98
+            "17": 107
           },
           "Branches": []
         },
         "Microsoft.EntityFrameworkCore.DbSet`1<PathfinderHonorManager.Model.PathfinderHonor> PathfinderHonorManager.DataAccess.PathfinderContext::get_PathfinderHonors()": {
           "Lines": {
-            "19": 94
+            "19": 103
           },
           "Branches": []
         },
         "Microsoft.EntityFrameworkCore.DbSet`1<PathfinderHonorManager.Model.PathfinderHonorStatus> PathfinderHonorManager.DataAccess.PathfinderContext::get_PathfinderHonorStatuses()": {
           "Lines": {
-            "21": 100
+            "21": 109
           },
           "Branches": []
         },
         "Microsoft.EntityFrameworkCore.DbSet`1<PathfinderHonorManager.Model.Club> PathfinderHonorManager.DataAccess.PathfinderContext::get_Clubs()": {
           "Lines": {
-            "23": 58
+            "23": 76
           },
           "Branches": []
         },
         "System.Void PathfinderHonorManager.DataAccess.PathfinderContext::.ctor(Microsoft.EntityFrameworkCore.DbContextOptions`1<PathfinderHonorManager.DataAccess.PathfinderContext>)": {
           "Lines": {
-            "9": 58,
-            "10": 58,
-            "11": 58
+            "9": 67,
+            "10": 67,
+            "11": 67
           },
           "Branches": []
         }
