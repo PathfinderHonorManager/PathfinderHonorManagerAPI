@@ -3,14 +3,13 @@ using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using NUnit.Framework;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Validators;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 
-namespace PathfinderHonorManager.Tests
+namespace PathfinderHonorManager.Tests.Validator
 {
     [TestFixture]
     public class HonorValidatorTests
@@ -188,7 +187,9 @@ namespace PathfinderHonorManager.Tests
                                 });
 
             // Assert
-            result.ShouldHaveValidationErrorFor(x => x.Name);
+            result
+                .ShouldHaveValidationErrorFor(x => x.Name)
+                .WithSeverity(Severity.Error);
         }
     }
 }
