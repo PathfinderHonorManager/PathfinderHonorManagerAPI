@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace PathfinderHonorManager.Dto.Incoming
@@ -23,6 +24,15 @@ namespace PathfinderHonorManager.Dto.Incoming
 
         [Required]
         public string Status { get; set; }
+    }
+
+    public class BulkPostPathfinderHonorDto
+    {
+        [Required]
+        public Guid PathfinderID { get; set; }
+
+        [Required]
+        public IEnumerable<Incoming.PostPathfinderHonorDto> Honors { get; set; }
     }
 
     public class PutPathfinderHonorDto

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PathfinderHonorManager.Dto.Incoming;
 using PathfinderHonorManager.Service.Interfaces;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
@@ -131,6 +132,58 @@ namespace PathfinderHonorManager.Controllers
             {
                 return ValidationProblem(ex.Message);
             }
+        }
+
+        // POST Pathfinders/PathfinderHonors
+        /// <summary>
+        /// Add new PathfinderHonors in bulk
+        /// </summary>
+        /// <param name="bulkData"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [HttpPost("PathfinderHonors")]
+        [Authorize("UpdatePathfinders")]
+        [ProducesResponseType(StatusCodes.Status207MultiStatus)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> BulkPostAsync([FromBody] IEnumerable<BulkPostPathfinderHonorDto> bulkData, CancellationToken token)
+        {
+            var responses = new List<object>();
+
+            foreach (var data in bulkData)
+            {
+                foreach (var honor in data.Honors)
+                {
+                    try
+                    {
+                        var pathfinderHonor = await _pathfinderHonorService.AddAsync(data.PathfinderID, honor, token);
+
+                        responses.Add(new
+                        {
+                            status = StatusCodes.Status201Created,
+                            pathfinderHonor
+                        });
+                    }
+                    catch (FluentValidation.ValidationException ex)
+                    {
+                        UpdateModelState(ex);
+                        responses.Add(new
+                        {
+                            status = StatusCodes.Status400BadRequest,
+                            error = ex.Message
+                        });
+                    }
+                    catch (DbUpdateException ex)
+                    {
+                        responses.Add(new
+                        {
+                            status = StatusCodes.Status400BadRequest,
+                            error = ex.Message
+                        });
+                    }
+                }
+            }
+
+            return StatusCode(StatusCodes.Status207MultiStatus, responses);
         }
 
         // PUT Pathfinders/{id}/PathfinderHonors/{honorId}
