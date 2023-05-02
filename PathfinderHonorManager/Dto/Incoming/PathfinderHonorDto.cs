@@ -32,12 +32,24 @@ namespace PathfinderHonorManager.Dto.Incoming
         public Guid PathfinderID { get; set; }
 
         [Required]
-        public IEnumerable<Incoming.PostPathfinderHonorDto> Honors { get; set; }
+        public IEnumerable<PostPathfinderHonorDto> Honors { get; set; }
     }
 
     public class PutPathfinderHonorDto
     {
         [Required]
         public string Status { get; set; }
+
+        public Guid HonorID { get; set; }
     }
+
+    public class BulkPutPathfinderHonorDto
+    {
+        [Required]
+        public Guid PathfinderID { get; set; }
+
+        [Required]
+        public IEnumerable<PutPathfinderHonorDto> Honors { get; set; }
+    }
+
 }
