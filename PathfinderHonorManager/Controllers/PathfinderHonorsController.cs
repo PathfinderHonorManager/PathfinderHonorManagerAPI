@@ -221,5 +221,58 @@ namespace PathfinderHonorManager.Controllers
                 return ValidationProblem(ex.Message);
             }
         }
+
+        // PUT Pathfinders/PathfinderHonors
+        /// <summary>
+        /// Update multiple PathfinderHonor objects at once
+        /// </summary>
+        /// <param name="bulkData"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [HttpPut("PathfinderHonors")]
+        [Authorize("UpdatePathfinders")]
+        [ProducesResponseType(StatusCodes.Status207MultiStatus)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> BulkPutAsync([FromBody] IEnumerable<BulkPutPathfinderHonorDto> bulkData, CancellationToken token)
+        {
+            var responses = new List<object>();
+
+            foreach (var data in bulkData)
+            {
+                foreach (var honor in data.Honors)
+                {
+                    try
+                    {
+                        var pathfinderHonor = await _pathfinderHonorService.UpdateAsync(data.PathfinderID, honor.HonorID, honor, token);
+
+                        responses.Add(new
+                        {
+                            status = pathfinderHonor != default ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
+                            pathfinderHonor
+                        });
+                    }
+                    catch (FluentValidation.ValidationException ex)
+                    {
+                        UpdateModelState(ex);
+                        responses.Add(new
+                        {
+                            status = StatusCodes.Status400BadRequest,
+                            error = ex.Message
+                        });
+                    }
+                    catch (DbUpdateException ex)
+                    {
+                        responses.Add(new
+                        {
+                            status = StatusCodes.Status400BadRequest,
+                            error = ex.Message
+                        });
+                    }
+                }
+            }
+
+            return StatusCode(StatusCodes.Status207MultiStatus, responses);
+        }
+
     }
 }
