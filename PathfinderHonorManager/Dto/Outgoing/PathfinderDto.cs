@@ -17,6 +17,8 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public string? ClassName { get; set;}
 
+        public bool? IsActive { get; set; }
+
         public DateTime Created { get; set; }
 
         public DateTime Updated { get; set; }
@@ -35,6 +37,8 @@ namespace PathfinderHonorManager.Dto.Outgoing
         public int? Grade {get; set;}
 
         public string? ClassName { get; set;}
+
+        public bool? IsActive { get; set; }
 
         public string ClubName { get; set; }
 

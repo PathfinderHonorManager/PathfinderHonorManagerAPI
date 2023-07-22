@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PathfinderHonorManager.DataAccess;
@@ -38,6 +37,14 @@ namespace PathfinderHonorManager.Service
                     .ThenInclude(h => h.Honor)
                 .Include(c => c.Club)
                 .Where(c => c.Club.ClubCode == clubCode);
+        }
+
+        private IQueryable<Pathfinder> GetPathfinderById(Guid pathfinderId, string clubCode)
+        {
+            return _dbContext.Pathfinders
+                .Include(pc => pc.PathfinderClass)
+                 .Include(c => c.Club)
+                .Where(c => c.Club.ClubCode == clubCode && c.PathfinderID == pathfinderId);
         }
 
         public PathfinderService(
@@ -109,7 +116,9 @@ namespace PathfinderHonorManager.Service
 
         public async Task<Outgoing.PathfinderDto> UpdateAsync(Guid pathfinderId, Incoming.PutPathfinderDto updatedPathfinder, string clubCode, CancellationToken token)
         {
-            var targetPathfinder = await GetByIdAsync(pathfinderId, clubCode, token);
+            Pathfinder targetPathfinder;
+            targetPathfinder = await GetPathfinderById(pathfinderId, clubCode)
+                                        .SingleOrDefaultAsync(token);
 
             var club = await _clubService.GetByCodeAsync(clubCode, token);
 
@@ -124,22 +133,28 @@ namespace PathfinderHonorManager.Service
                 LastName = targetPathfinder.LastName,
                 Email = targetPathfinder.Email,
                 Grade = updatedPathfinder.Grade,
+                IsActive = updatedPathfinder.IsActive,
                 ClubID = club.ClubID
             };
-
 
             await _validator.ValidateAsync(
                 mappedPathfinder,
                 opts => opts.ThrowOnFailures(),
                 token);
 
-            targetPathfinder.Grade = mappedPathfinder.Grade;
+            if (mappedPathfinder.Grade != null)
+            {
+                targetPathfinder.Grade = mappedPathfinder.Grade;
+            }
+            if (mappedPathfinder.IsActive.HasValue)
+            {
+                targetPathfinder.IsActive = mappedPathfinder.IsActive;
+            }
 
             await _dbContext.SaveChangesAsync(token);
 
-            return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);      
+            return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);
 
         }
-
     }
 }

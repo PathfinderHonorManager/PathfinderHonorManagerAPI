@@ -24,6 +24,8 @@ namespace PathfinderHonorManager.Model
         public int? Grade { get; set; }
         [Column("club_id")]
         public Guid ClubID { get; set; }
+        [Column("is_active"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public bool? IsActive { get; set; }
         [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
         [Column("update_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
