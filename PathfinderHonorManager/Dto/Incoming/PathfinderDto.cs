@@ -16,6 +16,8 @@ namespace PathfinderHonorManager.Dto.Incoming
 
         public int? Grade { get; set; }
 
+        public bool? IsActive { get; set; }
+
     }
 
     public class PathfinderDtoInternal : PathfinderDto
@@ -26,5 +28,7 @@ namespace PathfinderHonorManager.Dto.Incoming
     public class PutPathfinderDto
     {
         public int? Grade { get; set; }
+
+        public bool? IsActive { get; set; }
     }
 }

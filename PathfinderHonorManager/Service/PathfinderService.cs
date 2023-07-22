@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PathfinderHonorManager.DataAccess;
@@ -28,7 +27,7 @@ namespace PathfinderHonorManager.Service
 
         private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
 
-        private IQueryable<Pathfinder> GetPathfindersWithIncludes(string clubCode)
+        private IQueryable<Pathfinder> QueryPathfindersWithIncludesAsync(string clubCode)
         {
             return _dbContext.Pathfinders
                 .Include(pc => pc.PathfinderClass)
@@ -38,6 +37,14 @@ namespace PathfinderHonorManager.Service
                     .ThenInclude(h => h.Honor)
                 .Include(c => c.Club)
                 .Where(c => c.Club.ClubCode == clubCode);
+        }
+
+        private IQueryable<Pathfinder> QueryPathfinderByIdAsync(Guid pathfinderId, string clubCode)
+        {
+            return _dbContext.Pathfinders
+                .Include(pc => pc.PathfinderClass)
+                 .Include(c => c.Club)
+                .Where(c => c.Club.ClubCode == clubCode && c.PathfinderID == pathfinderId);
         }
 
         public PathfinderService(
@@ -56,7 +63,7 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(string clubCode, CancellationToken token)
         {
-            List<Pathfinder> pathfinders = await GetPathfindersWithIncludes(clubCode)
+            List<Pathfinder> pathfinders = await QueryPathfindersWithIncludesAsync(clubCode)
                 .OrderBy(p => p.Grade)
                 .ThenBy(p => p.LastName)
                 .ToListAsync(token);
@@ -68,7 +75,7 @@ namespace PathfinderHonorManager.Service
         {
             Pathfinder entity;
 
-            entity = await GetPathfindersWithIncludes(clubCode)
+            entity = await QueryPathfindersWithIncludesAsync(clubCode)
                 .SingleOrDefaultAsync(p => p.PathfinderID == id, token);
 
             return entity == default
@@ -109,7 +116,9 @@ namespace PathfinderHonorManager.Service
 
         public async Task<Outgoing.PathfinderDto> UpdateAsync(Guid pathfinderId, Incoming.PutPathfinderDto updatedPathfinder, string clubCode, CancellationToken token)
         {
-            var targetPathfinder = await GetByIdAsync(pathfinderId, clubCode, token);
+            Pathfinder targetPathfinder;
+            targetPathfinder = await QueryPathfinderByIdAsync(pathfinderId, clubCode)
+                                        .SingleOrDefaultAsync(token);
 
             var club = await _clubService.GetByCodeAsync(clubCode, token);
 
@@ -124,22 +133,28 @@ namespace PathfinderHonorManager.Service
                 LastName = targetPathfinder.LastName,
                 Email = targetPathfinder.Email,
                 Grade = updatedPathfinder.Grade,
+                IsActive = updatedPathfinder.IsActive,
                 ClubID = club.ClubID
             };
-
 
             await _validator.ValidateAsync(
                 mappedPathfinder,
                 opts => opts.ThrowOnFailures(),
                 token);
 
-            targetPathfinder.Grade = mappedPathfinder.Grade;
+            if (mappedPathfinder.Grade != null)
+            {
+                targetPathfinder.Grade = mappedPathfinder.Grade;
+            }
+            if (mappedPathfinder.IsActive.HasValue)
+            {
+                targetPathfinder.IsActive = mappedPathfinder.IsActive;
+            }
 
             await _dbContext.SaveChangesAsync(token);
 
-            return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);      
+            return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);
 
         }
-
     }
 }

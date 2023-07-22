@@ -5,7 +5,6 @@ namespace PathfinderHonorManager.Dto.Incoming
 {
     public class HonorDto
     {
-
         [Required]
         public string Name { get; set; }
 
