@@ -17,6 +17,7 @@ namespace PathfinderHonorManager.Service.Interfaces
 
         Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(
             string clubCode,
+            bool showInactive,
             CancellationToken token);
 
         Task<Outgoing.PathfinderDto> AddAsync(

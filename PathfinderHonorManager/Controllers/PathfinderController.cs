@@ -11,6 +11,7 @@ using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace PathfinderHonorManager.Controllers
 {
@@ -44,17 +45,17 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderDependantDto>>> GetAll(CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderDependantDto>>> GetAll(CancellationToken token, bool showInactive = false)
         {
             var clubCode = GetClubCodeFromContext();
-            var pathfinder = await _pathfinderService.GetAllAsync(clubCode, token);
+            var pathfinders = await _pathfinderService.GetAllAsync(clubCode, showInactive, token);
 
-            if (pathfinder == default)
+            if (pathfinders == null || !pathfinders.Any())
             {
                 return NotFound();
             }
 
-            return Ok(pathfinder);
+            return Ok(pathfinders);
         }
 
         // GET Pathfinders/{id}
