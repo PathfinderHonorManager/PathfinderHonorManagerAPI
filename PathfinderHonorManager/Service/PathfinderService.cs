@@ -27,9 +27,9 @@ namespace PathfinderHonorManager.Service
 
         private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
 
-        private IQueryable<Pathfinder> QueryPathfindersWithIncludesAsync(string clubCode)
+        private IQueryable<Pathfinder> QueryPathfindersWithIncludesAsync(string clubCode, bool showInactive)
         {
-            return _dbContext.Pathfinders
+            var query = _dbContext.Pathfinders
                 .Include(pc => pc.PathfinderClass)
                 .Include(ph => ph.PathfinderHonors)
                     .ThenInclude(phs => phs.PathfinderHonorStatus)
@@ -37,6 +37,14 @@ namespace PathfinderHonorManager.Service
                     .ThenInclude(h => h.Honor)
                 .Include(c => c.Club)
                 .Where(c => c.Club.ClubCode == clubCode);
+
+            if (!showInactive)
+            {
+                query = query.Where(p => (bool)p.IsActive);
+            }
+
+            return query;
+
         }
 
         private IQueryable<Pathfinder> QueryPathfinderByIdAsync(Guid pathfinderId, string clubCode)
@@ -61,9 +69,9 @@ namespace PathfinderHonorManager.Service
             _validator = validator;
         }
 
-        public async Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(string clubCode, CancellationToken token)
+        public async Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(string clubCode, bool showInactive, CancellationToken token)
         {
-            List<Pathfinder> pathfinders = await QueryPathfindersWithIncludesAsync(clubCode)
+            List<Pathfinder> pathfinders = await QueryPathfindersWithIncludesAsync(clubCode, showInactive)
                 .OrderBy(p => p.Grade)
                 .ThenBy(p => p.LastName)
                 .ToListAsync(token);
@@ -74,8 +82,9 @@ namespace PathfinderHonorManager.Service
         public async Task<Outgoing.PathfinderDependantDto> GetByIdAsync(Guid id, string clubCode, CancellationToken token)
         {
             Pathfinder entity;
+            bool showInactive = true;
 
-            entity = await QueryPathfindersWithIncludesAsync(clubCode)
+            entity = await QueryPathfindersWithIncludesAsync(clubCode, showInactive)
                 .SingleOrDefaultAsync(p => p.PathfinderID == id, token);
 
             return entity == default
