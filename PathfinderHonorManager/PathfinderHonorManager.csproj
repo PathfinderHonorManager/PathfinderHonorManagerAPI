@@ -41,8 +41,10 @@
     <None Remove="Microsoft.ApplicationInsights" />
     <None Remove="Microsoft.ApplicationInsights.AspNetCore" />
     <None Remove="FluentValidation.DependencyInjectionExtensions" />
+    <None Remove="Converters\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Healthcheck\" />
+    <Folder Include="Converters\" />
   </ItemGroup>
 </Project>

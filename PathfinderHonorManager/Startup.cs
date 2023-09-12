@@ -64,6 +64,11 @@ namespace PathfinderHonorManager
                 options.AddPolicy("UpdateHonors", policy => policy.Requirements.Add(new HasScopeRequirement("update:honors", domain)));
                 options.AddPolicy("UpdateClubs", policy => policy.Requirements.Add(new HasScopeRequirement("update:clubs", domain)));
             });
+            services.AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+                });
             services.AddControllers();
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
@@ -121,11 +126,7 @@ namespace PathfinderHonorManager
                 .AddFluentValidationClientsideAdapters()
                 .AddValidatorsFromAssemblyContaining<PathfinderValidator>()
                 .AddValidatorsFromAssemblyContaining<HonorValidator>();
-            services.AddMvc()
-                .AddJsonOptions(options =>
-                    {
-                        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
-                    });
+
             services.AddHttpLogging(logging =>
                 {
                     logging.LoggingFields = HttpLoggingFields.RequestProtocol |
