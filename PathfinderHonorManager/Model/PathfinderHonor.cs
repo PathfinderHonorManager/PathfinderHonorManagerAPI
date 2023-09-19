@@ -17,7 +17,7 @@ namespace PathfinderHonorManager.Model
         [Column("create_timestamp"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
         [Column("earn_timestamp")]
-        public DateTime Earned { get; set; }
+        public DateTime? Earned { get; set; }
         [Column("pathfinder_id")]
         public Guid PathfinderID { get; set; }
 
