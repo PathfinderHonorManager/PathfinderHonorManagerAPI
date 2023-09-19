@@ -44,6 +44,13 @@ namespace PathfinderHonorManager.Validators
                     .WithName(nameof(PathfinderHonorDto.HonorID))
                     .WithMessage(
                         dto => $"Invalid Honor ID provided.");
+                    RuleFor(p => p)
+                    .MustAsync(
+                        async (dto, token) =>
+                            await _dbContext.Pathfinders.AnyAsync(p => p.PathfinderID == dto.PathfinderID, token))
+                    .WithName(nameof(PathfinderHonorDto.PathfinderID))
+                    .WithMessage(dto => $"Invalid Pathfinder ID {dto.PathfinderID} provided.");
+
                 });
         }
     }
