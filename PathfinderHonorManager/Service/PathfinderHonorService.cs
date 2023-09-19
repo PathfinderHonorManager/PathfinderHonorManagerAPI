@@ -134,6 +134,11 @@ namespace PathfinderHonorManager.Service
 
             targetPathfinderHonor.StatusCode = updatedPathfinderHonor.StatusCode;
 
+            if (updatedPathfinderHonor.Status == HonorStatus.Earned.ToString())
+            {
+                targetPathfinderHonor.Earned = DateTime.UtcNow;
+            }
+
             await _dbContext.SaveChangesAsync(token);
 
             return _mapper.Map<Outgoing.PathfinderHonorDto>(targetPathfinderHonor);
