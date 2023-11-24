@@ -14,7 +14,7 @@ using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
-    [Route("api/pathfinders")]
+    [Route("api/Pathfinders")]
     [Authorize("ReadPathfinders")]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -60,7 +60,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("/PathfinderHonors")]
+        [Route("PathfinderHonors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAllByStatus([FromQuery] string status, CancellationToken token)

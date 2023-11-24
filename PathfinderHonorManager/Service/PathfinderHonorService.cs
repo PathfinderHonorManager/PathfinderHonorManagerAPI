@@ -99,6 +99,11 @@ namespace PathfinderHonorManager.Service
 
             var newEntity = _mapper.Map<PathfinderHonor>(newPathfinderHonor);
 
+            if (newPathfinderHonor.Status == HonorStatus.Earned.ToString())
+            {
+                newEntity.Earned = DateTime.UtcNow;
+            }
+
             await _dbContext.AddAsync(newEntity, token);
             await _dbContext.SaveChangesAsync(token);
             _logger.LogInformation($"Pathfinder honor(Id: {newEntity.PathfinderHonorID} added to database.");
@@ -133,6 +138,11 @@ namespace PathfinderHonorManager.Service
                         token);
 
             targetPathfinderHonor.StatusCode = updatedPathfinderHonor.StatusCode;
+
+            if (updatedPathfinderHonor.Status == HonorStatus.Earned.ToString())
+            {
+                targetPathfinderHonor.Earned = DateTime.UtcNow;
+            }
 
             await _dbContext.SaveChangesAsync(token);
 
