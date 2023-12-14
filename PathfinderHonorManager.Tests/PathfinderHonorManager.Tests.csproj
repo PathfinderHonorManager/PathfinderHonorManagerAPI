@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.14" />
     <PackageReference Include="FluentValidation.Validators.UnitTestExtension" Version="1.11.0.2" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.8.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.8.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.14" />
   </ItemGroup>
 
