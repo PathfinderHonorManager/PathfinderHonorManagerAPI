@@ -1,4 +1,4 @@
-﻿-- Create database pathfinder and then run this file from PQSL
+-- Create database pathfinder and then run this file from PQSL
 -- psql -U your_username -d pathfinder
 -- \i /path/to/your_sql_file.sql
 
@@ -167,7 +167,8 @@ CREATE TABLE public.pathfinder_honor (
     pathfinder_id uuid NOT NULL,
     honor_id uuid NOT NULL,
     status_code integer NOT NULL,
-    create_timestamp timestamp with time zone NOT NULL
+    create_timestamp timestamp with time zone NOT NULL,
+    earn_timestamp timestamp with time zone
 );
 
 
@@ -796,8 +797,7 @@ CREATE ROLE dbuser WITH
   INHERIT
   NOCREATEDB
   NOCREATEROLE
-  NOREPLICATION
-  ENCRYPTED PASSWORD 'SCRAM-SHA-256$4096:JnQMBO5Ab9GLQemSBdCMWA==$mH8RDL/QX7sDfdzWXJTNEizP/L55HlMM5Fh+Q2XgrnU=:4iGm4llowptLo7WZM4kYVDgHvxmdZxSpbH1i4OjhngQ=';
+  NOREPLICATION;
 
 GRANT pg_read_all_data, pg_write_all_data TO dbuser;
 
@@ -810,5 +810,3 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
-
-
