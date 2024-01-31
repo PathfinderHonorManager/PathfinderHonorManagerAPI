@@ -43,6 +43,7 @@ namespace PathfinderHonorManager.Controllers
         /// Get all Pathfinders
         /// </summary>
         /// <param name="token"></param>
+        /// <param name="showInactive"></param>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
