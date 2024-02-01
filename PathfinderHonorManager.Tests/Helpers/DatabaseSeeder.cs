@@ -14,6 +14,7 @@ namespace PathfinderHonorManager.Tests.Helpers
     {
         private static List<Honor> _honors;
         private static List<Pathfinder> _pathfinders;
+        private static List<Club> _clubs;
 
         private static List<PathfinderHonorStatus> _pathfinderHonorStatuses;
 
@@ -21,6 +22,7 @@ namespace PathfinderHonorManager.Tests.Helpers
         {
             using (var dbContext = new PathfinderContext(options))
             {
+                await SeedClubs(dbContext);
                 await SeedPathfinderHonorStatuses(dbContext);
                 await SeedPathfinders(dbContext);
                 await SeedHonors(dbContext);
@@ -28,6 +30,25 @@ namespace PathfinderHonorManager.Tests.Helpers
             }
         }
 
+        public static async Task SeedClubs(PathfinderContext dbContext)
+        {
+            _clubs = new List<Club>
+            {
+                new Club
+                {
+                    ClubID = Guid.NewGuid(),
+                    ClubCode = "VALIDCLUBCODE"
+                },
+                new Club
+                {
+                    ClubID = Guid.NewGuid(),
+                    ClubCode = "EMPTYCLUB"
+                }
+            };
+
+            await dbContext.Clubs.AddRangeAsync(_clubs);
+            await dbContext.SaveChangesAsync();
+        }
         public static async Task SeedPathfinders(PathfinderContext dbContext)
         {
             _pathfinders = new List<Pathfinder>
@@ -39,9 +60,10 @@ namespace PathfinderHonorManager.Tests.Helpers
                     LastName = "Doe",
                     Email = "johndoe@example.com",
                     Grade = 5,
-                    ClubID = Guid.NewGuid(),
+                    ClubID = _clubs[0].ClubID,
                     Created = DateTime.UtcNow,
-                    Updated = DateTime.UtcNow
+                    Updated = DateTime.UtcNow,
+                    IsActive = true
                 },
                 new Pathfinder
                 {
@@ -50,9 +72,22 @@ namespace PathfinderHonorManager.Tests.Helpers
                     LastName = "Addsome",
                     Email = "addyaddsome@example.com",
                     Grade = 9,
-                    ClubID = Guid.NewGuid(),
+                    ClubID = _clubs[0].ClubID,
                     Created = DateTime.UtcNow,
-                    Updated = DateTime.UtcNow
+                    Updated = DateTime.UtcNow,
+                    IsActive = true
+                },
+                new Pathfinder
+                {
+                    PathfinderID = Guid.NewGuid(),
+                    FirstName = "Inactive",
+                    LastName = "Pathfinder",
+                    Email = "inactive@example.com",
+                    Grade = 10,
+                    ClubID = _clubs[0].ClubID,
+                    Created = DateTime.UtcNow,
+                    Updated = DateTime.UtcNow,
+                    IsActive = false
                 }
             };
 

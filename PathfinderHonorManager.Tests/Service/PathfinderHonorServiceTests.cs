@@ -47,23 +47,12 @@ namespace PathfinderHonorManager.Tests.Service
         {
             await DatabaseSeeder.SeedDatabase(SharedContextOptions);
 
-            // Re-instantiate the _dbContext to ensure it's fresh after seeding.
-            _dbContext?.Dispose();
             _dbContext = new PathfinderContext(SharedContextOptions);
 
             _pathfinders = await _dbContext.Pathfinders.ToListAsync();
             _honors = await _dbContext.Honors.ToListAsync();
             _pathfinderHonors = await _dbContext.PathfinderHonors.ToListAsync();
             _pathfinderSelectorHelper = new PathfinderSelectorHelper(_pathfinders, _pathfinderHonors);
-
-        }
-
-        [Test]
-        [TestCase("planned")]
-        [TestCase("earned")]
-        [TestCase("awarded")]
-        public async Task GetAllByStatusAsync_ReturnsPathfinderHonorsForStatus(string status)
-        {
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
             IMapper mapper = mapperConfiguration.CreateMapper();
 
@@ -73,6 +62,14 @@ namespace PathfinderHonorManager.Tests.Service
 
             _pathfinderHonorService = new PathfinderHonorService(_dbContext, mapper, validator, logger);
 
+        }
+
+        [Test]
+        [TestCase("planned")]
+        [TestCase("earned")]
+        [TestCase("awarded")]
+        public async Task GetAllByStatusAsync_ReturnsPathfinderHonorsForStatus(string status)
+        {
             // Act
             CancellationToken token = new();
             var result = await _pathfinderHonorService.GetAllByStatusAsync(status, token);
@@ -87,15 +84,6 @@ namespace PathfinderHonorManager.Tests.Service
         [TestCase(2)]
         public async Task GetByIdAsync_ReturnsPathfinderHonorsForPathfinderIdAndHonorId(int id)
         {
-            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
-            IMapper mapper = mapperConfiguration.CreateMapper();
-
-            var logger = new NullLogger<PathfinderHonorService>();
-
-            var validator = new DummyValidator<PathfinderHonorDto>();
-
-            _pathfinderHonorService = new PathfinderHonorService(_dbContext, mapper, validator, logger);
-
             // Act
             CancellationToken token = new();
             var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
@@ -113,15 +101,6 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task AddAsync_AddsNewPathfinderHonorAndReturnsDto(int honorIndex, string honorStatus)
         {
             // Arrange
-            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
-            IMapper mapper = mapperConfiguration.CreateMapper();
-
-            var logger = new NullLogger<PathfinderHonorService>();
-
-            var validator = new DummyValidator<PathfinderHonorDto>();
-
-            _pathfinderHonorService = new PathfinderHonorService(_dbContext, mapper, validator, logger);
-
             var postPathfinderHonorDto = new PostPathfinderHonorDto
             {
                 HonorID = _honors[honorIndex].HonorID,
@@ -146,15 +125,6 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task UpdateAsync_UpdatesPathfinderHonorAndReturnsUpdatedDto(int honorIndex, int pathfinderHonorIndex, string honorStatus)
         {
             // Arrange
-            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
-            IMapper mapper = mapperConfiguration.CreateMapper();
-
-            var logger = new NullLogger<PathfinderHonorService>();
-
-            var validator = new DummyValidator<PathfinderHonorDto>();
-
-            _pathfinderHonorService = new PathfinderHonorService(_dbContext, mapper, validator, logger);
-
             var putPathfinderHonorDto = new PutPathfinderHonorDto
             {
                 Status = honorStatus.ToString()
@@ -198,6 +168,8 @@ namespace PathfinderHonorManager.Tests.Service
                     _dbContext.PathfinderHonors.RemoveRange(_dbContext.PathfinderHonors);
                 if (_dbContext.PathfinderHonorStatuses.Any())
                     _dbContext.PathfinderHonorStatuses.RemoveRange(_dbContext.PathfinderHonorStatuses);
+                if (_dbContext.Clubs.Any())
+                    _dbContext.Clubs.RemoveRange(_dbContext.Clubs);
 
                 _dbContext.SaveChanges();
             }
