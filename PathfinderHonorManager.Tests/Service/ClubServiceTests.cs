@@ -17,6 +17,7 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Model.Enum;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Tests.Service;
+using PathfinderHonorManager.Tests.Helpers;
 
 namespace PathfinderHonorManager.Tests.Service
 {
@@ -89,7 +90,7 @@ namespace PathfinderHonorManager.Tests.Service
                 var result = await _clubService.GetAllAsync(token);
                 // Assert
                 Assert.IsNotNull(result);
-                Assert.AreEqual(3, result.Count);
+                Assert.AreEqual(_clubs.Count, result.Count);
             }
         }
 
@@ -114,7 +115,7 @@ namespace PathfinderHonorManager.Tests.Service
                 // Assert
                 Assert.IsNotNull(result);
                 Assert.AreEqual(clubId, result.ClubID);
-                Assert.AreEqual(_clubs[0].Name, result.Name);
+                Assert.AreEqual(_clubs[clubIndex].Name, result.Name);
             }
         }
 
@@ -139,18 +140,6 @@ namespace PathfinderHonorManager.Tests.Service
             }
         }
 
-        private class DummyValidator<T> : AbstractValidator<T>
-        {
-            public override ValidationResult Validate(ValidationContext<T> context)
-            {
-                return new ValidationResult(new List<ValidationFailure>());
-            }
-
-            public override Task<ValidationResult> ValidateAsync(ValidationContext<T> context, CancellationToken cancellationToken = default)
-            {
-                return Task.FromResult(new ValidationResult(new List<ValidationFailure>()));
-            }
-        }
 
         [TearDown]
         public async Task TearDown()

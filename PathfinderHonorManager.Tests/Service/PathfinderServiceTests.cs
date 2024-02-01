@@ -8,7 +8,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using Moq;
 using PathfinderHonorManager.DataAccess;
@@ -66,18 +65,7 @@ namespace PathfinderHonorManager.Tests.Service
                 });
             _pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validator, logger);
         }
-        private class DummyValidator<T> : AbstractValidator<T>
-        {
-            public override ValidationResult Validate(ValidationContext<T> context)
-            {
-                return new ValidationResult(new List<ValidationFailure>());
-            }
 
-            public override Task<ValidationResult> ValidateAsync(ValidationContext<T> context, CancellationToken cancellationToken = default)
-            {
-                return Task.FromResult(new ValidationResult(new List<ValidationFailure>()));
-            }
-        }
         [SetUp]
         public async Task SetUp()
         {
