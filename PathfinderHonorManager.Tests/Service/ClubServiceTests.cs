@@ -1,22 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Dto.Outgoing;
 using PathfinderHonorManager.Mapping;
 using PathfinderHonorManager.Model;
-using PathfinderHonorManager.Model.Enum;
 using PathfinderHonorManager.Service;
-using PathfinderHonorManager.Tests.Service;
 using PathfinderHonorManager.Tests.Helpers;
 
 namespace PathfinderHonorManager.Tests.Service
