@@ -1,26 +1,6 @@
-﻿-- Create database pathfinder and then run this file from PQSL
+-- Create database pathfinder and then run this file from PQSL
 -- psql -U your_username -d pathfinder
 -- \i /path/to/your_sql_file.sql
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- TOC entry 3658 (class 1262 OID 16504)
--- Name: pathfinder; Type: DATABASE; Schema: -; Owner: postgres
---
-
-ALTER DATABASE pathfinder OWNER TO postgres;
-
-\connect pathfinder
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -187,7 +167,8 @@ CREATE TABLE public.pathfinder_honor (
     pathfinder_id uuid NOT NULL,
     honor_id uuid NOT NULL,
     status_code integer NOT NULL,
-    create_timestamp timestamp with time zone NOT NULL
+    create_timestamp timestamp with time zone NOT NULL,
+    earn_timestamp timestamp with time zone
 );
 
 
@@ -816,8 +797,7 @@ CREATE ROLE dbuser WITH
   INHERIT
   NOCREATEDB
   NOCREATEROLE
-  NOREPLICATION
-  ENCRYPTED PASSWORD 'SCRAM-SHA-256$4096:JnQMBO5Ab9GLQemSBdCMWA==$mH8RDL/QX7sDfdzWXJTNEizP/L55HlMM5Fh+Q2XgrnU=:4iGm4llowptLo7WZM4kYVDgHvxmdZxSpbH1i4OjhngQ=';
+  NOREPLICATION;
 
 GRANT pg_read_all_data, pg_write_all_data TO dbuser;
 
@@ -830,5 +810,3 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
-
-

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 
 namespace PathfinderHonorManager.Dto.Outgoing
@@ -11,7 +12,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public string LastName { get; set; } = null!;
 
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         public int? Grade {get; set;}
 
@@ -32,7 +33,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public string LastName { get; set; } = null!;
 
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         public int? Grade {get; set;}
 
@@ -40,7 +41,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public bool? IsActive { get; set; }
 
-        public string ClubName { get; set; }
+        public string ClubName { get; set; } = null!;
 
         public DateTime Created { get; set; }
 

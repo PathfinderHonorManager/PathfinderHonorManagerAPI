@@ -14,148 +14,54 @@ using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Dto.Incoming;
 using PathfinderHonorManager.Mapping;
 using PathfinderHonorManager.Model;
-using PathfinderHonorManager.Model.Enum;
 using PathfinderHonorManager.Service;
+using PathfinderHonorManager.Tests.Helpers;
 
 namespace PathfinderHonorManager.Tests.Service
 {
     public class PathfinderHonorServiceTests
     {
-        public PathfinderHonorServiceTests()
-        {
-            ContextOptions = new DbContextOptionsBuilder<PathfinderContext>()
-                .UseInMemoryDatabase(databaseName: "TestDb")
+        private static readonly DbContextOptions<PathfinderContext> SharedContextOptions =
+            new DbContextOptionsBuilder<PathfinderContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
-        }
-
-        protected DbContextOptions<PathfinderContext> ContextOptions { get; }
 
         private PathfinderHonorService _pathfinderHonorService;
+        private PathfinderContext _dbContext;
 
         private List<Pathfinder> _pathfinders;
         private List<Honor> _honors;
         private List<PathfinderHonor> _pathfinderHonors;
+        private PathfinderSelectorHelper _pathfinderSelectorHelper;
+
+
+        public PathfinderHonorServiceTests()
+        {
+            _dbContext = new PathfinderContext(SharedContextOptions);
+
+        }
+
 
         [SetUp]
         public async Task SetUp()
         {
-            using (var dbContext = new PathfinderContext(ContextOptions))
-            {
-                await SeedDatabase(dbContext);
-            }
-        }
+            await DatabaseSeeder.SeedDatabase(SharedContextOptions);
 
-        private async Task SeedDatabase(PathfinderContext dbContext)
-        {
-            _pathfinders = new List<Pathfinder>
-        {
-            new Pathfinder
-            {
-                PathfinderID = Guid.NewGuid(),
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "johndoe@example.com",
-                Grade = 1,
-                ClubID = Guid.NewGuid(),
-                Created = DateTime.UtcNow,
-                Updated = DateTime.UtcNow
-            },
-                new Pathfinder
-            {
-                PathfinderID = Guid.NewGuid(),
-                FirstName = "Addy",
-                LastName = "Addsome",
-                Email = "addyaddsome@example.com",
-                Grade = 1,
-                ClubID = Guid.NewGuid(),
-                Created = DateTime.UtcNow,
-                Updated = DateTime.UtcNow
-            }
-    };
+            _dbContext = new PathfinderContext(SharedContextOptions);
 
+            _pathfinders = await _dbContext.Pathfinders.ToListAsync();
+            _honors = await _dbContext.Honors.ToListAsync();
+            _pathfinderHonors = await _dbContext.PathfinderHonors.ToListAsync();
+            _pathfinderSelectorHelper = new PathfinderSelectorHelper(_pathfinders, _pathfinderHonors);
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
 
-            _honors = new List<Honor>
-    {
-        new Honor
-        {
-            HonorID = Guid.NewGuid(),
-            Name = "Test Honor",
-            Level = 1,
-            Description = "Test description",
-            PatchFilename = "test_patch.jpg",
-            WikiPath = new Uri("https://example.com/test")
-        },
-        new Honor
-        {
-            HonorID = Guid.NewGuid(),
-            Name = "Test Honor 2",
-            Level = 1,
-            Description = "Test description 2",
-            PatchFilename = "test_patch2.jpg",
-            WikiPath = new Uri("https://example.com/test2")
-        },
-        new Honor
-        {
-            HonorID = Guid.NewGuid(),
-            Name = "Test Honor 3",
-            Level = 1,
-            Description = "Test description 3",
-            PatchFilename = "test_patch3.jpg",
-            WikiPath = new Uri("https://example.com/test3")
-        }
-    };
+            var logger = new NullLogger<PathfinderHonorService>();
 
-            _pathfinderHonors = new List<PathfinderHonor>
-    {
-        new PathfinderHonor
-        {
-            PathfinderHonorID = Guid.NewGuid(),
-            HonorID = _honors[0].HonorID,
-            StatusCode = (int)HonorStatus.Planned,
-            Created = DateTime.UtcNow,
-            PathfinderID = _pathfinders[0].PathfinderID
-        },
-        new PathfinderHonor
-        {
-            PathfinderHonorID = Guid.NewGuid(),
-            HonorID = _honors[1].HonorID,
-            StatusCode = (int)HonorStatus.Earned,
-            Created = DateTime.UtcNow,
-            PathfinderID = _pathfinders[0].PathfinderID
-        },
-        new PathfinderHonor
-        {
-            PathfinderHonorID = Guid.NewGuid(),
-            HonorID = _honors[2].HonorID,
-            StatusCode = (int)HonorStatus.Awarded,
-            Created = DateTime.UtcNow,
-            PathfinderID = _pathfinders[0].PathfinderID
-        }
-    };
-            var pathfinderHonorStatuses = new List<PathfinderHonorStatus>
-        {
-            new PathfinderHonorStatus
-            {
-                StatusCode = (int)HonorStatus.Planned,
-                Status = HonorStatus.Planned.ToString()
-            },
-            new PathfinderHonorStatus
-            {
-                StatusCode = (int)HonorStatus.Earned,
-                Status = HonorStatus.Earned.ToString()
-            },
-            new PathfinderHonorStatus
-            {
-                StatusCode = (int)HonorStatus.Awarded,
-                Status = HonorStatus.Awarded.ToString()
-            }
-        };
+            var validator = new DummyValidator<PathfinderHonorDto>();
 
-            await dbContext.PathfinderHonorStatuses.AddRangeAsync(pathfinderHonorStatuses);
-            await dbContext.Pathfinders.AddRangeAsync(_pathfinders);
-            await dbContext.Honors.AddRangeAsync(_honors);
-            await dbContext.PathfinderHonors.AddRangeAsync(_pathfinderHonors);
-            await dbContext.SaveChangesAsync();
+            _pathfinderHonorService = new PathfinderHonorService(_dbContext, mapper, validator, logger);
+
         }
 
         [Test]
@@ -164,25 +70,13 @@ namespace PathfinderHonorManager.Tests.Service
         [TestCase("awarded")]
         public async Task GetAllByStatusAsync_ReturnsPathfinderHonorsForStatus(string status)
         {
-            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
-            IMapper mapper = mapperConfiguration.CreateMapper();
-
-            var logger = new NullLogger<PathfinderHonorService>();
-
-            var validator = new DummyValidator<PathfinderHonorDto>();
-
-            using (var dbContext = new PathfinderContext(ContextOptions))
-            {
-                _pathfinderHonorService = new PathfinderHonorService(dbContext, mapper, validator, logger);
-
-                // Act
-                CancellationToken token = new();
-                var result = await _pathfinderHonorService.GetAllByStatusAsync(status, token);
-                // Assert
-                Assert.IsNotNull(result);
-                Assert.AreEqual(1, result.Count);
-                Assert.IsTrue(result.All(x => x.Status.Equals(status, StringComparison.OrdinalIgnoreCase)));
-            }
+            // Act
+            CancellationToken token = new();
+            var result = await _pathfinderHonorService.GetAllByStatusAsync(status, token);
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.All(x => x.Status.Equals(status, StringComparison.OrdinalIgnoreCase)));
         }
 
         [TestCase(0)]
@@ -190,61 +84,39 @@ namespace PathfinderHonorManager.Tests.Service
         [TestCase(2)]
         public async Task GetByIdAsync_ReturnsPathfinderHonorsForPathfinderIdAndHonorId(int id)
         {
-            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
-            IMapper mapper = mapperConfiguration.CreateMapper();
+            // Act
+            CancellationToken token = new();
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var result = await _pathfinderHonorService.GetByIdAsync(pathfinderId, _pathfinderHonors[id].HonorID, token);
 
-            var logger = new NullLogger<PathfinderHonorService>();
-
-            var validator = new DummyValidator<PathfinderHonorDto>();
-
-            using (var dbContext = new PathfinderContext(ContextOptions))
-            {
-                _pathfinderHonorService = new PathfinderHonorService(dbContext, mapper, validator, logger);
-
-                // Act
-                CancellationToken token = new();
-                var result = await _pathfinderHonorService.GetByIdAsync(_pathfinders[0].PathfinderID, _pathfinderHonors[id].HonorID, token);
-
-                // Assert
-                Assert.IsNotNull(result);
-                Assert.AreEqual(_pathfinders[0].PathfinderID, result.PathfinderID);
-                Assert.AreEqual(_pathfinderHonors[id].HonorID, result.HonorID);
-            }
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(pathfinderId, result.PathfinderID);
+            Assert.AreEqual(_pathfinderHonors[id].HonorID, result.HonorID);
         }
 
-        [TestCase(0, "earned")]
-        [TestCase(1, "planned")]
+        [TestCase(0, "planned")]
+        [TestCase(1, "earned")]
         [TestCase(2, "awarded")]
         public async Task AddAsync_AddsNewPathfinderHonorAndReturnsDto(int honorIndex, string honorStatus)
         {
             // Arrange
-            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
-            IMapper mapper = mapperConfiguration.CreateMapper();
-
-            var logger = new NullLogger<PathfinderHonorService>();
-
-            var validator = new DummyValidator<PathfinderHonorDto>();
-
-            using (var dbContext = new PathfinderContext(ContextOptions))
+            var postPathfinderHonorDto = new PostPathfinderHonorDto
             {
-                _pathfinderHonorService = new PathfinderHonorService(dbContext, mapper, validator, logger);
+                HonorID = _honors[honorIndex].HonorID,
+                Status = honorStatus.ToString()
+            };
+            CancellationToken token = new();
 
-                var postPathfinderHonorDto = new PostPathfinderHonorDto
-                {
-                    HonorID = _honors[honorIndex].HonorID,
-                    Status = honorStatus.ToString()
-                };
-                CancellationToken token = new();
+            // Act
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(false);
+            var result = await _pathfinderHonorService.AddAsync(pathfinderId, postPathfinderHonorDto, token);
 
-                // Act
-                var result = await _pathfinderHonorService.AddAsync(_pathfinders[1].PathfinderID, postPathfinderHonorDto, token);
-
-                // Assert
-                Assert.IsNotNull(result);
-                Assert.AreEqual(_pathfinders[1].PathfinderID, result.PathfinderID);
-                Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
-                Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
-            }
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(pathfinderId, result.PathfinderID);
+            Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
+            Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
         }
 
         [TestCase(0, 0, "awarded")]
@@ -253,59 +125,51 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task UpdateAsync_UpdatesPathfinderHonorAndReturnsUpdatedDto(int honorIndex, int pathfinderHonorIndex, string honorStatus)
         {
             // Arrange
-            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
-            IMapper mapper = mapperConfiguration.CreateMapper();
-
-            var logger = new NullLogger<PathfinderHonorService>();
-
-            var validator = new DummyValidator<PathfinderHonorDto>();
-
-            using (var dbContext = new PathfinderContext(ContextOptions))
+            var putPathfinderHonorDto = new PutPathfinderHonorDto
             {
-                _pathfinderHonorService = new PathfinderHonorService(dbContext, mapper, validator, logger);
+                Status = honorStatus.ToString()
+            };
+            CancellationToken token = new();
 
-                var putPathfinderHonorDto = new PutPathfinderHonorDto
-                {
-                    Status = honorStatus.ToString()
-                };
-                CancellationToken token = new();
+            // Act
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var result = await _pathfinderHonorService.UpdateAsync(pathfinderId, _honors[honorIndex].HonorID, putPathfinderHonorDto, token);
 
-                // Act
-                var result = await _pathfinderHonorService.UpdateAsync(_pathfinders[0].PathfinderID, _honors[honorIndex].HonorID, putPathfinderHonorDto, token);
-
-                // Assert
-                Assert.IsNotNull(result);
-                Assert.AreEqual(_pathfinders[0].PathfinderID, result.PathfinderID);
-                Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
-                Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
-            }
-        }
-
-        private class DummyValidator<T> : AbstractValidator<T>
-        {
-            public override ValidationResult Validate(ValidationContext<T> context)
-            {
-                return new ValidationResult(new List<ValidationFailure>());
-            }
-
-            public override Task<ValidationResult> ValidateAsync(ValidationContext<T> context, CancellationToken cancellationToken = default)
-            {
-                return Task.FromResult(new ValidationResult(new List<ValidationFailure>()));
-            }
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(pathfinderId, result.PathfinderID);
+            Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
+            Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
         }
 
         [TearDown]
-        public async Task TearDown()
+        public void TearDown()
         {
-            using var dbContext = new PathfinderContext(ContextOptions);
+            if (_dbContext != null)
+            {
+                if (_dbContext.Pathfinders.Any())
+                    _dbContext.Pathfinders.RemoveRange(_dbContext.Pathfinders);
+                if (_dbContext.Honors.Any())
+                    _dbContext.Honors.RemoveRange(_dbContext.Honors);
+                if (_dbContext.PathfinderHonors.Any())
+                    _dbContext.PathfinderHonors.RemoveRange(_dbContext.PathfinderHonors);
+                if (_dbContext.PathfinderHonorStatuses.Any())
+                    _dbContext.PathfinderHonorStatuses.RemoveRange(_dbContext.PathfinderHonorStatuses);
+                if (_dbContext.Clubs.Any())
+                    _dbContext.Clubs.RemoveRange(_dbContext.Clubs);
 
-            dbContext.PathfinderHonors.RemoveRange(_pathfinderHonors);
-            dbContext.Honors.RemoveRange(_honors);
-            dbContext.Pathfinders.RemoveRange(_pathfinders);
-            dbContext.PathfinderHonorStatuses.RemoveRange(dbContext.PathfinderHonorStatuses);
+                _dbContext.SaveChanges();
+            }
 
-            await dbContext.SaveChangesAsync();
+            _dbContext?.Dispose();
+
+        }
+
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            _dbContext.Dispose();
         }
     }
-
 }
