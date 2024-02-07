@@ -120,7 +120,9 @@ namespace PathfinderHonorManager
                 .AddScoped<IPathfinderService, PathfinderService>()
                 .AddScoped<IHonorService, HonorService>()
                 .AddScoped<IPathfinderHonorService, PathfinderHonorService>()
-                .AddScoped<IClubService, ClubService>();
+                .AddScoped<IClubService, ClubService>()
+                .AddScoped<IAchievementService, AchievementService>()
+                .AddScoped<IPathfinderAchievementService, PathfinderAchievementService>();
             services
                 .AddFluentValidationAutoValidation()
                 .AddFluentValidationClientsideAdapters()
