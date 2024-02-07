@@ -173,29 +173,13 @@ namespace PathfinderHonorManager.Tests.Service
             Assert.IsNotNull(result);
             Assert.AreEqual(updatePathfinderDto.Grade, result.Grade);
             Assert.AreEqual(updatePathfinderDto.IsActive, result.IsActive);
-            // Additional assertions as necessary
         }
 
         [TearDown]
-        public void TearDown()
+        public async Task TearDown()
         {
-            if (_dbContext != null)
-            {
-                if (_dbContext.Pathfinders.Any())
-                    _dbContext.Pathfinders.RemoveRange(_dbContext.Pathfinders);
-                if (_dbContext.Honors.Any())
-                    _dbContext.Honors.RemoveRange(_dbContext.Honors);
-                if (_dbContext.PathfinderHonors.Any())
-                    _dbContext.PathfinderHonors.RemoveRange(_dbContext.PathfinderHonors);
-                if (_dbContext.PathfinderHonorStatuses.Any())
-                    _dbContext.PathfinderHonorStatuses.RemoveRange(_dbContext.PathfinderHonorStatuses);
-                if (_dbContext.Clubs.Any())
-                    _dbContext.Clubs.RemoveRange(_dbContext.Clubs);
-
-                _dbContext.SaveChanges();
-            }
-
-            _dbContext?.Dispose();
+            await DatabaseCleaner.CleanDatabase(_dbContext);
+            _dbContext.Dispose();
         }
 
         [OneTimeTearDown]
