@@ -117,7 +117,7 @@ namespace PathfinderHonorManager.Controllers
 
         }
 
-        // PUT Pathfinders
+        // PUT Pathfinders/{pathfinderId}
         /// <summary>
         /// Update a Pathfinder
         /// </summary>
@@ -125,7 +125,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="updatedPathfinder"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpPut]
+        [HttpPut("{pathfinderId:guid}")]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
