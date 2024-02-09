@@ -72,7 +72,7 @@ jobs:
     #   make release
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
   build:
     needs: [analyze, test]
     runs-on: ubuntu-latest
