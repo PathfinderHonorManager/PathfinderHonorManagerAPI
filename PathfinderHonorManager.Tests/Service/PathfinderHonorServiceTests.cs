@@ -73,10 +73,10 @@ namespace PathfinderHonorManager.Tests.Service
             // Act
             CancellationToken token = new();
             var result = await _pathfinderHonorService.GetAllByStatusAsync(status, token);
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
-            Assert.IsTrue(result.All(x => x.Status.Equals(status, StringComparison.OrdinalIgnoreCase)));
+            // Assert using fluent assertions
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result.All(x => x.Status.Equals(status, StringComparison.OrdinalIgnoreCase)), Is.True);
         }
 
         [TestCase(0)]
@@ -89,10 +89,10 @@ namespace PathfinderHonorManager.Tests.Service
             var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
             var result = await _pathfinderHonorService.GetByIdAsync(pathfinderId, _pathfinderHonors[id].HonorID, token);
 
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(pathfinderId, result.PathfinderID);
-            Assert.AreEqual(_pathfinderHonors[id].HonorID, result.HonorID);
+            // Assert using fluent assertions
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.PathfinderID, Is.EqualTo(pathfinderId));
+            Assert.That(result.HonorID, Is.EqualTo(_pathfinderHonors[id].HonorID));
         }
 
         [TestCase(0, "planned")]
@@ -112,11 +112,11 @@ namespace PathfinderHonorManager.Tests.Service
             var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(false);
             var result = await _pathfinderHonorService.AddAsync(pathfinderId, postPathfinderHonorDto, token);
 
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(pathfinderId, result.PathfinderID);
-            Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
-            Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
+            // Assert using fluent assertions
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.PathfinderID, Is.EqualTo(pathfinderId));
+            Assert.That(result.HonorID, Is.EqualTo(_honors[honorIndex].HonorID));
+            Assert.That(result.Status, Is.EqualTo(honorStatus).IgnoreCase);
         }
 
         [TestCase(0, 0, "awarded")]
@@ -135,11 +135,11 @@ namespace PathfinderHonorManager.Tests.Service
             var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
             var result = await _pathfinderHonorService.UpdateAsync(pathfinderId, _honors[honorIndex].HonorID, putPathfinderHonorDto, token);
 
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(pathfinderId, result.PathfinderID);
-            Assert.AreEqual(_honors[honorIndex].HonorID, result.HonorID);
-            Assert.IsTrue(result.Status.Equals(honorStatus, StringComparison.OrdinalIgnoreCase));
+            // Assert using fluent assertions
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.PathfinderID, Is.EqualTo(pathfinderId));
+            Assert.That(result.HonorID, Is.EqualTo(_honors[honorIndex].HonorID));
+            Assert.That(result.Status, Is.EqualTo(honorStatus).IgnoreCase);
         }
 
         [TearDown]

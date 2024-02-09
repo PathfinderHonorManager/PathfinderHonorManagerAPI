@@ -98,9 +98,9 @@ namespace PathfinderHonorManager.Tests.Service
             var result = await _pathfinderService.GetAllAsync(clubCode, showInactive, cancellationToken);
 
             // Assert
-            Assert.IsNotEmpty(result);
-            Assert.IsInstanceOf<IEnumerable<Outgoing.PathfinderDependantDto>>(result);
-            Assert.AreEqual(expectedCount, result.Count);
+            Assert.That(result, Is.Not.Empty);
+            Assert.That(result, Is.InstanceOf<IEnumerable<Outgoing.PathfinderDependantDto>>());
+            Assert.That(result.Count, Is.EqualTo(expectedCount));
         }
 
         [TestCase("INVALIDCLUBCODE", true)]
@@ -114,7 +114,7 @@ namespace PathfinderHonorManager.Tests.Service
             var result = await _pathfinderService.GetAllAsync(clubCode, showInactive, cancellationToken);
 
             // Assert
-            Assert.IsEmpty(result);
+            Assert.That(result, Is.Empty);
         }
 
         [TestCase("VALIDCLUBCODE")]
@@ -128,9 +128,9 @@ namespace PathfinderHonorManager.Tests.Service
             var result = await _pathfinderService.GetByIdAsync(pathfinderId, clubCode, cancellationToken);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<Outgoing.PathfinderDependantDto>(result);
-            Assert.AreEqual(pathfinderId, result.PathfinderID);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<Outgoing.PathfinderDependantDto>());
+            Assert.That(result.PathfinderID, Is.EqualTo(pathfinderId));
         }
 
         [TestCase("VALIDCLUBCODE")]
@@ -144,9 +144,9 @@ namespace PathfinderHonorManager.Tests.Service
             var result = await _pathfinderService.AddAsync(newPathfinderDto, clubCode, cancellationToken);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<Outgoing.PathfinderDto>(result);
-            Assert.AreEqual(newPathfinderDto.Email, result.Email);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<Outgoing.PathfinderDto>());
+            Assert.That(result.Email, Is.EqualTo(newPathfinderDto.Email));
         }
 
         [TestCase("VALIDCLUBCODE", 5, true)]
@@ -170,9 +170,9 @@ namespace PathfinderHonorManager.Tests.Service
             var result = await _pathfinderService.UpdateAsync(pathfinderId, updatePathfinderDto, clubCode, cancellationToken);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(updatePathfinderDto.Grade, result.Grade);
-            Assert.AreEqual(updatePathfinderDto.IsActive, result.IsActive);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Grade, Is.EqualTo(updatePathfinderDto.Grade));
+            Assert.That(result.IsActive, Is.EqualTo(updatePathfinderDto.IsActive));
         }
 
         [TearDown]

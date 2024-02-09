@@ -83,8 +83,8 @@ namespace PathfinderHonorManager.Tests.Service
                 CancellationToken token = new();
                 var result = await _clubService.GetAllAsync(token);
                 // Assert
-                Assert.IsNotNull(result);
-                Assert.AreEqual(_clubs.Count, result.Count);
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.Count, Is.EqualTo(_clubs.Count));
             }
         }
 
@@ -107,9 +107,9 @@ namespace PathfinderHonorManager.Tests.Service
                 var result = await _clubService.GetByIdAsync(clubId, token);
 
                 // Assert
-                Assert.IsNotNull(result);
-                Assert.AreEqual(clubId, result.ClubID);
-                Assert.AreEqual(_clubs[clubIndex].Name, result.Name);
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.ClubID, Is.EqualTo(clubId));
+                Assert.That(result.Name, Is.EqualTo(_clubs[clubIndex].Name));
             }
         }
 
@@ -130,7 +130,7 @@ namespace PathfinderHonorManager.Tests.Service
                 var result = await _clubService.GetByIdAsync(clubId, token);
 
                 // Assert
-                Assert.IsNull(result);
+                Assert.That(result, Is.Null);
             }
         }
 
