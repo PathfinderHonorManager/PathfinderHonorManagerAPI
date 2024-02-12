@@ -17,6 +17,9 @@ namespace PathfinderHonorManager.Model
         [Column("level")]
         public int Level { get; set; }
 
+        [Column("sequence_order")]
+        public int AchievementSequenceOrder { get; set; }
+
         [Column("description")]
         public string Description { get; set; }
 

@@ -12,5 +12,8 @@ namespace PathfinderHonorManager.Model
 
         [Column("name")]
         public string CategoryName { get; set; }
+
+        [Column("sequence_order")]
+        public int CategorySequenceOrder { get; set; }
     }
 }

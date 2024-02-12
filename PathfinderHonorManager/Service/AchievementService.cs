@@ -7,7 +7,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PathfinderHonorManager.DataAccess;
-using PathfinderHonorManager.Dto.Outgoing;
+using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
 
@@ -26,19 +26,19 @@ namespace PathfinderHonorManager.Service
             _logger = logger;
         }
 
-        public async Task<ICollection<AchievementDto>> GetAllAsync(CancellationToken token)
+        public async Task<ICollection<Outgoing.AchievementDto>> GetAllAsync(CancellationToken token)
         {
             _logger.LogInformation("Getting all achievements");
             var achievements = await _dbContext.Achievements
-                .Include(a => a.PathfinderClass)
-                .Include(a => a.Category)
-                .OrderBy(a => a.Grade).ThenBy(a => a.Level)
-                .ToListAsync(token);
-
-            return _mapper.Map<ICollection<AchievementDto>>(achievements);
+                            .Include(a => a.PathfinderClass)
+                            .Include(a => a.Category)
+                            .OrderBy(a => a.Grade).ThenBy(c => c.Category.CategorySequenceOrder).ThenBy(a => a.Level).ThenBy(a => a.AchievementSequenceOrder)
+                            .ToListAsync(token);
+            
+            return _mapper.Map<ICollection<Outgoing.AchievementDto>>(achievements);
         }
 
-        public async Task<AchievementDto> GetByIdAsync(Guid id, CancellationToken token)
+        public async Task<Outgoing.AchievementDto> GetByIdAsync(Guid id, CancellationToken token)
         {
             _logger.LogInformation($"Getting achievement by ID: {id}");
             var achievement = await _dbContext.Achievements
@@ -46,7 +46,7 @@ namespace PathfinderHonorManager.Service
                 .Include(a => a.Category)
                 .SingleOrDefaultAsync(a => a.AchievementID == id, token);
 
-            return achievement == null ? null : _mapper.Map<AchievementDto>(achievement);
+            return achievement == null ? null : _mapper.Map<Outgoing.AchievementDto>(achievement);
         }
     }
 }
