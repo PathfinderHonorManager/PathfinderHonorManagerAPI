@@ -57,9 +57,9 @@ namespace PathfinderHonorManager.Tests.Service
             var result = await _achievementService.GetAllAsync(cancellationToken);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ICollection<AchievementDto>>(result);
-            Assert.AreEqual(expectedCount, result.Count);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<ICollection<AchievementDto>>());
+            Assert.That(result.Count, Is.EqualTo(expectedCount));
         }
 
         [TestCase]
@@ -74,9 +74,9 @@ namespace PathfinderHonorManager.Tests.Service
             var result = await _achievementService.GetByIdAsync(expectedId, cancellationToken);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(expectedId, result.AchievementID);
-            Assert.AreEqual(expectedAchievement.Description, result.Description);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.AchievementID, Is.EqualTo(expectedId));
+            Assert.That(result.Description, Is.EqualTo(expectedAchievement.Description));
         }
         
         [TearDown]
