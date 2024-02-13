@@ -12,19 +12,7 @@ namespace PathfinderHonorManager.Validators
         public PathfinderAchievementValidator(PathfinderContext dbContext)
         {
             _dbContext = dbContext;
-            RuleSet(
-                "post",
-                () =>
-            {
-                RuleFor(dto => dto)
-                    .MustAsync(async (dto, cancellation) =>
-                    {
-                        return !await _dbContext.PathfinderAchievements
-                            .AnyAsync(pa => pa.PathfinderID == dto.PathfinderID && pa.AchievementID == dto.AchievementID, cancellation);
-                    })
-                    .WithName(nameof(PathfinderAchievementDto.AchievementID))
-                    .WithMessage(dto => $"Pathfinder {dto.PathfinderID} already has been assigned achievement {dto.AchievementID}");
-                RuleFor(dto => dto)
+                            RuleFor(dto => dto)
                     .MustAsync(async (dto, cancellation) =>
                     {
                         var pathfinder = await _dbContext.Pathfinders.FindAsync(new object[] { dto.PathfinderID }, cancellation);
@@ -39,6 +27,18 @@ namespace PathfinderHonorManager.Validators
                     })
                     .WithName(nameof(PathfinderAchievementDto.AchievementID))
                     .WithMessage("The pathfinder's grade must match the achievement.");
+            RuleSet(
+                "post",
+                () =>
+            {
+                RuleFor(dto => dto)
+                    .MustAsync(async (dto, cancellation) =>
+                    {
+                        return !await _dbContext.PathfinderAchievements
+                            .AnyAsync(pa => pa.PathfinderID == dto.PathfinderID && pa.AchievementID == dto.AchievementID, cancellation);
+                    })
+                    .WithName(nameof(PathfinderAchievementDto.AchievementID))
+                    .WithMessage(dto => $"Pathfinder {dto.PathfinderID} already has been assigned achievement {dto.AchievementID}");
                 RuleFor(p => p)
                     .MustAsync(
                         async (dto, token) =>
@@ -55,3 +55,4 @@ namespace PathfinderHonorManager.Validators
         }
     }
 }
+

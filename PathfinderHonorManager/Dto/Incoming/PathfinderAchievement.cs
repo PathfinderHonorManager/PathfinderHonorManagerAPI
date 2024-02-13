@@ -16,4 +16,9 @@ namespace PathfinderHonorManager.Dto.Incoming
 
     }
 
+    public class PutPathfinderAchievementDto
+    {
+        public bool IsAchieved { get; set; }
+    }
+
 }

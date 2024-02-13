@@ -76,6 +76,22 @@ namespace PathfinderHonorManager.Service
 
             return _mapper.Map<PathfinderAchievementDto>(newPathfinderAchievement);
         }
+
+        public async Task<PathfinderAchievementDto> UpdateAsync(Guid pathfinderId, Guid achievementId, Incoming.PutPathfinderAchievementDto updatedAchievement, CancellationToken token)
+        {
+            var pathfinderAchievement = await _dbContext.PathfinderAchievements
+                .FirstOrDefaultAsync(pa => pa.PathfinderID == pathfinderId && pa.AchievementID == achievementId, token);
+
+            if (pathfinderAchievement == null)
+            {
+                return null;
+            }
+            pathfinderAchievement.IsAchieved = updatedAchievement.IsAchieved;
+            var dto = _mapper.Map<Incoming.PathfinderAchievementDto>(pathfinderAchievement);
+            await _validator.ValidateAsync(dto, opts => opts.ThrowOnFailures(), token);
+            await _dbContext.SaveChangesAsync(token);
+
+            return _mapper.Map<PathfinderAchievementDto>(pathfinderAchievement);
+        }
     }
 }
-

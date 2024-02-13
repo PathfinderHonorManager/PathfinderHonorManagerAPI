@@ -83,5 +83,32 @@ namespace PathfinderHonorManager.Controllers
                 return ValidationProblem(ex.Message);
             }
         }
+
+        // PUT api/Pathfinders/{pathfinderId}/PathfinderAchievements/{achievementId}
+        [Route("{pathfinderId:guid}/[controller]/{achievementId:guid}")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Outgoing.PathfinderAchievementDto>> UpdatePathfinderAchievement(Guid pathfinderId, Guid achievementId, [FromBody] Incoming.PutPathfinderAchievementDto updatedAchievement, CancellationToken token)
+        {
+            try
+            {
+                var pathfinderAchievement = await _pathfinderAchievementService.UpdateAsync(pathfinderId, achievementId, updatedAchievement, token);
+                if (pathfinderAchievement == null)
+                {
+                    return NotFound();
+                }
+                return Ok(pathfinderAchievement);
+            }
+            catch (FluentValidation.ValidationException ex)
+            {
+                UpdateModelState(ex);
+                return ValidationProblem(ModelState);
+            }
+            catch (DbUpdateException ex)
+            {
+                return ValidationProblem(ex.Message);
+            }
+        }
     }
 }

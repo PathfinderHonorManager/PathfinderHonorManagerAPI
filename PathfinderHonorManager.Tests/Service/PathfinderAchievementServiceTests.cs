@@ -103,6 +103,26 @@ namespace PathfinderHonorManager.Tests.Service
             Assert.That(result.AchievementID, Is.EqualTo(newAchievementDto.AchievementID));
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task UpdateAsync_UpdatesPathfinderAchievementAndReturnsUpdatedDto(bool isAchieved)
+        {
+            // Arrange
+            var pathfinderAchievement = _pathfinderAchievements.First();
+            var updateDto = new Incoming.PutPathfinderAchievementDto
+            {
+                IsAchieved = isAchieved
+            };
+            var cancellationToken = new CancellationToken();
+
+            // Act
+            var result = await _pathfinderAchievementService.UpdateAsync(pathfinderAchievement.PathfinderID, pathfinderAchievement.AchievementID, updateDto, cancellationToken);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsAchieved, Is.EqualTo(isAchieved));
+        }
+
         [TearDown]
         public async Task TearDown()
         {

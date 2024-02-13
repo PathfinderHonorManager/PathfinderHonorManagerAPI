@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using PathfinderHonorManager.Dto.Incoming;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Model.Enum;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
@@ -79,6 +80,10 @@ namespace PathfinderHonorManager.Mapping
             CreateMap<Incoming.PostPathfinderAchievementDto, PathfinderAchievement>();
             CreateMap<Incoming.PathfinderAchievementDto, PathfinderAchievement>();
             CreateMap<Incoming.PathfinderAchievementDto, Outgoing.PathfinderAchievementDto>();
+            CreateMap<Incoming.PutPathfinderAchievementDto, Incoming.PathfinderAchievementDto>();
+            CreateMap<Incoming.PutPathfinderAchievementDto, PathfinderAchievement>();
+            CreateMap<PathfinderAchievement, Incoming.PutPathfinderAchievementDto>();
+            CreateMap<PathfinderAchievement, Incoming.PathfinderAchievementDto>();
         }
     }
 }
