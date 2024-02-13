@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PathfinderHonorManager.DataAccess;
@@ -15,6 +16,9 @@ namespace PathfinderHonorManager.Tests.Helpers
         private static List<Club> _clubs;
         private static List<PathfinderHonorStatus> _pathfinderHonorStatuses;
         private static List<Category> _categories;
+        private static List<Achievement> _achievements;
+        private static List<PathfinderAchievement> _pathfinderAchievements;
+
 
         public static async Task SeedDatabase(DbContextOptions<PathfinderContext> options)
         {
@@ -27,6 +31,7 @@ namespace PathfinderHonorManager.Tests.Helpers
                 await SeedCategories(dbContext);
                 await SeedPathfinderClasses(dbContext);
                 await SeedAchievements(dbContext);
+                await SeedPathfinderAchievements(dbContext);
                 await SeedPathfinderHonors(dbContext);
             }
         }
@@ -213,7 +218,7 @@ namespace PathfinderHonorManager.Tests.Helpers
 
         public static async Task SeedAchievements(PathfinderContext dbContext)
         {
-            var _achievements = new List<Achievement>
+            _achievements = new List<Achievement>
             {
                 new Achievement
                 {
@@ -236,7 +241,34 @@ namespace PathfinderHonorManager.Tests.Helpers
             await dbContext.Achievements.AddRangeAsync(_achievements);
             await dbContext.SaveChangesAsync();
         }
+        public static async Task SeedPathfinderAchievements(PathfinderContext dbContext)
+        {
+            if (_achievements == null || !_achievements.Any() || _pathfinders == null || !_pathfinders.Any())
+            {
+                throw new InvalidOperationException("Achievements or Pathfinders not seeded properly.");
+            }
 
+            var _pathfinderAchievements = new List<PathfinderAchievement>
+            {
+                new PathfinderAchievement
+                {
+                    PathfinderAchievementID = Guid.NewGuid(),
+                    AchievementID = _achievements[0].AchievementID,
+                    PathfinderID = _pathfinders[0].PathfinderID,
+                    IsAchieved = false
+                },
+                new PathfinderAchievement
+                {
+                    PathfinderAchievementID = Guid.NewGuid(),
+                    AchievementID = _achievements[1].AchievementID,
+                    PathfinderID = _pathfinders[1].PathfinderID,
+                    IsAchieved = true
+                },
+            };
+
+            await dbContext.PathfinderAchievements.AddRangeAsync(_pathfinderAchievements);
+            await dbContext.SaveChangesAsync();
+        }
         public static async Task SeedPathfinderClasses(PathfinderContext dbContext)
         {
             var pathfinderClasses = new List<PathfinderClass>

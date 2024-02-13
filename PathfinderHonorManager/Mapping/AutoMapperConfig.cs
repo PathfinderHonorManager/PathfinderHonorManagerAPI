@@ -78,7 +78,7 @@ namespace PathfinderHonorManager.Mapping
             CreateMap<Outgoing.PathfinderAchievementDto, PathfinderAchievement>();
             CreateMap<Incoming.PostPathfinderAchievementDto, PathfinderAchievement>();
             CreateMap<Incoming.PathfinderAchievementDto, PathfinderAchievement>();
-            CreateMap<Incoming.PathfinderAchievementDto, Outgoing.PathfinderAchievementDto>(); // Added this line
+            CreateMap<Incoming.PathfinderAchievementDto, Outgoing.PathfinderAchievementDto>();
         }
     }
 }

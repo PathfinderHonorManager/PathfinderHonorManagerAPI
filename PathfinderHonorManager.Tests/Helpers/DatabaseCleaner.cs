@@ -1,4 +1,5 @@
 ﻿using PathfinderHonorManager.DataAccess;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,6 +9,9 @@ namespace PathfinderHonorManager.Tests.Helpers
     {
         public static async Task CleanDatabase(PathfinderContext dbContext)
         {
+            if (dbContext == null) throw new ArgumentNullException(nameof(dbContext));
+            if (dbContext.PathfinderAchievements.Any())
+                dbContext.PathfinderAchievements.RemoveRange(dbContext.PathfinderAchievements);
             if (dbContext.Pathfinders.Any())
                 dbContext.Pathfinders.RemoveRange(dbContext.Pathfinders);
             if (dbContext.Honors.Any())
@@ -24,8 +28,7 @@ namespace PathfinderHonorManager.Tests.Helpers
                 dbContext.Categories.RemoveRange(dbContext.Categories);
             if (dbContext.PathfinderClasses.Any())
                 dbContext.PathfinderClasses.RemoveRange(dbContext.PathfinderClasses);
-            if (dbContext.PathfinderAchievements.Any())
-                dbContext.PathfinderAchievements.RemoveRange(dbContext.PathfinderAchievements);
+
 
             await dbContext.SaveChangesAsync();
         }
