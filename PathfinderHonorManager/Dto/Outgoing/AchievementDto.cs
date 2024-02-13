@@ -1,5 +1,4 @@
 ﻿using System;
-using PathfinderHonorManager.Model.Enum;
 
 namespace PathfinderHonorManager.Dto.Outgoing
 {

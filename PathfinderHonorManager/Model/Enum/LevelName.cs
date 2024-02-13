@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-namespace PathfinderHonorManager.Model.Enum
+﻿namespace PathfinderHonorManager.Model.Enum
 {
     public enum LevelName
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using PathfinderHonorManager.Model;
 
 namespace PathfinderHonorManager.Dto.Incoming
 {

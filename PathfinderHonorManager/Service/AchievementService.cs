@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PathfinderHonorManager.DataAccess;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
-using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
 
 namespace PathfinderHonorManager.Service
