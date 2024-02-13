@@ -48,7 +48,7 @@ namespace PathfinderHonorManager.Service
             Club entity;
 
             entity = await _dbContext.Clubs
-                .SingleOrDefaultAsync(p => p.ClubID == id, token);            
+                .SingleOrDefaultAsync(p => p.ClubID == id, token);
 
             return entity == default
                 ? default

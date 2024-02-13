@@ -104,7 +104,7 @@ namespace PathfinderHonorManager.Service
                 Email = newPathfinder.Email,
                 Grade = newPathfinder.Grade,
                 ClubID = club?.ClubID ?? Guid.Empty
-        };
+            };
 
             await _validator.ValidateAsync(
                 newPathfinderWithClubId,

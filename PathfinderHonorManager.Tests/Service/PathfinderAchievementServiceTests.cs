@@ -41,7 +41,7 @@ namespace PathfinderHonorManager.Tests.Service
             _dbContext = new PathfinderContext(SharedContextOptions);
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
             IMapper mapper = mapperConfiguration.CreateMapper();
-            
+
             var logger = NullLogger<PathfinderAchievementService>.Instance;
             var validator = new Mock<IValidator<Incoming.PathfinderAchievementDto>>();
 
@@ -105,7 +105,7 @@ namespace PathfinderHonorManager.Tests.Service
             Assert.That(result.PathfinderID, Is.EqualTo(pathfinderId));
             Assert.That(result.AchievementID, Is.EqualTo(newAchievementDto.AchievementID));
         }
-        
+
         [TearDown]
         public async Task TearDown()
         {

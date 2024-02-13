@@ -19,8 +19,8 @@ namespace PathfinderHonorManager.Dto.Outgoing
         [JsonConverter(typeof(NullableDateTimeConverter))]
         public DateTime? Earned { get; set; }
 
-        public string PatchFilename { get; set;}
+        public string PatchFilename { get; set; }
 
-        public string WikiPath { get; set;}
+        public string WikiPath { get; set; }
     }
 }

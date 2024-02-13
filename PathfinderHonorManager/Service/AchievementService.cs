@@ -34,7 +34,7 @@ namespace PathfinderHonorManager.Service
                             .Include(a => a.Category)
                             .OrderBy(a => a.Grade).ThenBy(c => c.Category.CategorySequenceOrder).ThenBy(a => a.Level).ThenBy(a => a.AchievementSequenceOrder)
                             .ToListAsync(token);
-            
+
             return _mapper.Map<ICollection<Outgoing.AchievementDto>>(achievements);
         }
 

@@ -84,7 +84,7 @@ namespace PathfinderHonorManager.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
         public async Task<ActionResult<Honor>> Post([FromBody] Incoming.HonorDto newHonor, CancellationToken token)
-        {    
+        {
             try
             {
                 var honor = await _honorService.AddAsync(newHonor, token);

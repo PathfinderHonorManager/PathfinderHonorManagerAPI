@@ -111,7 +111,7 @@ namespace PathfinderHonorManager.Tests
             var validator = new PathfinderAchievementValidator(_dbContext);
             var pathfinderAchievement = _dbContext.PathfinderAchievements.First();
             var achievement = await _dbContext.Achievements.FindAsync(pathfinderAchievement.AchievementID);
-            achievement.Grade ++;
+            achievement.Grade++;
             await _dbContext.SaveChangesAsync();
 
             var dto = new Dto.Incoming.PathfinderAchievementDto

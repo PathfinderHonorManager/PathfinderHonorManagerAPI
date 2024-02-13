@@ -54,7 +54,7 @@ namespace PathfinderHonorManager.Service
             Honor entity;
 
             entity = await _dbContext.Honors
-                .SingleOrDefaultAsync(p => p.HonorID == id, token);            
+                .SingleOrDefaultAsync(p => p.HonorID == id, token);
 
             return entity == default
                 ? default
