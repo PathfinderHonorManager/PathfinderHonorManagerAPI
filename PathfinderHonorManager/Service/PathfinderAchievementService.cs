@@ -49,7 +49,7 @@ namespace PathfinderHonorManager.Service
         {
             _logger.LogInformation($"Getting pathfinder achievement by Pathfinder ID: {pathfinderId} Achievement ID {achievementId}");
             var pathfinderAchievement = await _dbContext.PathfinderAchievements
-                .Where(pa => pa.PathfinderID == pathfinderId && pa.PathfinderAchievementID == achievementId)
+                .Where(pa => pa.PathfinderID == pathfinderId && pa.AchievementID == achievementId)
                 .SingleOrDefaultAsync(token);
 
             return pathfinderAchievement == null ? null : _mapper.Map<PathfinderAchievementDto>(pathfinderAchievement);
