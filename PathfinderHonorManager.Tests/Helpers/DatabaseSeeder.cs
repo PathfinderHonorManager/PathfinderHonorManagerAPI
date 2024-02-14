@@ -248,7 +248,7 @@ namespace PathfinderHonorManager.Tests.Helpers
                 throw new InvalidOperationException("Achievements or Pathfinders not seeded properly.");
             }
 
-            var _pathfinderAchievements = new List<PathfinderAchievement>
+            _pathfinderAchievements = new List<PathfinderAchievement>
             {
                 new PathfinderAchievement
                 {
