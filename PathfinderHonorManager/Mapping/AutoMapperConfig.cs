@@ -74,6 +74,7 @@ namespace PathfinderHonorManager.Mapping
                 .ForMember(dest => dest.CategorySequenceOrder, opt => opt.MapFrom(src => src.Category.CategorySequenceOrder))
                 .ForMember(dest => dest.LevelName, opt => opt.MapFrom(src => Enum.GetName(typeof(LevelName), src.Level)));
             CreateMap<Outgoing.AchievementDto, Achievement>();
+            CreateMap<Achievement, Outgoing.AchievementDto>();
         }
 
         private void RegisterPathfinderAchievementMappings()

@@ -74,6 +74,30 @@ namespace PathfinderHonorManager.Tests.Helpers
                 new Pathfinder
                 {
                     PathfinderID = Guid.NewGuid(),
+                    FirstName = "Bob",
+                    LastName = "TheSixthGrader",
+                    Email = "BSG@example.com",
+                    Grade = 6,
+                    ClubID = _clubs[0].ClubID,
+                    Created = DateTime.UtcNow,
+                    Updated = DateTime.UtcNow,
+                    IsActive = true
+                },
+                new Pathfinder
+                {
+                    PathfinderID = Guid.NewGuid(),
+                    FirstName = "Chuck",
+                    LastName = "Eight",
+                    Email = "chuckeight@example.com",
+                    Grade = 8,
+                    ClubID = _clubs[0].ClubID,
+                    Created = DateTime.UtcNow,
+                    Updated = DateTime.UtcNow,
+                    IsActive = true
+                },
+                new Pathfinder
+                {
+                    PathfinderID = Guid.NewGuid(),
                     FirstName = "Addy",
                     LastName = "Addsome",
                     Email = "addyaddsome@example.com",
@@ -218,25 +242,28 @@ namespace PathfinderHonorManager.Tests.Helpers
 
         public static async Task SeedAchievements(PathfinderContext dbContext)
         {
-            _achievements = new List<Achievement>
+            _achievements = new List<Achievement>();
+
+            for (int grade = 5; grade <= 10; grade++)
             {
-                new Achievement
+                _achievements.Add(new Achievement
                 {
                     AchievementID = Guid.NewGuid(),
-                    Grade = 5,
+                    Grade = grade,
                     Level = 1,
-                    Description = "Achievement 1 Description",
-                    CategoryID = _categories[0].CategoryID
-                },
-                new Achievement
+                    Description = $"Achievement Level 1 for Grade {grade}",
+                    CategoryID = _categories[0].CategoryID // Assuming a default category for simplicity
+                });
+
+                _achievements.Add(new Achievement
                 {
                     AchievementID = Guid.NewGuid(),
-                    Grade = 5,
+                    Grade = grade,
                     Level = 2,
-                    Description = "Achievement 2 Description",
-                    CategoryID = _categories[1].CategoryID
-                }
-            };
+                    Description = $"Achievement Level 2 for Grade {grade}",
+                    CategoryID = _categories[1].CategoryID // Assuming a different category for level 2 for simplicity
+                });
+            }
 
             await dbContext.Achievements.AddRangeAsync(_achievements);
             await dbContext.SaveChangesAsync();
@@ -271,23 +298,19 @@ namespace PathfinderHonorManager.Tests.Helpers
         }
         public static async Task SeedPathfinderClasses(PathfinderContext dbContext)
         {
-            var pathfinderClasses = new List<PathfinderClass>
+            var pathfinderClasses = new List<PathfinderClass>();
+
+            for (int grade = 5; grade <= 12; grade++)
             {
-                new PathfinderClass
+                pathfinderClasses.Add(new PathfinderClass
                 {
-                    Grade = 5,
-                    ClassName = "Class 1",
-                },
-                new PathfinderClass
-                {
-                    Grade = 6,
-                    ClassName = "Class 2",
-                }
-            };
+                    Grade = grade,
+                    ClassName = $"Class for Grade {grade}",
+                });
+            }
 
             await dbContext.PathfinderClasses.AddRangeAsync(pathfinderClasses);
             await dbContext.SaveChangesAsync();
-
         }
 
     }

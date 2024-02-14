@@ -17,6 +17,7 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Tests.Helpers;
+using PathfinderHonorManager.Dto.Outgoing;
 
 namespace PathfinderHonorManager.Tests.Service
 {
@@ -35,6 +36,7 @@ namespace PathfinderHonorManager.Tests.Service
         private List<Club> _clubs;
         private List<Honor> _honors;
         private List<PathfinderHonor> _pathfinderHonors;
+        private List<PathfinderAchievement> _pathfinderAchievements;
         private PathfinderSelectorHelper _pathfinderSelectorHelper;
 
         public PathfinderServiceTests()
@@ -74,6 +76,9 @@ namespace PathfinderHonorManager.Tests.Service
             _pathfinders = await _dbContext.Pathfinders.ToListAsync();
             _honors = await _dbContext.Honors.ToListAsync();
             _pathfinderHonors = await _dbContext.PathfinderHonors.ToListAsync();
+            _pathfinderAchievements = await _dbContext.PathfinderAchievements
+                                                .Include(a => a.Achievement)
+                                                .ToListAsync();
             _pathfinderSelectorHelper = new PathfinderSelectorHelper(_pathfinders, _pathfinderHonors);
 
         }
@@ -173,6 +178,48 @@ namespace PathfinderHonorManager.Tests.Service
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Grade, Is.EqualTo(updatePathfinderDto.Grade));
             Assert.That(result.IsActive, Is.EqualTo(updatePathfinderDto.IsActive));
+        }
+
+        [TestCase("VALIDCLUBCODE")]
+        public async Task GetPathfinderAchievementDetailsAsync_ReturnsAccurateCounts(string clubCode)
+        {
+            // Arrange
+            var pathfinderId = _pathfinders.First().PathfinderID;
+            var expectedAssignedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinderId);
+            var expectedCompletedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinderId && pa.IsAchieved);
+            var cancellationToken = new CancellationToken();
+
+            // Act
+            var result = await _pathfinderService.GetByIdAsync(pathfinderId, clubCode, cancellationToken);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.AssignedAchievementsCount, Is.EqualTo(expectedAssignedAchievementCount), "Assigned achievement count should match expected value.");
+            Assert.That(result.CompletedAchievementsCount, Is.EqualTo(expectedCompletedAchievementCount), "Completed achievement count should match expected value.");
+        }
+
+        [TestCase("VALIDCLUBCODE")]
+        public async Task GetAllPathfindersAchievementDetailsAsync_ReturnsAccurateCountsForEachGrade(string clubCode)
+        {
+            // Arrange
+            var cancellationToken = new CancellationToken();
+
+            // Act
+            ICollection<PathfinderDependantDto> allPathfinders = await _pathfinderService.GetAllAsync(clubCode, true, cancellationToken);
+
+            // Assert
+            foreach (var pathfinder in allPathfinders)
+            {
+                var expectedAssignedAchievementCount = _pathfinderAchievements
+                    .Where(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade)
+                    .Count();
+                var expectedCompletedAchievementCount = _pathfinderAchievements
+                    .Where(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.IsAchieved && pa.Achievement.Grade == pathfinder.Grade)
+                    .Count();
+
+                Assert.That(pathfinder.AssignedAchievementsCount, Is.EqualTo(expectedAssignedAchievementCount), $"Assigned achievement count should match expected value for PathfinderID {pathfinder.PathfinderID}.");
+                Assert.That(pathfinder.CompletedAchievementsCount, Is.EqualTo(expectedCompletedAchievementCount), $"Completed achievement count should match expected value for PathfinderID {pathfinder.PathfinderID}.");
+            }
         }
 
         [TearDown]

@@ -53,7 +53,17 @@ namespace PathfinderHonorManager.Service
 
             return pathfinderAchievement == null ? null : _mapper.Map<PathfinderAchievementDto>(pathfinderAchievement);
         }
+        public async Task<ICollection<PathfinderAchievementDto>> GetAllAchievementsForPathfinderAsync(Guid pathfinderId, CancellationToken token)
+        {
+            _logger.LogInformation($"Getting all achievements for Pathfinder ID: {pathfinderId}");
+            
+            var achievements = await _dbContext.PathfinderAchievements
+                .Where(pa => pa.PathfinderID == pathfinderId)
+                .Include(pa => pa.Achievement)
+                .ToListAsync(token);
 
+            return _mapper.Map<ICollection<PathfinderAchievementDto>>(achievements);
+        }
         public async Task<PathfinderAchievementDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderAchievementDto achievementId, CancellationToken token)
         {
             Incoming.PathfinderAchievementDto newPathfinderAchievement = new Incoming.PathfinderAchievementDto
@@ -92,6 +102,48 @@ namespace PathfinderHonorManager.Service
             await _dbContext.SaveChangesAsync(token);
 
             return _mapper.Map<PathfinderAchievementDto>(pathfinderAchievement);
+        }
+
+        public async Task<ICollection<PathfinderAchievementDto>> AddAchievementsForGradeAsync(Guid pathfinderId, CancellationToken token)
+        {
+            var pathfinder = await _dbContext.Pathfinders
+                .FirstOrDefaultAsync(p => p.PathfinderID == pathfinderId, token);
+
+            if (pathfinder == null)
+            {
+                _logger.LogError($"Pathfinder with ID {pathfinderId} not found.");
+                return null;
+            }
+
+            var gradeAchievements = await _dbContext.Achievements
+                .Where(a => a.Grade == pathfinder.Grade)
+                .ToListAsync(token);
+
+            var newAchievements = new List<PathfinderAchievement>();
+
+            foreach (var achievement in gradeAchievements)
+            {
+                Incoming.PathfinderAchievementDto newPathfinderAchievement = new Incoming.PathfinderAchievementDto
+                {
+                    PathfinderID = pathfinderId,
+                    AchievementID = achievement.AchievementID
+                };
+
+                await _validator.ValidateAsync(newPathfinderAchievement, opts =>
+                {
+                    opts.ThrowOnFailures();
+                    opts.IncludeRulesNotInRuleSet();
+                    opts.IncludeRuleSets("post");
+                }, token);
+
+                var newEntity = _mapper.Map<PathfinderAchievement>(newPathfinderAchievement);
+                newAchievements.Add(newEntity);
+            }
+
+            await _dbContext.PathfinderAchievements.AddRangeAsync(newAchievements, token);
+            await _dbContext.SaveChangesAsync(token);
+
+            return _mapper.Map<ICollection<PathfinderAchievementDto>>(newAchievements);
         }
     }
 }

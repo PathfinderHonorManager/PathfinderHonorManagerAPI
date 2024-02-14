@@ -6,6 +6,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
 {
     public class PathfinderAchievementDto
     {
+        public AchievementDto Achievement { get; set; }
         public Guid PathfinderAchievementID { get; set; }
         public Guid PathfinderID { get; set; }
         public Guid AchievementID { get; set; }

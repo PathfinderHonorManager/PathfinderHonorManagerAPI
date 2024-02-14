@@ -16,6 +16,7 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Tests.Helpers;
 using PathfinderHonorManager.Dto.Outgoing;
+using FluentAssertions;
 
 namespace PathfinderHonorManager.Tests.Service
 {
@@ -53,7 +54,7 @@ namespace PathfinderHonorManager.Tests.Service
         {
             // Arrange
             var cancellationToken = new CancellationToken();
-            var expectedCount = _achievements.Count;
+            var expectedCount = _pathfinderAchievements.Count;
 
             // Act
             var result = await _pathfinderAchievementService.GetAllAsync(cancellationToken);
@@ -121,6 +122,50 @@ namespace PathfinderHonorManager.Tests.Service
             // Assert
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IsAchieved, Is.EqualTo(isAchieved));
+        }
+
+        [Test]
+        public async Task AddAchievementsForGradeAsync_AddsAchievementsForPathfinderGrade_ReturnsAchievements()
+        {
+            // Arrange
+            var pathfinderId = _pathfinders.First(p => p.Grade == 10).PathfinderID; // Assuming grade 10 has specific achievements
+            var expectedAchievements = _achievements.Where(a => a.Grade == 10).ToList();
+            var cancellationToken = new CancellationToken();
+
+            // Act
+            var result = await _pathfinderAchievementService.AddAchievementsForGradeAsync(pathfinderId, cancellationToken);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(expectedAchievements.Count));
+            foreach (var achievement in expectedAchievements)
+            {
+                Assert.That(result.Any(ra => ra.AchievementID == achievement.AchievementID), Is.True);
+            }
+        }
+
+        [Test]
+        public async Task GetAllAchievementsForPathfinderAsync_ReturnsAllAchievementsForPathfinder()
+        {
+            // Arrange
+            var pathfinderId = _pathfinders.First().PathfinderID; 
+            var expectedAchievements = _pathfinderAchievements
+                .Where(pa => pa.PathfinderID == pathfinderId)
+                .Select(pa => pa.AchievementID)
+                .ToList();
+            var cancellationToken = new CancellationToken();
+
+            // Act
+            var result = await _pathfinderAchievementService.GetAllAchievementsForPathfinderAsync(pathfinderId, cancellationToken);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<List<PathfinderAchievementDto>>());
+            Assert.That(result.Count, Is.EqualTo(expectedAchievements.Count));
+            foreach (var achievementId in expectedAchievements)
+            {
+                Assert.That(result.Any(ra => ra.AchievementID == achievementId), Is.True);
+            }
         }
 
         [TearDown]
