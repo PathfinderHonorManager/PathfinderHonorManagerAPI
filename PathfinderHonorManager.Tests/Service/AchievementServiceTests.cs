@@ -4,19 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
-using Moq;
 using PathfinderHonorManager.DataAccess;
-using Incoming = PathfinderHonorManager.Dto.Incoming;
-using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using PathfinderHonorManager.Mapping;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service;
-using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Tests.Helpers;
 using PathfinderHonorManager.Dto.Outgoing;
 
@@ -39,7 +33,7 @@ namespace PathfinderHonorManager.Tests.Service
             _dbContext = new PathfinderContext(SharedContextOptions);
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
             IMapper mapper = mapperConfiguration.CreateMapper();
-            
+
             var logger = NullLogger<AchievementService>.Instance;
 
             _achievementService = new AchievementService(_dbContext, mapper, logger);
@@ -78,7 +72,7 @@ namespace PathfinderHonorManager.Tests.Service
             Assert.That(result.AchievementID, Is.EqualTo(expectedId));
             Assert.That(result.Description, Is.EqualTo(expectedAchievement.Description));
         }
-        
+
         [TearDown]
         public async Task TearDown()
         {

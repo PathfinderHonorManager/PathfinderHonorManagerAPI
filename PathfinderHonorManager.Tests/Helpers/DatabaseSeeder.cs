@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PathfinderHonorManager.DataAccess;
@@ -15,6 +16,9 @@ namespace PathfinderHonorManager.Tests.Helpers
         private static List<Club> _clubs;
         private static List<PathfinderHonorStatus> _pathfinderHonorStatuses;
         private static List<Category> _categories;
+        private static List<Achievement> _achievements;
+        private static List<PathfinderAchievement> _pathfinderAchievements;
+
 
         public static async Task SeedDatabase(DbContextOptions<PathfinderContext> options)
         {
@@ -27,6 +31,7 @@ namespace PathfinderHonorManager.Tests.Helpers
                 await SeedCategories(dbContext);
                 await SeedPathfinderClasses(dbContext);
                 await SeedAchievements(dbContext);
+                await SeedPathfinderAchievements(dbContext);
                 await SeedPathfinderHonors(dbContext);
             }
         }
@@ -61,6 +66,30 @@ namespace PathfinderHonorManager.Tests.Helpers
                     LastName = "Doe",
                     Email = "johndoe@example.com",
                     Grade = 5,
+                    ClubID = _clubs[0].ClubID,
+                    Created = DateTime.UtcNow,
+                    Updated = DateTime.UtcNow,
+                    IsActive = true
+                },
+                new Pathfinder
+                {
+                    PathfinderID = Guid.NewGuid(),
+                    FirstName = "Bob",
+                    LastName = "TheSixthGrader",
+                    Email = "BSG@example.com",
+                    Grade = 6,
+                    ClubID = _clubs[0].ClubID,
+                    Created = DateTime.UtcNow,
+                    Updated = DateTime.UtcNow,
+                    IsActive = true
+                },
+                new Pathfinder
+                {
+                    PathfinderID = Guid.NewGuid(),
+                    FirstName = "Chuck",
+                    LastName = "Eight",
+                    Email = "chuckeight@example.com",
+                    Grade = 8,
                     ClubID = _clubs[0].ClubID,
                     Created = DateTime.UtcNow,
                     Updated = DateTime.UtcNow,
@@ -213,49 +242,75 @@ namespace PathfinderHonorManager.Tests.Helpers
 
         public static async Task SeedAchievements(PathfinderContext dbContext)
         {
-            var _achievements = new List<Achievement>
+            _achievements = new List<Achievement>();
+
+            for (int grade = 5; grade <= 10; grade++)
             {
-                new Achievement
+                _achievements.Add(new Achievement
                 {
                     AchievementID = Guid.NewGuid(),
-                    Grade = 5,
+                    Grade = grade,
                     Level = 1,
-                    Description = "Achievement 1 Description",
-                    CategoryID = _categories[0].CategoryID
-                },
-                new Achievement
+                    Description = $"Achievement Level 1 for Grade {grade}",
+                    CategoryID = _categories[0].CategoryID // Assuming a default category for simplicity
+                });
+
+                _achievements.Add(new Achievement
                 {
                     AchievementID = Guid.NewGuid(),
-                    Grade = 5,
+                    Grade = grade,
                     Level = 2,
-                    Description = "Achievement 2 Description",
-                    CategoryID = _categories[1].CategoryID
-                }
-            };
+                    Description = $"Achievement Level 2 for Grade {grade}",
+                    CategoryID = _categories[1].CategoryID // Assuming a different category for level 2 for simplicity
+                });
+            }
 
             await dbContext.Achievements.AddRangeAsync(_achievements);
             await dbContext.SaveChangesAsync();
         }
+        public static async Task SeedPathfinderAchievements(PathfinderContext dbContext)
+        {
+            if (_achievements == null || !_achievements.Any() || _pathfinders == null || !_pathfinders.Any())
+            {
+                throw new InvalidOperationException("Achievements or Pathfinders not seeded properly.");
+            }
 
+            _pathfinderAchievements = new List<PathfinderAchievement>
+            {
+                new PathfinderAchievement
+                {
+                    PathfinderAchievementID = Guid.NewGuid(),
+                    AchievementID = _achievements[0].AchievementID,
+                    PathfinderID = _pathfinders[0].PathfinderID,
+                    IsAchieved = false
+                },
+                new PathfinderAchievement
+                {
+                    PathfinderAchievementID = Guid.NewGuid(),
+                    AchievementID = _achievements[1].AchievementID,
+                    PathfinderID = _pathfinders[1].PathfinderID,
+                    IsAchieved = true
+                },
+            };
+
+            await dbContext.PathfinderAchievements.AddRangeAsync(_pathfinderAchievements);
+            await dbContext.SaveChangesAsync();
+        }
         public static async Task SeedPathfinderClasses(PathfinderContext dbContext)
         {
-            var pathfinderClasses = new List<PathfinderClass>
+            var pathfinderClasses = new List<PathfinderClass>();
+
+            for (int grade = 5; grade <= 12; grade++)
             {
-                new PathfinderClass
+                pathfinderClasses.Add(new PathfinderClass
                 {
-                    Grade = 5,
-                    ClassName = "Class 1",
-                },
-                new PathfinderClass
-                {
-                    Grade = 6,
-                    ClassName = "Class 2",
-                }
-            };
+                    Grade = grade,
+                    ClassName = $"Class for Grade {grade}",
+                });
+            }
 
             await dbContext.PathfinderClasses.AddRangeAsync(pathfinderClasses);
             await dbContext.SaveChangesAsync();
-
         }
 
     }

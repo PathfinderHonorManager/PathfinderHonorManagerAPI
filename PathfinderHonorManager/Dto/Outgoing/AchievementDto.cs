@@ -1,5 +1,4 @@
 ﻿using System;
-using PathfinderHonorManager.Model.Enum;
 
 namespace PathfinderHonorManager.Dto.Outgoing
 {
@@ -9,6 +8,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
         public int Level { get; set; }
         public string LevelName { get; set; }
         public int AchievementSequenceOrder { get; set; }
+        public int Grade { get; set; }
         public string ClassName { get; set; }
         public string Description { get; set; }
         public string CategoryName { get; set; }

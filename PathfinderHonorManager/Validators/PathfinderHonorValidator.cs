@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using FluentValidation;
-
+﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Dto.Incoming;
 

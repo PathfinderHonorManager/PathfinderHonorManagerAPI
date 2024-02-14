@@ -23,7 +23,7 @@ namespace PathfinderHonorManager.Tests.Validator
         }
 
         private PathfinderValidator _pathfinderValidator;
-        
+
         protected DbContextOptions<PathfinderContext> ContextOptions { get; }
 
         [SetUp]
@@ -152,4 +152,4 @@ namespace PathfinderHonorManager.Tests.Validator
         }
     }
 }
-   
+

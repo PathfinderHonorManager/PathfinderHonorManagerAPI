@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Npgsql;
-using PathfinderHonorManager;
 
 namespace PathfinderHonorManager.Healthcheck
 {

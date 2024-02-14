@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PathfinderHonorManager.DataAccess;
@@ -54,7 +53,7 @@ namespace PathfinderHonorManager.Service
             Honor entity;
 
             entity = await _dbContext.Honors
-                .SingleOrDefaultAsync(p => p.HonorID == id, token);            
+                .SingleOrDefaultAsync(p => p.HonorID == id, token);
 
             return entity == default
                 ? default

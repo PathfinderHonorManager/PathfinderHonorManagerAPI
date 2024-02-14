@@ -14,9 +14,9 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public string Email { get; set; } = null!;
 
-        public int? Grade {get; set;}
+        public int? Grade { get; set; }
 
-        public string? ClassName { get; set;}
+        public string? ClassName { get; set; }
 
         public bool? IsActive { get; set; }
 
@@ -35,9 +35,9 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public string Email { get; set; } = null!;
 
-        public int? Grade {get; set;}
+        public int? Grade { get; set; }
 
-        public string? ClassName { get; set;}
+        public string? ClassName { get; set; }
 
         public bool? IsActive { get; set; }
 
@@ -47,6 +47,11 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public DateTime Updated { get; set; }
 
+        public int AssignedAchievementsCount { get; set; }
+
+        public int CompletedAchievementsCount { get; set; }
+
         public ICollection<PathfinderHonorDto>? PathfinderHonors { get; set; }
+
     }
 }
