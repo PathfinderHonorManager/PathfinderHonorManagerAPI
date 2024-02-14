@@ -14,7 +14,7 @@ using System.Linq;
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/")]
     [Authorize("ReadHonors")]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -30,6 +30,7 @@ namespace PathfinderHonorManager.Controllers
         }
 
         // GET api/PathfinderAchievements
+        [Route("[controller]")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -46,7 +47,7 @@ namespace PathfinderHonorManager.Controllers
         }
 
         // GET api/Pathfinders/{pathfinderId}/PathfinderAchievements/{achievementId}
-        [Route("{pathfinderId:guid}/[controller]/{achievementId:guid}")]
+        [Route("Pathfinders/{pathfinderId:guid}/[controller]/{achievementId:guid}")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -63,7 +64,7 @@ namespace PathfinderHonorManager.Controllers
         }
 
         // POST api/Pathfinders/{pathfinderId}/PathfinderAchievements
-        [Route("{pathfinderId:guid}/[controller]")]
+        [Route("Pathfinders/{pathfinderId:guid}/[controller]")]
         [Authorize("UpdatePathfinders")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -87,7 +88,7 @@ namespace PathfinderHonorManager.Controllers
         }
 
         // PUT api/Pathfinders/{pathfinderId}/PathfinderAchievements/{achievementId}
-        [Route("{pathfinderId:guid}/[controller]/{achievementId:guid}")]
+        [Route("Pathfinders/{pathfinderId:guid}/[controller]/{achievementId:guid}")]
         [Authorize("UpdatePathfinders")]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -114,8 +115,9 @@ namespace PathfinderHonorManager.Controllers
             }
         }
 
-        // GET api/Pathfinders/{pathfinderId}/Achievements
-        [HttpGet("{pathfinderId:guid}/Achievements")]
+        // GET api/Pathfinders/{pathfinderId}/PathfinderAchievements
+        [HttpGet]
+        [Route("Pathfinders/{pathfinderId:guid}/PathfinderAchievements")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Outgoing.PathfinderAchievementDto>>> GetAllAchievementsForPathfinder(Guid pathfinderId, CancellationToken token)
@@ -132,6 +134,7 @@ namespace PathfinderHonorManager.Controllers
 
         // POST api/PathfinderAchievements
         [HttpPost]
+        [Route("[controller]")]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(StatusCodes.Status207MultiStatus)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
