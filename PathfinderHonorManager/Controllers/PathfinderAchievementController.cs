@@ -64,7 +64,7 @@ namespace PathfinderHonorManager.Controllers
 
         // POST api/Pathfinders/{pathfinderId}/PathfinderAchievements
         [Route("{pathfinderId:guid}/[controller]")]
-        [Authorize("EditPathfinders")]
+        [Authorize("UpdatePathfinders")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,7 +88,7 @@ namespace PathfinderHonorManager.Controllers
 
         // PUT api/Pathfinders/{pathfinderId}/PathfinderAchievements/{achievementId}
         [Route("{pathfinderId:guid}/[controller]/{achievementId:guid}")]
-        [Authorize("EditPathfinders")]
+        [Authorize("UpdatePathfinders")]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -130,27 +130,39 @@ namespace PathfinderHonorManager.Controllers
             return Ok(achievements);
         }
 
-        // POST api/Pathfinders/{pathfinderId}/Achievements/ForGrade
-        [HttpPost("{pathfinderId:guid}/Achievements/ForGrade")]
-        [Authorize("EditPathfinders")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        // POST api/PathfinderAchievements
+        [HttpPost]
+        [Authorize("UpdatePathfinders")]
+        [ProducesResponseType(StatusCodes.Status207MultiStatus)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderAchievementDto>>> AddAchievementsForGrade(Guid pathfinderId, CancellationToken token)
+        public async Task<IActionResult> AddAchievementsForGrade([FromBody] Incoming.PostPathfinderAchievementForGradeDto dto, CancellationToken token)
         {
-            try
+            var responses = new List<object>();
+
+            foreach (var pathfinderId in dto.PathfinderIds)
             {
-                var achievements = await _pathfinderAchievementService.AddAchievementsForGradeAsync(pathfinderId, token);
-                return CreatedAtAction(nameof(GetAllAchievementsForPathfinder), new { pathfinderId = pathfinderId }, achievements);
+                try
+                {
+                    var achievements = await _pathfinderAchievementService.AddAchievementsForPathfinderAsync(pathfinderId, token);
+                    responses.Add(new 
+                    { 
+                        pathfinderId = pathfinderId, 
+                        achievements = achievements,
+                        status = achievements.Any() ? StatusCodes.Status201Created : StatusCodes.Status404NotFound
+                    });
+                }
+                catch (FluentValidation.ValidationException ex)
+                {
+                    responses.Add(new 
+                    { 
+                        pathfinderId = pathfinderId,
+                        status = StatusCodes.Status400BadRequest,
+                        error = ex.Errors.Select(e => e.ErrorMessage).ToList()
+                    });
+                }
             }
-            catch (FluentValidation.ValidationException ex)
-            {
-                UpdateModelState(ex);
-                return ValidationProblem(ModelState);
-            }
-            catch (DbUpdateException ex)
-            {
-                return ValidationProblem(ex.Message);
-            }
+
+            return StatusCode(StatusCodes.Status207MultiStatus, responses);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace PathfinderHonorManager.Validators
                                 .AnyAsync(pa => pa.PathfinderID == dto.PathfinderID && pa.AchievementID == dto.AchievementID, cancellation);
                         })
                         .WithName(nameof(PathfinderAchievementDto.AchievementID))
-                        .WithMessage(dto => $"Pathfinder {dto.PathfinderID} already has been assigned achievement {dto.AchievementID}");
+                        .WithMessage(dto => $"Pathfinder {dto.PathfinderID} has already been assigned achievement {dto.AchievementID}");
                     RuleFor(p => p)
                         .MustAsync(
                             async (dto, token) =>

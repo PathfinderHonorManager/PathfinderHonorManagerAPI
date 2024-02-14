@@ -14,6 +14,6 @@ namespace PathfinderHonorManager.Service.Interfaces
         Task<ICollection<Outgoing.PathfinderAchievementDto>> GetAllAchievementsForPathfinderAsync(Guid pathfinderId, CancellationToken token);
         Task<Outgoing.PathfinderAchievementDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderAchievementDto achievementId, CancellationToken token);
         Task<Outgoing.PathfinderAchievementDto> UpdateAsync(Guid pathfinderId, Guid achievementId, Incoming.PutPathfinderAchievementDto updatedAchievement, CancellationToken token);
-        Task<ICollection<Outgoing.PathfinderAchievementDto>> AddAchievementsForGradeAsync(Guid pathfinderId, CancellationToken token);
+        Task<ICollection<Outgoing.PathfinderAchievementDto>> AddAchievementsForPathfinderAsync(Guid pathfinderId, CancellationToken token);
     }
 }

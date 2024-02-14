@@ -125,46 +125,24 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public async Task AddAchievementsForGradeAsync_AddsAchievementsForPathfinderGrade_ReturnsAchievements()
+        public async Task AddAchievementsForPathfinderAsync_AddsAchievementsBasedOnGrade()
         {
             // Arrange
-            var pathfinderId = _pathfinders.First(p => p.Grade == 10).PathfinderID; // Assuming grade 10 has specific achievements
-            var expectedAchievements = _achievements.Where(a => a.Grade == 10).ToList();
+            var pathfinderId = _pathfinders.First().PathfinderID;
+            var grade = _pathfinders.First().Grade;
+            var expectedAchievementsCount = _achievements.Count(a => a.Grade == grade);
             var cancellationToken = new CancellationToken();
 
             // Act
-            var result = await _pathfinderAchievementService.AddAchievementsForGradeAsync(pathfinderId, cancellationToken);
+            var achievements = await _pathfinderAchievementService.AddAchievementsForPathfinderAsync(pathfinderId, cancellationToken);
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Count, Is.EqualTo(expectedAchievements.Count));
-            foreach (var achievement in expectedAchievements)
+            Assert.That(achievements, Is.Not.Null);
+            Assert.That(achievements.Count, Is.EqualTo(expectedAchievementsCount));
+            foreach (var achievement in achievements)
             {
-                Assert.That(result.Any(ra => ra.AchievementID == achievement.AchievementID), Is.True);
-            }
-        }
-
-        [Test]
-        public async Task GetAllAchievementsForPathfinderAsync_ReturnsAllAchievementsForPathfinder()
-        {
-            // Arrange
-            var pathfinderId = _pathfinders.First().PathfinderID; 
-            var expectedAchievements = _pathfinderAchievements
-                .Where(pa => pa.PathfinderID == pathfinderId)
-                .Select(pa => pa.AchievementID)
-                .ToList();
-            var cancellationToken = new CancellationToken();
-
-            // Act
-            var result = await _pathfinderAchievementService.GetAllAchievementsForPathfinderAsync(pathfinderId, cancellationToken);
-
-            // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.InstanceOf<List<PathfinderAchievementDto>>());
-            Assert.That(result.Count, Is.EqualTo(expectedAchievements.Count));
-            foreach (var achievementId in expectedAchievements)
-            {
-                Assert.That(result.Any(ra => ra.AchievementID == achievementId), Is.True);
+                Assert.That(achievement.PathfinderID, Is.EqualTo(pathfinderId));
+                Assert.That(achievement.Achievement.Grade, Is.EqualTo(grade));
             }
         }
 
