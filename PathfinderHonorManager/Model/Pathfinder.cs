@@ -39,6 +39,7 @@ namespace PathfinderHonorManager.Model
 
         [ForeignKey("PathfinderID")]
         public ICollection<PathfinderHonor> PathfinderHonors { get; set; }
+        public ICollection<PathfinderAchievement> PathfinderAchievements { get; set; }
 
     }
 }

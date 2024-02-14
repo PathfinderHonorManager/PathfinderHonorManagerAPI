@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AutoMapper;
 using PathfinderHonorManager.Dto.Incoming;
 using PathfinderHonorManager.Model;
@@ -26,7 +27,9 @@ namespace PathfinderHonorManager.Mapping
                 .IncludeMembers(p => p.PathfinderClass)
                 .IncludeMembers(p => p.Club);
             CreateMap<Pathfinder, Outgoing.PathfinderDependantDto>()
-                .IncludeMembers(p => p.PathfinderClass);
+                .IncludeMembers(p => p.PathfinderClass)
+                .ForMember(dest => dest.AssignedAchievementsCount, opt => opt.MapFrom(src => src.PathfinderAchievements.Count(a => a.Achievement.Grade == src.Grade)))
+                .ForMember(dest => dest.CompletedAchievementsCount, opt => opt.MapFrom(src => src.PathfinderAchievements.Count(a => a.Achievement.Grade == src.Grade && a.IsAchieved)));
             CreateMap<Pathfinder, Incoming.PathfinderDtoInternal>();
             CreateMap<PathfinderClass, Outgoing.PathfinderDependantDto>();
             CreateMap<PathfinderClass, Outgoing.PathfinderDto>();

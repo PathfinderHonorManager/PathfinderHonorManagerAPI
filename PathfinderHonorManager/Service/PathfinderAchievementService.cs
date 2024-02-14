@@ -74,7 +74,7 @@ namespace PathfinderHonorManager.Service
             await _dbContext.PathfinderAchievements.AddAsync(newEntity, token);
             await _dbContext.SaveChangesAsync(token);
 
-            return _mapper.Map<PathfinderAchievementDto>(newPathfinderAchievement);
+            return await GetByIdAsync(pathfinderId, newEntity.AchievementID, token);
         }
 
         public async Task<PathfinderAchievementDto> UpdateAsync(Guid pathfinderId, Guid achievementId, Incoming.PutPathfinderAchievementDto updatedAchievement, CancellationToken token)

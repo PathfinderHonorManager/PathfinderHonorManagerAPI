@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -27,16 +28,11 @@ namespace PathfinderHonorManager.Service
 
         private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
 
-        private IQueryable<Pathfinder> QueryPathfindersWithIncludesAsync(string clubCode, bool showInactive)
+        private IQueryable<Outgoing.PathfinderDependantDto> QueryPathfindersWithAchievementCountsAsync(string clubCode, bool showInactive)
         {
             var query = _dbContext.Pathfinders
-                .Include(pc => pc.PathfinderClass)
-                .Include(ph => ph.PathfinderHonors)
-                    .ThenInclude(phs => phs.PathfinderHonorStatus)
-                .Include(ph => ph.PathfinderHonors.OrderBy(x => x.Honor.Name))
-                    .ThenInclude(h => h.Honor)
-                .Include(c => c.Club)
-                .Where(c => c.Club.ClubCode == clubCode);
+                .Where(c => c.Club.ClubCode == clubCode)
+                .ProjectTo<Outgoing.PathfinderDependantDto>(_mapper.ConfigurationProvider);
 
             if (!showInactive)
             {
@@ -44,7 +40,6 @@ namespace PathfinderHonorManager.Service
             }
 
             return query;
-
         }
 
         private IQueryable<Pathfinder> QueryPathfinderByIdAsync(Guid pathfinderId, string clubCode)
@@ -71,27 +66,23 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(string clubCode, bool showInactive, CancellationToken token)
         {
-            List<Pathfinder> pathfinders = await QueryPathfindersWithIncludesAsync(clubCode, showInactive)
+            ICollection<Outgoing.PathfinderDependantDto> pathfinderDtos = await QueryPathfindersWithAchievementCountsAsync(clubCode, showInactive)
                 .OrderBy(p => p.Grade)
                 .ThenBy(p => p.LastName)
                 .ToListAsync(token);
 
-            return _mapper.Map<ICollection<Outgoing.PathfinderDependantDto>>(pathfinders);
+            return pathfinderDtos;
         }
 
         public async Task<Outgoing.PathfinderDependantDto> GetByIdAsync(Guid id, string clubCode, CancellationToken token)
         {
-            Pathfinder entity;
-            bool showInactive = true;
+            Outgoing.PathfinderDependantDto dto;
 
-            entity = await QueryPathfindersWithIncludesAsync(clubCode, showInactive)
-                .SingleOrDefaultAsync(p => p.PathfinderID == id, token);
+            dto = await QueryPathfindersWithAchievementCountsAsync(clubCode, true)
+                    .SingleOrDefaultAsync(p => p.PathfinderID == id, token);
 
-            return entity == default
-                ? default
-                : _mapper.Map<Outgoing.PathfinderDependantDto>(entity);
+            return dto;
         }
-
 
         public async Task<Outgoing.PathfinderDto> AddAsync(Incoming.PathfinderDto newPathfinder, string clubCode, CancellationToken token)
         {
