@@ -142,7 +142,7 @@ namespace PathfinderHonorManager.Tests.Service
             foreach (var achievement in achievements)
             {
                 Assert.That(achievement.PathfinderID, Is.EqualTo(pathfinderId));
-                Assert.That(achievement.Achievement.Grade, Is.EqualTo(grade));
+                Assert.That(achievement.Grade, Is.EqualTo(grade));
             }
         }
 
