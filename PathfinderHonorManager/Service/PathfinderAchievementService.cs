@@ -39,6 +39,9 @@ namespace PathfinderHonorManager.Service
         {
             _logger.LogInformation("Getting all pathfinder achievements");
             var achievements = await _dbContext.PathfinderAchievements
+                .Include(a => a.Achievement)
+                .Include(c => c.Achievement.PathfinderClass)
+                .Include(pa => pa.Achievement.Category)
                 .ToListAsync(token);
 
             return _mapper.Map<ICollection<Outgoing.PathfinderAchievementDto>>(achievements);
@@ -48,6 +51,7 @@ namespace PathfinderHonorManager.Service
         {
             _logger.LogInformation($"Getting pathfinder achievement by Pathfinder ID: {pathfinderId} Achievement ID {achievementId}");
             var pathfinderAchievement = await _dbContext.PathfinderAchievements
+                .Include(a => a.Achievement)
                 .Where(pa => pa.PathfinderID == pathfinderId && pa.AchievementID == achievementId)
                 .SingleOrDefaultAsync(token);
 
@@ -56,10 +60,12 @@ namespace PathfinderHonorManager.Service
         public async Task<ICollection<Outgoing.PathfinderAchievementDto>> GetAllAchievementsForPathfinderAsync(Guid pathfinderId, CancellationToken token)
         {
             _logger.LogInformation($"Getting all achievements for Pathfinder ID: {pathfinderId}");
-            
+
             var achievements = await _dbContext.PathfinderAchievements
                 .Where(pa => pa.PathfinderID == pathfinderId)
                 .Include(pa => pa.Achievement)
+                .Include(c => c.Achievement.PathfinderClass)
+                .Include(pa => pa.Achievement.Category)
                 .ToListAsync(token);
 
             return _mapper.Map<ICollection<Outgoing.PathfinderAchievementDto>>(achievements);
@@ -137,7 +143,7 @@ namespace PathfinderHonorManager.Service
                 }, token);
 
                 var newEntity = _mapper.Map<PathfinderAchievement>(newPathfinderAchievement);
-                               newAchievements.Add(newEntity);
+                newAchievements.Add(newEntity);
             }
 
             if (newAchievements.Any())

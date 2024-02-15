@@ -75,11 +75,20 @@ namespace PathfinderHonorManager.Mapping
                 .ForMember(dest => dest.LevelName, opt => opt.MapFrom(src => Enum.GetName(typeof(LevelName), src.Level)));
             CreateMap<Outgoing.AchievementDto, Achievement>();
             CreateMap<Achievement, Outgoing.AchievementDto>();
+            CreateMap<Achievement, Outgoing.PathfinderAchievementDto>();
         }
 
         private void RegisterPathfinderAchievementMappings()
         {
-            CreateMap<PathfinderAchievement, Outgoing.PathfinderAchievementDto>();
+            CreateMap<PathfinderAchievement, Outgoing.PathfinderAchievementDto>()
+                .ForMember(dest => dest.Level, opt => opt.MapFrom(src => src.Achievement.Level))
+                .ForMember(dest => dest.LevelName, opt => opt.MapFrom(src => Enum.GetName(typeof(LevelName), src.Achievement.Level)))
+                .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Achievement.Grade))
+                .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Achievement.PathfinderClass.ClassName))
+                .IncludeMembers(src => src.Achievement)
+                .IncludeMembers(src => src.Achievement.PathfinderClass)
+                .IncludeMembers(src => src.Achievement.Category);
+            CreateMap<Category, Outgoing.PathfinderAchievementDto>();
             CreateMap<Outgoing.PathfinderAchievementDto, PathfinderAchievement>();
             CreateMap<Incoming.PostPathfinderAchievementDto, PathfinderAchievement>();
             CreateMap<Incoming.PathfinderAchievementDto, PathfinderAchievement>();

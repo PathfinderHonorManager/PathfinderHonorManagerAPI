@@ -26,7 +26,7 @@ namespace PathfinderHonorManager.Validators
                     return true;
                 })
                 .WithName(nameof(PathfinderAchievementDto.AchievementID))
-                .WithMessage("The pathfinder's grade must match the achievement.");
+                .WithMessage("The pathfinder's class must match the achievement.");
             RuleSet(
                 "post",
                 () =>
