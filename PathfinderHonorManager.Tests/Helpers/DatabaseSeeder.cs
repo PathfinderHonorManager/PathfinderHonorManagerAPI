@@ -86,6 +86,18 @@ namespace PathfinderHonorManager.Tests.Helpers
                 new Pathfinder
                 {
                     PathfinderID = Guid.NewGuid(),
+                    FirstName = "Sally",
+                    LastName = "Seven",
+                    Email = "SallySeven@example.com",
+                    Grade = 7,
+                    ClubID = _clubs[0].ClubID,
+                    Created = DateTime.UtcNow,
+                    Updated = DateTime.UtcNow,
+                    IsActive = true
+                },
+                new Pathfinder
+                {
+                    PathfinderID = Guid.NewGuid(),
                     FirstName = "Chuck",
                     LastName = "Eight",
                     Email = "chuckeight@example.com",
@@ -252,7 +264,7 @@ namespace PathfinderHonorManager.Tests.Helpers
                     Grade = grade,
                     Level = 1,
                     Description = $"Achievement Level 1 for Grade {grade}",
-                    CategoryID = _categories[0].CategoryID // Assuming a default category for simplicity
+                    CategoryID = _categories[0].CategoryID 
                 });
 
                 _achievements.Add(new Achievement
@@ -261,7 +273,7 @@ namespace PathfinderHonorManager.Tests.Helpers
                     Grade = grade,
                     Level = 2,
                     Description = $"Achievement Level 2 for Grade {grade}",
-                    CategoryID = _categories[1].CategoryID // Assuming a different category for level 2 for simplicity
+                    CategoryID = _categories[1].CategoryID
                 });
             }
 
@@ -275,23 +287,45 @@ namespace PathfinderHonorManager.Tests.Helpers
                 throw new InvalidOperationException("Achievements or Pathfinders not seeded properly.");
             }
 
-            _pathfinderAchievements = new List<PathfinderAchievement>
+            var random = new Random();
+            _pathfinderAchievements = new List<PathfinderAchievement>();
+
+            foreach (var pathfinder in _pathfinders)
             {
-                new PathfinderAchievement
+                var level1Achievements = _achievements.Where(a => a.Level == 1).ToList();
+                var level2Achievements = _achievements.Where(a => a.Level == 2).ToList();
+
+                Shuffle(level1Achievements, random);
+                Shuffle(level2Achievements, random);
+
+                int level1AchievementsToAssignCount = random.Next(1, level1Achievements.Count + 1);
+                int level2AchievementsToAssignCount = random.Next(1, level2Achievements.Count + 1);
+
+                foreach (var achievement in level1Achievements.Take(level1AchievementsToAssignCount).Concat(level2Achievements.Take(level2AchievementsToAssignCount)))
                 {
-                    PathfinderAchievementID = Guid.NewGuid(),
-                    AchievementID = _achievements[0].AchievementID,
-                    PathfinderID = _pathfinders[0].PathfinderID,
-                    IsAchieved = false
-                },
-                new PathfinderAchievement
+                    _pathfinderAchievements.Add(new PathfinderAchievement
+                    {
+                        PathfinderAchievementID = Guid.NewGuid(),
+                        AchievementID = achievement.AchievementID,
+                        PathfinderID = pathfinder.PathfinderID,
+                        IsAchieved = random.Next(2) == 1 
+                    });
+                }
+            }
+
+            // Fisher-Yates shuffle algorithm
+            void Shuffle<T>(IList<T> list, Random rng)
+            {
+                int n = list.Count;
+                while (n > 1)
                 {
-                    PathfinderAchievementID = Guid.NewGuid(),
-                    AchievementID = _achievements[1].AchievementID,
-                    PathfinderID = _pathfinders[1].PathfinderID,
-                    IsAchieved = true
-                },
-            };
+                    n--;
+                    int k = rng.Next(n + 1);
+                    T value = list[k];
+                    list[k] = list[n];
+                    list[n] = value;
+                }
+            }
 
             await dbContext.PathfinderAchievements.AddRangeAsync(_pathfinderAchievements);
             await dbContext.SaveChangesAsync();
