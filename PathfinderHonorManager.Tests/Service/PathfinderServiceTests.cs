@@ -184,18 +184,23 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task GetPathfinderAchievementDetailsAsync_ReturnsAccurateCounts(string clubCode)
         {
             // Arrange
-            var pathfinderId = _pathfinders.First().PathfinderID;
-            var expectedAssignedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinderId);
-            var expectedCompletedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinderId && pa.IsAchieved);
+            var pathfinder = _pathfinders.First();
+            var expectedAssignedBasicAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 1); 
+            var expectedCompletedBasicAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 1 && pa.IsAchieved);
+            var expectedAssignedAdvancedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 2);
+            var expectedCompletedAdvancedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 2 && pa.IsAchieved);
+
             var cancellationToken = new CancellationToken();
 
             // Act
-            var result = await _pathfinderService.GetByIdAsync(pathfinderId, clubCode, cancellationToken);
+            var result = await _pathfinderService.GetByIdAsync(pathfinder.PathfinderID, clubCode, cancellationToken);
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.AssignedAchievementsCount, Is.EqualTo(expectedAssignedAchievementCount), "Assigned achievement count should match expected value.");
-            Assert.That(result.CompletedAchievementsCount, Is.EqualTo(expectedCompletedAchievementCount), "Completed achievement count should match expected value.");
+            Assert.That(result.AssignedBasicAchievementsCount, Is.EqualTo(expectedAssignedBasicAchievementCount), "Assigned basic achievement count should match expected value.");
+            Assert.That(result.CompletedBasicAchievementsCount, Is.EqualTo(expectedCompletedBasicAchievementCount), "Completed basic achievement count should match expected value.");
+            Assert.That(result.AssignedAdvancedAchievementsCount, Is.EqualTo(expectedAssignedAdvancedAchievementCount), "Assigned advanced achievement count should match expected value.");
+            Assert.That(result.CompletedAdvancedAchievementsCount, Is.EqualTo(expectedCompletedAdvancedAchievementCount), "Completed advanced achievement count should match expected value.");
         }
 
         [TestCase("VALIDCLUBCODE")]
@@ -210,15 +215,15 @@ namespace PathfinderHonorManager.Tests.Service
             // Assert
             foreach (var pathfinder in allPathfinders)
             {
-                var expectedAssignedAchievementCount = _pathfinderAchievements
-                    .Where(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade)
-                    .Count();
-                var expectedCompletedAchievementCount = _pathfinderAchievements
-                    .Where(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.IsAchieved && pa.Achievement.Grade == pathfinder.Grade)
-                    .Count();
+                var expectedAssignedBasicAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 1);
+                var expectedCompletedBasicAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 1 && pa.IsAchieved);
+                var expectedAssignedAdvancedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 2);
+                var expectedCompletedAdvancedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 2 && pa.IsAchieved);
 
-                Assert.That(pathfinder.AssignedAchievementsCount, Is.EqualTo(expectedAssignedAchievementCount), $"Assigned achievement count should match expected value for PathfinderID {pathfinder.PathfinderID}.");
-                Assert.That(pathfinder.CompletedAchievementsCount, Is.EqualTo(expectedCompletedAchievementCount), $"Completed achievement count should match expected value for PathfinderID {pathfinder.PathfinderID}.");
+                Assert.That(pathfinder.AssignedBasicAchievementsCount, Is.EqualTo(expectedAssignedBasicAchievementCount), "Assigned basic achievement count should match expected value.");
+                Assert.That(pathfinder.CompletedBasicAchievementsCount, Is.EqualTo(expectedCompletedBasicAchievementCount), "Completed basic achievement count should match expected value.");
+                Assert.That(pathfinder.AssignedAdvancedAchievementsCount, Is.EqualTo(expectedAssignedAdvancedAchievementCount), "Assigned advanced achievement count should match expected value.");
+                Assert.That(pathfinder.CompletedAdvancedAchievementsCount, Is.EqualTo(expectedCompletedAdvancedAchievementCount), "Completed advanced achievement count should match expected value.");
             }
         }
 

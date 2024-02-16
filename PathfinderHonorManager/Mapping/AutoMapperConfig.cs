@@ -28,8 +28,10 @@ namespace PathfinderHonorManager.Mapping
                 .IncludeMembers(p => p.Club);
             CreateMap<Pathfinder, Outgoing.PathfinderDependantDto>()
                 .IncludeMembers(p => p.PathfinderClass)
-                .ForMember(dest => dest.AssignedAchievementsCount, opt => opt.MapFrom(src => src.PathfinderAchievements.Count(a => a.Achievement.Grade == src.Grade)))
-                .ForMember(dest => dest.CompletedAchievementsCount, opt => opt.MapFrom(src => src.PathfinderAchievements.Count(a => a.Achievement.Grade == src.Grade && a.IsAchieved)));
+                .ForMember(dest => dest.AssignedBasicAchievementsCount, opt => opt.MapFrom(src => src.PathfinderAchievements.Count(a => a.Achievement.Grade == src.Grade && a.Achievement.Level == 1)))
+                .ForMember(dest => dest.CompletedBasicAchievementsCount, opt => opt.MapFrom(src => src.PathfinderAchievements.Count(a => a.Achievement.Grade == src.Grade && a.Achievement.Level == 1 && a.IsAchieved)))
+                .ForMember(dest => dest.AssignedAdvancedAchievementsCount, opt => opt.MapFrom(src => src.PathfinderAchievements.Count(a => a.Achievement.Grade == src.Grade && a.Achievement.Level == 2)))
+                .ForMember(dest => dest.CompletedAdvancedAchievementsCount, opt => opt.MapFrom(src => src.PathfinderAchievements.Count(a => a.Achievement.Grade == src.Grade && a.Achievement.Level == 2 && a.IsAchieved)));
             CreateMap<Pathfinder, Incoming.PathfinderDtoInternal>();
             CreateMap<PathfinderClass, Outgoing.PathfinderDependantDto>();
             CreateMap<PathfinderClass, Outgoing.PathfinderDto>();

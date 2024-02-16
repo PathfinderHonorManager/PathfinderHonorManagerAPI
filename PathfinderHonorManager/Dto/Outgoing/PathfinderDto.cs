@@ -47,9 +47,12 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public DateTime Updated { get; set; }
 
-        public int AssignedAchievementsCount { get; set; }
+        public int AssignedBasicAchievementsCount { get; set; }
 
-        public int CompletedAchievementsCount { get; set; }
+        public int CompletedBasicAchievementsCount { get; set; }
+        public int AssignedAdvancedAchievementsCount { get; set; }
+
+        public int CompletedAdvancedAchievementsCount { get; set; }
 
         public ICollection<PathfinderHonorDto>? PathfinderHonors { get; set; }
 
