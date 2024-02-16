@@ -88,11 +88,26 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task AddAsync_AddsNewPathfinderAchievementAndReturnsDto()
         {
             // Arrange
+            var pathfinderWithFewestAchievements = _pathfinderAchievements
+                .GroupBy(pa => pa.PathfinderID)
+                .OrderBy(g => g.Count())
+                .First().Key;
+
+            var pathfinderId = pathfinderWithFewestAchievements;
+            var achievementsForPathfinder = _pathfinderAchievements
+                .Where(pa => pa.PathfinderID == pathfinderId)
+                .Select(pa => pa.AchievementID)
+                .ToList();
+
+            var newAchievementId = _achievements
+                .Where(a => !achievementsForPathfinder.Contains(a.AchievementID))
+                .Select(a => a.AchievementID)
+                .FirstOrDefault();
+
             var newAchievementDto = new Incoming.PostPathfinderAchievementDto
             {
-                AchievementID = _achievements.First().AchievementID
+                AchievementID = newAchievementId
             };
-            var pathfinderId = _pathfinders.Last().PathfinderID;
             var cancellationToken = new CancellationToken();
 
             // Act

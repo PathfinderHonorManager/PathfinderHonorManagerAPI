@@ -295,13 +295,27 @@ namespace PathfinderHonorManager.Tests.Helpers
                 var level1Achievements = _achievements.Where(a => a.Level == 1).ToList();
                 var level2Achievements = _achievements.Where(a => a.Level == 2).ToList();
 
+                // Shuffle the achievements to randomize the order
                 Shuffle(level1Achievements, random);
                 Shuffle(level2Achievements, random);
 
+                // Determine a random number of achievements to assign from each level
                 int level1AchievementsToAssignCount = random.Next(1, level1Achievements.Count + 1);
                 int level2AchievementsToAssignCount = random.Next(1, level2Achievements.Count + 1);
 
-                foreach (var achievement in level1Achievements.Take(level1AchievementsToAssignCount).Concat(level2Achievements.Take(level2AchievementsToAssignCount)))
+                // Take the determined number of achievements from each level and add them
+                foreach (var achievement in level1Achievements.Take(level1AchievementsToAssignCount))
+                {
+                    _pathfinderAchievements.Add(new PathfinderAchievement
+                    {
+                        PathfinderAchievementID = Guid.NewGuid(),
+                        AchievementID = achievement.AchievementID,
+                        PathfinderID = pathfinder.PathfinderID,
+                        IsAchieved = random.Next(2) == 1 
+                    });
+                }
+
+                foreach (var achievement in level2Achievements.Take(level2AchievementsToAssignCount))
                 {
                     _pathfinderAchievements.Add(new PathfinderAchievement
                     {
