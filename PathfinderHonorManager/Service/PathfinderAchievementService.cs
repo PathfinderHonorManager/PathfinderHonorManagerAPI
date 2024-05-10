@@ -12,6 +12,7 @@ using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
+using FluentValidation.Results;
 
 namespace PathfinderHonorManager.Service
 {
@@ -120,7 +121,11 @@ namespace PathfinderHonorManager.Service
             if (pathfinder == null)
             {
                 _logger.LogError($"Pathfinder with ID {pathfinderId} not found.");
-                return null;
+                var failures = new List<ValidationFailure>
+                {
+                    new ValidationFailure(nameof(Incoming.PathfinderAchievementDto.PathfinderID), $"Pathfinder with ID {pathfinderId} not found.")
+                };
+                throw new ValidationException("Validation error occurred.", failures);
             }
 
             var gradeAchievements = await _dbContext.Achievements
