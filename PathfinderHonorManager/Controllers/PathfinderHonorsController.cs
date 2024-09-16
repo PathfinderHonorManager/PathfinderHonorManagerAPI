@@ -14,13 +14,13 @@ using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
-    [Route("api/Pathfinders")]
+    [Route("api/pathfinders")]
     [Authorize("ReadPathfinders")]
     [Produces("application/json")]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public class PathfinderHonorsController : ApiController
+    public class PathfinderHonorsController : CustomApiController
     {
         private readonly IPathfinderHonorService _pathfinderHonorService;
 
@@ -36,8 +36,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="pathfinderId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("{pathfinderId:guid}/PathfinderHonors")]
-        [HttpGet]
+        [HttpGet("{pathfinderId:guid}/PathfinderHonors", Name = "GetAllPathfinderHonors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAll(Guid pathfinderId, CancellationToken token)
@@ -59,8 +58,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="status"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("PathfinderHonors")]
+        [HttpGet("PathfinderHonors", Name = "GetAllPathfinderHonorsByStatus")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Outgoing.PathfinderHonorDto>>> GetAllByStatus([FromQuery] string status, CancellationToken token)
@@ -83,8 +81,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="honorId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("{pathfinderId:guid}/PathfinderHonors/{honorId:guid}")]
-        [HttpGet]
+        [HttpGet("{pathfinderId:guid}/PathfinderHonors/{honorId:guid}", Name = "GetPathfinderHonorById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetByIdAsync(Guid pathfinderId, Guid honorId, CancellationToken token)
@@ -107,8 +104,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="newPathfinderHonor"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("{pathfinderId:guid}/PathfinderHonors")]
-        [HttpPost]
+        [HttpPost("{pathfinderId:guid}/PathfinderHonors", Name = "PostPathfinderHonor")]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -141,7 +137,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="bulkData"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpPost("PathfinderHonors")]
+        [HttpPost("PathfinderHonors", Name = "BulkPostPathfinderHonors")]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(StatusCodes.Status207MultiStatus)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -195,8 +191,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="incomingPathfinderHonor"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [Route("{pathfinderId:guid}/PathfinderHonors/{honorId:guid}")]
-        [HttpPut]
+        [HttpPut("{pathfinderId:guid}/PathfinderHonors/{honorId:guid}", Name = "PutPathfinderHonor")]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(typeof(Outgoing.PathfinderHonorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -229,7 +224,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="bulkData"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpPut("PathfinderHonors")]
+        [HttpPut("PathfinderHonors", Name = "BulkPutPathfinderHonors")]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(StatusCodes.Status207MultiStatus)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

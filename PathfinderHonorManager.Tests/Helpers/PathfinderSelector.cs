@@ -36,6 +36,26 @@ public class PathfinderSelectorHelper
             }
             return pathfinderWithoutHonors.PathfinderID;
         }
+        
+    }
+        public List<Guid> SelectUniquePathfinderIds(int count, bool? withHonors = null)
+    {
+        var filteredPathfinders = _pathfinders.Where(p => 
+            withHonors == null || 
+            (withHonors.Value ? _pathfinderHonors.Any(ph => ph.PathfinderID == p.PathfinderID) : !_pathfinderHonors.Any(ph => ph.PathfinderID == p.PathfinderID)))
+            .ToList();
+
+        var pathfinderIds = filteredPathfinders
+            .Select(p => p.PathfinderID)
+            .Distinct()
+            .Take(count)
+            .ToList();
+
+        if (pathfinderIds.Count < count)
+        {
+            throw new InvalidOperationException("Not enough unique pathfinders found with the specified criteria.");
+        }
+
+        return pathfinderIds;
     }
 }
-

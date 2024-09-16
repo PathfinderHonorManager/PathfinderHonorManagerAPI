@@ -30,6 +30,11 @@ namespace PathfinderHonorManager.Service.Interfaces
             Incoming.PutPathfinderDto updatedPathfinder,
             string clubCode,
             CancellationToken token);
+
+        Task<ICollection<Outgoing.PathfinderDto>> BulkUpdateAsync(
+            IEnumerable<Incoming.BulkPutPathfinderDto> bulkData,
+            string clubCode,
+            CancellationToken token);
     }
 
 }

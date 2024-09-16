@@ -2,10 +2,10 @@
 
 namespace PathfinderHonorManager.Controllers
 {
-    public class ApiController : ControllerBase
+    public abstract class CustomApiController : Controller
     {
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public void UpdateModelState(FluentValidation.ValidationException validationException)
+        [NonAction]
+        protected void UpdateModelState(FluentValidation.ValidationException validationException)
         {
             foreach (var error in validationException.Errors)
             {

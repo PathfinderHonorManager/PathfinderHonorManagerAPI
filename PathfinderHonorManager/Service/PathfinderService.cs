@@ -156,5 +156,44 @@ namespace PathfinderHonorManager.Service
             return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);
 
         }
+
+        public async Task<ICollection<Outgoing.PathfinderDto>> BulkUpdateAsync(
+            IEnumerable<Incoming.BulkPutPathfinderDto> bulkData,
+            string clubCode,
+            CancellationToken token)
+        {
+            var updatedPathfinders = new List<Outgoing.PathfinderDto>();
+
+            foreach (var data in bulkData)
+            {
+                foreach (var item in data.Items)
+                {
+                    var targetPathfinder = await QueryPathfinderByIdAsync(item.PathfinderId, clubCode)
+                                        .SingleOrDefaultAsync(token);
+
+                    if (targetPathfinder != null)
+                    {
+                        if (item.Grade.HasValue)
+                        {
+                            targetPathfinder.Grade = item.Grade.Value;
+                        }
+
+                        if (item.IsActive.HasValue)
+                        {
+                            targetPathfinder.IsActive = item.IsActive.Value;
+                        }
+
+                        var mappedPathfinder = _mapper.Map<Incoming.PathfinderDtoInternal>(targetPathfinder);
+                        await _validator.ValidateAsync(mappedPathfinder, opts => opts.ThrowOnFailures(), token);
+
+                        updatedPathfinders.Add(_mapper.Map<Outgoing.PathfinderDto>(targetPathfinder));
+                    }
+                }
+            }
+
+            await _dbContext.SaveChangesAsync(token);
+
+            return updatedPathfinders;
+        }
     }
 }
