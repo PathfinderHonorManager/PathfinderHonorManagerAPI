@@ -227,6 +227,38 @@ namespace PathfinderHonorManager.Tests.Service
             }
         }
 
+        [TestCase("VALIDCLUBCODE")]
+        public async Task BulkUpdateAsync_UpdatesMultiplePathfindersAndReturnsUpdatedDtos(string clubCode)
+        {
+            // Arrange
+            var cancellationToken = new CancellationToken();
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>();
+            var pathfinderIds = _pathfinderSelectorHelper.SelectUniquePathfinderIds(3);
+
+            // Act
+            var results = await _pathfinderService.BulkUpdateAsync(bulkData, clubCode, cancellationToken);
+
+            // Assert
+            Assert.That(results, Is.Not.Null);
+            Assert.That(results, Has.Count.EqualTo(bulkData.Count));
+            for (int i = 0; i < bulkData.Count; i++)
+            {
+                Assert.That(results.ElementAt(i).PathfinderID, Is.EqualTo(bulkData.ElementAt(i).Items.First().PathfinderId));
+                Assert.That(results.ElementAt(i).Grade, Is.EqualTo(bulkData.ElementAt(i).Items.First().Grade));
+            }
+
+            // Verify that the changes were persisted in the database
+            var updatedPathfinders = await _dbContext.Pathfinders
+                .Where(p => bulkData.Select(b => b.Items.First().PathfinderId).Contains(p.PathfinderID))
+                .ToListAsync(cancellationToken);
+
+            foreach (var updatedPathfinder in updatedPathfinders)
+            {
+                var correspondingBulkData = bulkData.First(b => b.Items.First().PathfinderId == updatedPathfinder.PathfinderID);
+                Assert.That(updatedPathfinder.Grade, Is.EqualTo(correspondingBulkData.Items.First().Grade));
+            }
+        }
+
         [TearDown]
         public async Task TearDown()
         {

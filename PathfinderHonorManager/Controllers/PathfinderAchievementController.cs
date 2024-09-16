@@ -20,7 +20,7 @@ namespace PathfinderHonorManager.Controllers
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public class PathfinderAchievementsController : ApiController
+    public class PathfinderAchievementsController : CustomApiController
     {
         private readonly IPathfinderAchievementService _pathfinderAchievementService;
 
