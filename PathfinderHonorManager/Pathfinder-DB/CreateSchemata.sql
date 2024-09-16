@@ -174,6 +174,11 @@ CREATE TABLE public.pathfinder_honor (
 
 ALTER TABLE public.pathfinder_honor OWNER TO postgres;
 
+CREATE TRIGGER create_timestamp_trigger
+BEFORE INSERT ON public.pathfinder_honor
+FOR EACH ROW
+EXECUTE FUNCTION public.trigger_set_created_timestamp();
+
 --
 -- TOC entry 216 (class 1259 OID 16556)
 -- Name: pathfinder_honor_status; Type: TABLE; Schema: public; Owner: postgres
