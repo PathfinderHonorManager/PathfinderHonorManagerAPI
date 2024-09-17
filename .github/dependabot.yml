@@ -1,15 +1,13 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
-    directory: "/PathfinderHonorManager"
+    directories:
+      - "PathfinderHonorManager"
+      - "PathfinderHonorManager.Tests"
     schedule:
       interval: "daily"
     target-branch: "develop"
-  - package-ecosystem: "nuget"
-    directory: "/PathfinderHonorManager.Tests"
-    schedule:
-      interval: "daily"
-    target-branch: "develop"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
