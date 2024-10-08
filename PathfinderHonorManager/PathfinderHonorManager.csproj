@@ -24,7 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.10" /> 
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="8.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.8" />
     <PackageReference Include="Microsoft.Identity.Web" Version="3.2.0" />
