@@ -7,7 +7,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/PathfinderHonorManager/bin/Debug/net7.0/PathfinderHonorManager.dll",
+            "program": "${workspaceFolder}/PathfinderHonorManager/bin/Debug/net9.0/PathfinderHonorManager.dll",
             "args": [],
             "cwd": "${workspaceFolder}/PathfinderHonorManager",
             "stopAtEntry": false,

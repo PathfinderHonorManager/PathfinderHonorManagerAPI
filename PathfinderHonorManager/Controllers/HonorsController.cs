@@ -19,7 +19,7 @@ namespace PathfinderHonorManager.Controllers
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public class HonorsController : ApiController
+    public class HonorsController : CustomApiController
     {
         private readonly IHonorService _honorService;
 
