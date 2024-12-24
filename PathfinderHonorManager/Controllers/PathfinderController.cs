@@ -10,17 +10,18 @@ using Outgoing = PathfinderHonorManager.Dto.Outgoing;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
+using Microsoft.AspNetCore.Routing;
 
 namespace PathfinderHonorManager.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/pathfinders")]
     [Authorize("ReadPathfinders")]
     [Produces("application/json")]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public class PathfindersController : ApiController
+    public class PathfindersController : CustomApiController
     {
         private readonly IPathfinderService _pathfinderService;
 
@@ -41,7 +42,7 @@ namespace PathfinderHonorManager.Controllers
         /// </summary>
         /// <param name="token"></param>
         /// <param name="showInactive"></param>
-        [HttpGet]
+        [HttpGet(Name = "GetAllPathfinders")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Outgoing.PathfinderDependantDto>>> GetAll(CancellationToken token, bool showInactive = false)
@@ -64,7 +65,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "GetPathfinderById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
@@ -87,7 +88,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="newPathfinder"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("", Name = "CreatePathfinder")]
         [Authorize("CreatePathfinders")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -122,7 +123,7 @@ namespace PathfinderHonorManager.Controllers
         /// <param name="updatedPathfinder"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpPut("{pathfinderId:guid}")]
+        [HttpPut("{pathfinderId:guid}", Name = "UpdatePathfinder")]
         [Authorize("UpdatePathfinders")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -146,6 +147,60 @@ namespace PathfinderHonorManager.Controllers
             {
                 return ValidationProblem(ex.Message);
             }
+        }
+
+        // PUT Pathfinders/batch
+        /// <summary>
+        /// Update multiple Pathfinders at once
+        /// </summary>
+        /// <param name="bulkData"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [HttpPut("", Name = "BulkUpdatePathfinders")]
+        [Authorize("UpdatePathfinders")]
+        [ProducesResponseType(StatusCodes.Status207MultiStatus)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> BulkPutPathfindersAsync([FromBody] IEnumerable<Incoming.BulkPutPathfinderDto> bulkData, CancellationToken token)
+        {
+            var clubCode = GetClubCodeFromContext();
+            var responses = new List<object>();
+
+            foreach (var data in bulkData)
+            {
+                foreach (var item in data.Items)
+                {
+                    try
+                    {
+                        var pathfinder = await _pathfinderService.UpdateAsync(item.PathfinderId, new Incoming.PutPathfinderDto { Grade = item.Grade, IsActive = item.IsActive }, clubCode, token);
+
+                        responses.Add(new
+                        {
+                            status = pathfinder != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
+                            pathfinderId = item.PathfinderId,
+                        });
+                    }
+                    catch (FluentValidation.ValidationException ex)
+                    {
+                        responses.Add(new
+                        {
+                            status = StatusCodes.Status400BadRequest,
+                            pathfinderId = item.PathfinderId,
+                            errors = ex.Errors.Select(e => e.ErrorMessage)
+                        });
+                    }
+                    catch (DbUpdateException ex)
+                    {
+                        responses.Add(new
+                        {
+                            status = StatusCodes.Status400BadRequest,
+                            pathfinderId = item.PathfinderId,
+                            error = ex.Message
+                        });
+                    }
+                }
+            }
+
+            return StatusCode(StatusCodes.Status207MultiStatus, responses);
         }
     }
 }
