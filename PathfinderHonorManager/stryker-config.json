@@ -4,7 +4,8 @@
     "reporters": [
         "cleartext",
         "progress",
-        "html"
+        "html",
+        "json"
     ],
     "verbosity": "info",
     "additional-timeout": 5000,

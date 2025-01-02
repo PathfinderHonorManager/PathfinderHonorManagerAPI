@@ -50,7 +50,12 @@
             "options": {
                 "cwd": "${workspaceFolder}/PathfinderHonorManager"
             },
-            "problemMatcher": []
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "close": true
+            }
         }
     ]
 }
