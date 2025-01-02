@@ -28,6 +28,20 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
+        },
+        {
+            "name": "Run Stryker",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "dotnet",
+            "runtimeArgs": ["stryker"],
+            "cwd": "${workspaceFolder}/PathfinderHonorManager",
+            "preLaunchTask": "stryker",
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "The HTML report has been generated at: (.*)",
+                "uriFormat": "%s"
+            }
         }
     ]
 }
