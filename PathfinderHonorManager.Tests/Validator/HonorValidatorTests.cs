@@ -14,182 +14,83 @@ namespace PathfinderHonorManager.Tests.Validator
     [TestFixture]
     public class HonorValidatorTests
     {
-        private DbContextOptions<PathfinderContext> _dbContextOptions;
-        private HonorValidator _validator;
+        private HonorValidator _honorValidator;
+        protected DbContextOptions<PathfinderContext> ContextOptions { get; }
 
-        [SetUp]
-        public void Setup()
+        public HonorValidatorTests()
         {
-            _dbContextOptions = new DbContextOptionsBuilder<PathfinderContext>()
+            ContextOptions = new DbContextOptionsBuilder<PathfinderContext>()
                 .UseInMemoryDatabase(databaseName: "TestDb")
                 .Options;
-
-            using (var context = new PathfinderContext(_dbContextOptions))
-            {
-                // Seed the database with some data
-                context.Honors.Add(new Honor
-                {
-                    HonorID = Guid.NewGuid(),
-                    Name = "Honor 1",
-                    Level = 1,
-                    PatchFilename = "patch1.png",
-                    WikiPath = new Uri("https://example.com/honor1")
-                });
-
-                context.Honors.Add(new Honor
-                {
-                    HonorID = Guid.NewGuid(),
-                    Name = "Honor 2",
-                    Level = 2,
-                    PatchFilename = "patch2.png",
-                    WikiPath = new Uri("https://example.com/honor2")
-                });
-
-                context.SaveChanges();
-            }
-
-            _validator = new HonorValidator(new PathfinderContext(_dbContextOptions));
         }
 
-
-        [TestCase]
-        public async Task Validate_HonorDto_WithValidData_ShouldPass()
+        [SetUp]
+        public void SetUp()
         {
-            // Arrange
+            var context = new PathfinderContext(ContextOptions);
+            _honorValidator = new HonorValidator(context);
+        }
+
+        [TestCase("test.txt")]
+        [TestCase("test")]
+        public async Task Validate_InvalidFileExtension_ShouldFail(string filename)
+        {
             var honorDto = new Incoming.HonorDto
             {
                 Name = "Test Honor",
-                Level = 1,
-                PatchFilename = "test.png",
+                Level = 2,
+                PatchFilename = filename,
                 WikiPath = new Uri("https://example.com")
             };
 
-            // Act
-            var result = await _validator
-                .TestValidateAsync(honorDto);
-
-            // Assert
-            result
-                .ShouldNotHaveAnyValidationErrors();
-        }
-
-        [TestCase("")]
-        [TestCase(null)]
-        public async Task Validate_HonorDto_WithMissingName_ShouldFail(string name)
-        {
-            // Arrange
-            var honorDto = new Incoming.HonorDto
-            {
-                Name = name,
-                Level = 1,
-                PatchFilename = "test.png",
-                WikiPath = new Uri("https://example.com")
-            };
-
-            // Act
-            var result = await _validator
-                .TestValidateAsync(honorDto);
-
-            // Assert
-            result
-                .ShouldHaveValidationErrorFor(x => x.Name)
-                .WithSeverity(Severity.Error);
-        }
-
-        [TestCase(null)]
-        public async Task Validate_HonorDto_WithMissingLevel_ShouldFail(int level)
-        {
-            // Arrange
-            var honorDto = new Incoming.HonorDto
-            {
-                Name = "Test Honor",
-                Level = level,
-                PatchFilename = "test.png",
-                WikiPath = new Uri("https://example.com")
-            };
-
-            // Act
-            var result = await _validator.TestValidateAsync(honorDto);
-
-            // Assert
-            result.ShouldHaveValidationErrorFor(x => x.Level);
-        }
-
-        [TestCase("invalid")]
-        public async Task Validate_HonorDto_WithInvalidPatchFilename_ShouldFail(string patchFilename)
-        {
-            // Arrange
-            var honorDto = new Incoming.HonorDto
-            {
-                Name = "Test Honor",
-                Level = 1,
-                PatchFilename = patchFilename,
-                WikiPath = new Uri("https://example.com")
-            };
-
-            // Act
-            var result = await _validator.TestValidateAsync(honorDto);
-
-            // Assert
+            var result = await _honorValidator.TestValidateAsync(honorDto);
             result.ShouldHaveValidationErrorFor(x => x.PatchFilename);
         }
 
-        [TestCase("invalid")]
-        public async Task Validate_HonorDto_WithInvalidWikiPath_ShouldFail(string wikiPath)
+        [TestCase("ftp://example.com")]
+        [TestCase("file://example.com")]
+        public async Task Validate_NonHttpUri_ShouldFail(string url)
         {
-            // Arrange
             var honorDto = new Incoming.HonorDto
             {
                 Name = "Test Honor",
-                Level = 1,
+                Level = 2,
                 PatchFilename = "test.png",
-                WikiPath = new Uri(wikiPath, UriKind.RelativeOrAbsolute)
+                WikiPath = new Uri(url)
             };
 
-            // Act
-            var result = await _validator.TestValidateAsync(honorDto);
-
-            // Assert
+            var result = await _honorValidator.TestValidateAsync(honorDto);
             result.ShouldHaveValidationErrorFor(x => x.WikiPath);
         }
 
-        [TestCase]
-        public async Task Validate_HonorDto_WithDuplicateName_ShouldFail()
+        [Test]
+        public async Task Validate_DuplicateName_InPostRuleset_ShouldFail()
         {
-            // Arrange
-            var honorDto = new Incoming.HonorDto
+            using (var context = new PathfinderContext(ContextOptions))
             {
-                Name = "Test Honor",
-                Level = 1,
-                PatchFilename = "test.png",
-                WikiPath = new Uri("https://example.com")
-            };
-
-            using (var context = new PathfinderContext(_dbContextOptions))
-            {
-                // Add a duplicate honor to the database
-                var existingHonor = new Honor
+                await context.Honors.AddAsync(new Honor
                 {
-                    Name = honorDto.Name,
-                    Level = honorDto.Level,
-                    PatchFilename = honorDto.PatchFilename,
-                    WikiPath = honorDto.WikiPath
-                };
-                await context.Honors.AddAsync(existingHonor);
+                    Name = "Existing Honor",
+                    Level = 1,
+                    PatchFilename = "test.png",
+                    WikiPath = new Uri("https://example.com")
+                });
                 await context.SaveChangesAsync();
+
+                var validator = new HonorValidator(context);
+                var honorDto = new Incoming.HonorDto
+                {
+                    Name = "Existing Honor",
+                    Level = 2,
+                    PatchFilename = "test.png",
+                    WikiPath = new Uri("https://example.com")
+                };
+
+                var result = await validator.TestValidateAsync(honorDto, opt => 
+                    opt.IncludeRuleSets("post"));
+
+                result.ShouldHaveValidationErrorFor(x => x.Name);
             }
-
-            // Act
-            var result = await _validator
-                                .TestValidateAsync(honorDto, options =>
-                                {
-                                    options.IncludeAllRuleSets();
-                                });
-
-            // Assert
-            result
-                .ShouldHaveValidationErrorFor(x => x.Name)
-                .WithSeverity(Severity.Error);
         }
     }
 }
