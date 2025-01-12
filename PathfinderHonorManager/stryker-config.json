@@ -1,0 +1,40 @@
+{
+"stryker-config": {
+    "test-projects": ["../PathfinderHonorManager.Tests/PathfinderHonorManager.Tests.csproj"],
+    "reporters": [
+        "cleartext",
+        "progress",
+        "html",
+        "json"
+    ],
+    "verbosity": "info",
+    "additional-timeout": 5000,
+    "thresholds": {
+        "high": 80,
+        "low": 60,
+        "break": 0
+    },
+    "ignore-mutations": [
+    ],
+    "mutate": [
+        "Converters/NullableDateTimeConverter.cs",
+        "Mapping/AutoMapperConfig.cs",
+        "Validators/**/*.cs",
+        "Service/**/*.cs",
+        "DataAccess/**/*Query.cs",
+        "DataAccess/**/*Extension.cs",
+        "!Program.cs",
+        "!Startup.cs",
+        "!DataAccess/PathfinderContext.cs",
+        "!DataAccess/Entities/**/*.cs",
+        "!Dto/**/*.cs",
+        "!GlobalSuppressions.cs"
+    ],
+    "mutation-level": "Standard",
+    "coverage-analysis": "perTest",
+    "concurrency": 4,
+    "disable-bail": true,
+    "disable-mix-mutants": true
+}
+}
+

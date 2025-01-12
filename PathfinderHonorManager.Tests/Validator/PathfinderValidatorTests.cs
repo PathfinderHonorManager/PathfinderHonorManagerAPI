@@ -98,6 +98,179 @@ namespace PathfinderHonorManager.Tests.Validator
                 .WithSeverity(Severity.Error);
         }
 
+        [Test]
+        public async Task Validate_DuplicateEmail_ValidationError()
+        {
+            using (var context = new PathfinderContext(ContextOptions))
+            {
+                var existingEmail = "test@example.com";
+                var existingPathfinder = new Pathfinder
+                {
+                    PathfinderID = Guid.NewGuid(),
+                    FirstName = "Existing",
+                    LastName = "User",
+                    Email = existingEmail,
+                    Created = DateTime.Now,
+                    Updated = DateTime.Now
+                };
+                await context.Pathfinders.AddAsync(existingPathfinder);
+                await context.SaveChangesAsync();
+
+                var newPathfinder = new Incoming.PathfinderDtoInternal
+                {
+                    FirstName = "New",
+                    LastName = "User",
+                    Email = existingEmail,
+                    ClubID = Guid.NewGuid()
+                };
+
+                var validationResult = await _pathfinderValidator
+                    .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("post"));
+
+                validationResult.ShouldHaveValidationErrorFor(p => p.Email)
+                    .WithErrorMessage($"Pathfinder email address ({existingEmail}) is taken.");
+            }
+        }
+
+        [Test]
+        public async Task Validate_UniqueEmail_ShouldPass()
+        {
+            using (var context = new PathfinderContext(ContextOptions))
+            {
+                var existingEmail = "test@example.com";
+                var newEmail = "new@example.com";
+                var existingPathfinder = new Pathfinder
+                {
+                    PathfinderID = Guid.NewGuid(),
+                    FirstName = "Existing",
+                    LastName = "User",
+                    Email = existingEmail,
+                    Created = DateTime.Now,
+                    Updated = DateTime.Now
+                };
+                await context.Pathfinders.AddAsync(existingPathfinder);
+                await context.SaveChangesAsync();
+
+                var newPathfinder = new Incoming.PathfinderDtoInternal
+                {
+                    FirstName = "New",
+                    LastName = "User",
+                    Email = newEmail,
+                    ClubID = Guid.NewGuid()
+                };
+
+                var validationResult = await _pathfinderValidator
+                    .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("post"));
+
+                validationResult.ShouldNotHaveValidationErrorFor(p => p.Email);
+            }
+        }
+
+        [Test]
+        public async Task Validate_EmptyClubId_ValidationError()
+        {
+            var newPathfinder = new Incoming.PathfinderDtoInternal
+            {
+                FirstName = "Test",
+                LastName = "User",
+                Email = "test@example.com",
+                ClubID = Guid.Empty
+            };
+
+            var validationResult = await _pathfinderValidator
+                .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("post"));
+
+            validationResult.ShouldHaveValidationErrorFor(p => p.ClubID)
+                .WithErrorMessage("User must be associated with a valid club before adding a Pathfinder");
+        }
+
+        [Test]
+        public async Task Validate_ValidClubId_ShouldPass()
+        {
+            var newPathfinder = new Incoming.PathfinderDtoInternal
+            {
+                FirstName = "Test",
+                LastName = "User",
+                Email = "test@example.com",
+                ClubID = Guid.NewGuid()
+            };
+
+            var validationResult = await _pathfinderValidator
+                .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("post"));
+
+            validationResult.ShouldNotHaveValidationErrorFor(p => p.ClubID);
+        }
+
+        [Test]
+        public async Task Validate_GradeOutOfRange_ValidationError()
+        {
+            var testCases = new[] { 4, 13 }; // Test both lower and upper bounds
+            foreach (var grade in testCases)
+            {
+                var newPathfinder = new Incoming.PathfinderDtoInternal
+                {
+                    FirstName = "Test",
+                    LastName = "User",
+                    Email = "test@example.com",
+                    Grade = grade,
+                    ClubID = Guid.NewGuid()
+                };
+
+                var validationResult = await _pathfinderValidator
+                    .TestValidateAsync(newPathfinder);
+
+                validationResult.ShouldHaveValidationErrorFor(p => p.Grade);
+            }
+        }
+
+        [Test]
+        public async Task Validate_GradeInRange_ShouldPass()
+        {
+            var testCases = new[] { 5, 8, 12 }; // Test lower bound, middle, and upper bound
+            foreach (var grade in testCases)
+            {
+                var newPathfinder = new Incoming.PathfinderDtoInternal
+                {
+                    FirstName = "Test",
+                    LastName = "User",
+                    Email = "test@example.com",
+                    Grade = grade,
+                    ClubID = Guid.NewGuid()
+                };
+
+                var validationResult = await _pathfinderValidator
+                    .TestValidateAsync(newPathfinder);
+
+                validationResult.ShouldNotHaveValidationErrorFor(p => p.Grade);
+            }
+        }
+
+        [Test]
+        public async Task Validate_AllRulesApplied_ValidationError()
+        {
+            var newPathfinder = new Incoming.PathfinderDtoInternal
+            {
+                FirstName = "",
+                LastName = "",
+                Email = "invalid",
+                Grade = 4,
+                ClubID = Guid.Empty
+            };
+
+            var validationResult = await _pathfinderValidator
+                .TestValidateAsync(newPathfinder, options => 
+                {
+                    options.IncludeRuleSets("post");
+                    options.IncludeRulesNotInRuleSet();
+                });
+
+            validationResult.ShouldHaveValidationErrorFor(p => p.FirstName);
+            validationResult.ShouldHaveValidationErrorFor(p => p.LastName);
+            validationResult.ShouldHaveValidationErrorFor(p => p.Email);
+            validationResult.ShouldHaveValidationErrorFor(p => p.Grade);
+            validationResult.ShouldHaveValidationErrorFor(p => p.ClubID);
+        }
+
         public static void SeedDatabase(PathfinderContext context)
         {
             context.Database.EnsureDeleted();

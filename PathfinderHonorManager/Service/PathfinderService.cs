@@ -146,6 +146,11 @@ namespace PathfinderHonorManager.Service
             {
                 targetPathfinder.Grade = mappedPathfinder.Grade;
             }
+            else
+            {
+                targetPathfinder.Grade = null;
+            }
+            
             if (mappedPathfinder.IsActive.HasValue)
             {
                 targetPathfinder.IsActive = mappedPathfinder.IsActive;

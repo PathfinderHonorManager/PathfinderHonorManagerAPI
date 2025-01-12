@@ -16,10 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4.1.0
-        with:
-          dotnet-version: '9.0.x'
+      - uses: ./.github/actions/setup-dotnet
 
       - name: Build with dotnet
         run: dotnet build --configuration Release

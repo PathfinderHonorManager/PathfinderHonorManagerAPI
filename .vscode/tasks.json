@@ -36,6 +36,26 @@
                 "${workspaceFolder}/PathfinderHonorManager/PathfinderHonorManager.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "stryker",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "stryker",
+                "--config-file",
+                "${workspaceFolder}/PathfinderHonorManager/stryker-config.json",
+                "-o"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/PathfinderHonorManager"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "close": true
+            }
         }
     ]
 }
