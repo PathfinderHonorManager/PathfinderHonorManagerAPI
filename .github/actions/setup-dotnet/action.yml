@@ -5,6 +5,5 @@ runs:
   steps:
     - name: Set up .NET Core
       uses: actions/setup-dotnet@v4.2.0
-      shell: bash
       with:
         dotnet-version: '9.0.x' 
