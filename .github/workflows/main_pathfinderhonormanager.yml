@@ -17,11 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4.2.0
-        with:
-          dotnet-version: '9.0.x'
-      
+      - uses: ./.github/actions/setup-dotnet
+
       - name: Test with the dotnet CLI
         run: dotnet test
   
@@ -42,10 +39,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up .NET Core
-      uses: actions/setup-dotnet@v4.2.0
-      with:
-        dotnet-version: '9.0.x'
+    - uses: ./.github/actions/setup-dotnet
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -64,10 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4.2.0
-        with:
-          dotnet-version: '9.0.x'
+      - uses: ./.github/actions/setup-dotnet
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
