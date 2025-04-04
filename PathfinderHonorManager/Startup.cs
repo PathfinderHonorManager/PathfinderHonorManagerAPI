@@ -29,12 +29,14 @@ namespace PathfinderHonorManager
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -51,7 +53,12 @@ namespace PathfinderHonorManager
                         NameClaimType = ClaimTypes.NameIdentifier
                     };
                 });
-            services.AddApplicationInsightsTelemetry();
+
+            if (!Environment.IsDevelopment())
+            {
+                services.AddApplicationInsightsTelemetry();
+            }
+
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("ReadPathfinders", policy => policy.Requirements.Add(new HasScopeRequirement("read:pathfinders", domain)));

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.AzureAppServices;
+using Microsoft.Extensions.Configuration;
 
 namespace PathfinderHonorManager
 {
@@ -19,8 +20,14 @@ namespace PathfinderHonorManager
                 {
                     webBuilder.UseStartup<Startup>();
                 })
-                .ConfigureLogging(logging =>
-                    logging.AddAzureWebAppDiagnostics())
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
+                    logging.AddDebug();
+                    logging.AddAzureWebAppDiagnostics();
+                })
                 .ConfigureServices(services =>
                     services.Configure<AzureFileLoggerOptions>(options =>
                     {

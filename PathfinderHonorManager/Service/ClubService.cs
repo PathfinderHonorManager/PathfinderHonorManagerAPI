@@ -33,38 +33,51 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.ClubDto>> GetAllAsync(CancellationToken token)
         {
+            _logger.LogInformation("Retrieving all clubs");
             var clubs = await _dbContext.Clubs
                 .OrderBy(h => h.Name)
                 .ToListAsync(token);
 
+            _logger.LogInformation("Retrieved {Count} clubs", clubs.Count);
             return _mapper.Map<ICollection<Outgoing.ClubDto>>(clubs);
-
         }
 
         public async Task<Outgoing.ClubDto> GetByIdAsync(Guid id, CancellationToken token)
         {
+            _logger.LogInformation("Retrieving club with ID: {ClubId}", id);
             Club entity;
 
             entity = await _dbContext.Clubs
                 .SingleOrDefaultAsync(p => p.ClubID == id, token);
 
-            return entity == default
-                ? default
-                : _mapper.Map<Outgoing.ClubDto>(entity);
+            if (entity == default)
+            {
+                _logger.LogWarning("Club with ID {ClubId} not found", id);
+                return default;
+            }
+
+            _logger.LogInformation("Retrieved club: {ClubName} (ID: {ClubId})", entity.Name, id);
+            return _mapper.Map<Outgoing.ClubDto>(entity);
         }
 
         public async Task<Outgoing.ClubDto> GetByCodeAsync(string code, CancellationToken token)
         {
             code = code.ToUpper();
+            _logger.LogInformation("Retrieving club with code: {ClubCode}", code);
 
             Club entity;
 
             entity = await _dbContext.Clubs
                 .SingleOrDefaultAsync(p => p.ClubCode == code, token);
 
-            return entity == default
-                ? default
-                : _mapper.Map<Outgoing.ClubDto>(entity);
+            if (entity == default)
+            {
+                _logger.LogWarning("Club with code {ClubCode} not found", code);
+                return default;
+            }
+
+            _logger.LogInformation("Retrieved club: {ClubName} (Code: {ClubCode})", entity.Name, code);
+            return _mapper.Map<Outgoing.ClubDto>(entity);
         }
     }
 }
