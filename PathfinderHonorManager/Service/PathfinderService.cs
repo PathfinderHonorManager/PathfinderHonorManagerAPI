@@ -24,7 +24,7 @@ namespace PathfinderHonorManager.Service
 
         private readonly IMapper _mapper;
 
-        private readonly ILogger _logger;
+        private readonly ILogger<PathfinderService> _logger;
 
         private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
 
@@ -66,27 +66,45 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(string clubCode, bool showInactive, CancellationToken token)
         {
+            _logger.LogInformation("Getting all pathfinders for club {ClubCode}, showInactive: {ShowInactive}", clubCode, showInactive);
+            
             ICollection<Outgoing.PathfinderDependantDto> pathfinderDtos = await QueryPathfindersWithAchievementCountsAsync(clubCode, showInactive)
                 .OrderBy(p => p.Grade)
                 .ThenBy(p => p.LastName)
                 .ToListAsync(token);
 
+            _logger.LogInformation("Retrieved {Count} pathfinders for club {ClubCode}", pathfinderDtos.Count, clubCode);
             return pathfinderDtos;
         }
 
         public async Task<Outgoing.PathfinderDependantDto> GetByIdAsync(Guid id, string clubCode, CancellationToken token)
         {
-            Outgoing.PathfinderDependantDto dto;
-
-            dto = await QueryPathfindersWithAchievementCountsAsync(clubCode, true)
+            _logger.LogInformation("Getting pathfinder with ID {PathfinderId} for club {ClubCode}", id, clubCode);
+            
+            Outgoing.PathfinderDependantDto dto = await QueryPathfindersWithAchievementCountsAsync(clubCode, true)
                     .SingleOrDefaultAsync(p => p.PathfinderID == id, token);
+
+            if (dto == default)
+            {
+                _logger.LogWarning("Pathfinder with ID {PathfinderId} not found for club {ClubCode}", id, clubCode);
+            }
+            else
+            {
+                _logger.LogInformation("Retrieved pathfinder with ID {PathfinderId} for club {ClubCode}", id, clubCode);
+            }
 
             return dto;
         }
 
         public async Task<Outgoing.PathfinderDto> AddAsync(Incoming.PathfinderDto newPathfinder, string clubCode, CancellationToken token)
         {
+            _logger.LogInformation("Adding new pathfinder for club {ClubCode}", clubCode);
+            
             var club = await _clubService.GetByCodeAsync(clubCode, token);
+            if (club == null)
+            {
+                _logger.LogWarning("Club with code {ClubCode} not found while adding pathfinder", clubCode);
+            }
 
             var newPathfinderWithClubId = new Incoming.PathfinderDtoInternal()
             {
@@ -97,69 +115,91 @@ namespace PathfinderHonorManager.Service
                 ClubID = club?.ClubID ?? Guid.Empty
             };
 
-            await _validator.ValidateAsync(
-                newPathfinderWithClubId,
-                opts => opts.ThrowOnFailures()
-                        .IncludeAllRuleSets(),
-                token);
+            try
+            {
+                await _validator.ValidateAsync(
+                    newPathfinderWithClubId,
+                    opts => opts.ThrowOnFailures()
+                            .IncludeAllRuleSets(),
+                    token);
 
-            var newEntity = _mapper.Map<Pathfinder>(newPathfinderWithClubId);
+                var newEntity = _mapper.Map<Pathfinder>(newPathfinderWithClubId);
 
-            await _dbContext.AddAsync(newEntity, token);
-            await _dbContext.SaveChangesAsync(token);
-            _logger.LogInformation($"Pathfinder(Id: {newEntity.PathfinderID} added to database.");
+                await _dbContext.AddAsync(newEntity, token);
+                await _dbContext.SaveChangesAsync(token);
+                _logger.LogInformation("Added pathfinder with ID {PathfinderId} to database for club {ClubCode}", newEntity.PathfinderID, clubCode);
 
-            var createdPathfinder = await GetByIdAsync(newEntity.PathfinderID, clubCode, token);
+                var createdPathfinder = await GetByIdAsync(newEntity.PathfinderID, clubCode, token);
 
-            return _mapper.Map<Outgoing.PathfinderDto>(createdPathfinder);
+                return _mapper.Map<Outgoing.PathfinderDto>(createdPathfinder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding pathfinder for club {ClubCode}", clubCode);
+                throw;
+            }
         }
 
         public async Task<Outgoing.PathfinderDto> UpdateAsync(Guid pathfinderId, Incoming.PutPathfinderDto updatedPathfinder, string clubCode, CancellationToken token)
         {
-            Pathfinder targetPathfinder;
-            targetPathfinder = await QueryPathfinderByIdAsync(pathfinderId, clubCode)
+            _logger.LogInformation("Updating pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
+            
+            Pathfinder targetPathfinder = await QueryPathfinderByIdAsync(pathfinderId, clubCode)
                                         .SingleOrDefaultAsync(token);
 
             var club = await _clubService.GetByCodeAsync(clubCode, token);
+            if (club == null)
+            {
+                _logger.LogWarning("Club with code {ClubCode} not found while updating pathfinder {PathfinderId}", clubCode, pathfinderId);
+            }
 
             if (targetPathfinder == default)
             {
+                _logger.LogWarning("Pathfinder with ID {PathfinderId} not found for club {ClubCode}", pathfinderId, clubCode);
                 return default;
             }
 
-            Incoming.PathfinderDtoInternal mappedPathfinder = new()
+            try
             {
-                FirstName = targetPathfinder.FirstName,
-                LastName = targetPathfinder.LastName,
-                Email = targetPathfinder.Email,
-                Grade = updatedPathfinder.Grade,
-                IsActive = updatedPathfinder.IsActive,
-                ClubID = club.ClubID
-            };
+                Incoming.PathfinderDtoInternal mappedPathfinder = new()
+                {
+                    FirstName = targetPathfinder.FirstName,
+                    LastName = targetPathfinder.LastName,
+                    Email = targetPathfinder.Email,
+                    Grade = updatedPathfinder.Grade,
+                    IsActive = updatedPathfinder.IsActive,
+                    ClubID = club.ClubID
+                };
 
-            await _validator.ValidateAsync(
-                mappedPathfinder,
-                opts => opts.ThrowOnFailures(),
-                token);
+                await _validator.ValidateAsync(
+                    mappedPathfinder,
+                    opts => opts.ThrowOnFailures(),
+                    token);
 
-            if (mappedPathfinder.Grade != null)
-            {
-                targetPathfinder.Grade = mappedPathfinder.Grade;
+                if (mappedPathfinder.Grade != null)
+                {
+                    targetPathfinder.Grade = mappedPathfinder.Grade;
+                }
+                else
+                {
+                    targetPathfinder.Grade = null;
+                }
+                
+                if (mappedPathfinder.IsActive.HasValue)
+                {
+                    targetPathfinder.IsActive = mappedPathfinder.IsActive;
+                }
+
+                await _dbContext.SaveChangesAsync(token);
+                _logger.LogInformation("Updated pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
+
+                return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);
             }
-            else
+            catch (Exception ex)
             {
-                targetPathfinder.Grade = null;
+                _logger.LogError(ex, "Error updating pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
+                throw;
             }
-            
-            if (mappedPathfinder.IsActive.HasValue)
-            {
-                targetPathfinder.IsActive = mappedPathfinder.IsActive;
-            }
-
-            await _dbContext.SaveChangesAsync(token);
-
-            return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);
-
         }
 
         public async Task<ICollection<Outgoing.PathfinderDto>> BulkUpdateAsync(
@@ -167,36 +207,52 @@ namespace PathfinderHonorManager.Service
             string clubCode,
             CancellationToken token)
         {
+            _logger.LogInformation("Bulk updating {Count} pathfinders for club {ClubCode}", bulkData.Count(), clubCode);
+            
             var updatedPathfinders = new List<Outgoing.PathfinderDto>();
 
             foreach (var data in bulkData)
             {
                 foreach (var item in data.Items)
                 {
-                    var targetPathfinder = await QueryPathfinderByIdAsync(item.PathfinderId, clubCode)
-                                        .SingleOrDefaultAsync(token);
-
-                    if (targetPathfinder != null)
+                    try
                     {
-                        if (item.Grade.HasValue)
+                        var targetPathfinder = await QueryPathfinderByIdAsync(item.PathfinderId, clubCode)
+                                            .SingleOrDefaultAsync(token);
+
+                        if (targetPathfinder != null)
                         {
-                            targetPathfinder.Grade = item.Grade.Value;
-                        }
+                            if (item.Grade.HasValue)
+                            {
+                                targetPathfinder.Grade = item.Grade.Value;
+                            }
 
-                        if (item.IsActive.HasValue)
+                            if (item.IsActive.HasValue)
+                            {
+                                targetPathfinder.IsActive = item.IsActive.Value;
+                            }
+
+                            var mappedPathfinder = _mapper.Map<Incoming.PathfinderDtoInternal>(targetPathfinder);
+                            await _validator.ValidateAsync(mappedPathfinder, opts => opts.ThrowOnFailures(), token);
+
+                            updatedPathfinders.Add(_mapper.Map<Outgoing.PathfinderDto>(targetPathfinder));
+                            _logger.LogInformation("Updated pathfinder with ID {PathfinderId} during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
+                        }
+                        else
                         {
-                            targetPathfinder.IsActive = item.IsActive.Value;
+                            _logger.LogWarning("Pathfinder with ID {PathfinderId} not found during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
                         }
-
-                        var mappedPathfinder = _mapper.Map<Incoming.PathfinderDtoInternal>(targetPathfinder);
-                        await _validator.ValidateAsync(mappedPathfinder, opts => opts.ThrowOnFailures(), token);
-
-                        updatedPathfinders.Add(_mapper.Map<Outgoing.PathfinderDto>(targetPathfinder));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error updating pathfinder with ID {PathfinderId} during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
+                        throw;
                     }
                 }
             }
 
             await _dbContext.SaveChangesAsync(token);
+            _logger.LogInformation("Completed bulk update of {Count} pathfinders for club {ClubCode}", bulkData.Count(), clubCode);
 
             return updatedPathfinders;
         }

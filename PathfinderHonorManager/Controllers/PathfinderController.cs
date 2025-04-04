@@ -11,6 +11,7 @@ using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 
 namespace PathfinderHonorManager.Controllers
 {
@@ -24,6 +25,7 @@ namespace PathfinderHonorManager.Controllers
     public class PathfindersController : CustomApiController
     {
         private readonly IPathfinderService _pathfinderService;
+        private readonly ILogger<PathfindersController> _logger;
 
         private string GetClubCodeFromContext()
         {
@@ -31,9 +33,10 @@ namespace PathfinderHonorManager.Controllers
             return clubCode;
         }
 
-        public PathfindersController(IPathfinderService pathfinderService)
+        public PathfindersController(IPathfinderService pathfinderService, ILogger<PathfindersController> logger)
         {
             _pathfinderService = pathfinderService;
+            _logger = logger;
         }
 
         // GET Pathfinders
@@ -48,13 +51,17 @@ namespace PathfinderHonorManager.Controllers
         public async Task<ActionResult<IEnumerable<Outgoing.PathfinderDependantDto>>> GetAll(CancellationToken token, bool showInactive = false)
         {
             var clubCode = GetClubCodeFromContext();
+            _logger.LogInformation("Getting all pathfinders for club {ClubCode}, showInactive: {ShowInactive}", clubCode, showInactive);
+            
             var pathfinders = await _pathfinderService.GetAllAsync(clubCode, showInactive, token);
 
             if (pathfinders == null || !pathfinders.Any())
             {
+                _logger.LogWarning("No pathfinders found for club {ClubCode}", clubCode);
                 return NotFound();
             }
 
+            _logger.LogInformation("Retrieved {Count} pathfinders for club {ClubCode}", pathfinders.Count(), clubCode);
             return Ok(pathfinders);
         }
 
@@ -71,13 +78,17 @@ namespace PathfinderHonorManager.Controllers
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
             var clubCode = GetClubCodeFromContext();
+            _logger.LogInformation("Getting pathfinder with ID {PathfinderId} for club {ClubCode}", id, clubCode);
+            
             var pathfinder = await _pathfinderService.GetByIdAsync(id, clubCode, token);
 
             if (pathfinder == default)
             {
+                _logger.LogWarning("Pathfinder with ID {PathfinderId} not found for club {ClubCode}", id, clubCode);
                 return NotFound();
             }
 
+            _logger.LogInformation("Retrieved pathfinder with ID {PathfinderId} for club {ClubCode}", id, clubCode);
             return Ok(pathfinder);
         }
 
@@ -95,24 +106,28 @@ namespace PathfinderHonorManager.Controllers
         public async Task<IActionResult> PostAsync([FromBody] Incoming.PathfinderDto newPathfinder, CancellationToken token)
         {
             var clubCode = GetClubCodeFromContext();
+            _logger.LogInformation("Creating new pathfinder for club {ClubCode}", clubCode);
+            
             try
             {
                 var pathfinder = await _pathfinderService.AddAsync(newPathfinder, clubCode, token);
 
+                _logger.LogInformation("Created pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinder.PathfinderID, clubCode);
                 return CreatedAtRoute(
                     routeValues: GetByIdAsync(pathfinder.PathfinderID, token),
                     pathfinder);
             }
             catch (FluentValidation.ValidationException ex)
             {
+                _logger.LogWarning(ex, "Validation failed while creating pathfinder for club {ClubCode}", clubCode);
                 UpdateModelState(ex);
                 return ValidationProblem(ModelState);
             }
             catch (DbUpdateException ex)
             {
+                _logger.LogError(ex, "Database error while creating pathfinder for club {ClubCode}", clubCode);
                 return ValidationProblem(ex.Message);
             }
-
         }
 
         // PUT Pathfinders/{pathfinderId}
@@ -130,21 +145,30 @@ namespace PathfinderHonorManager.Controllers
         public async Task<IActionResult> PutAsync(Guid pathfinderId, [FromBody] Incoming.PutPathfinderDto updatedPathfinder, CancellationToken token)
         {
             var clubCode = GetClubCodeFromContext();
+            _logger.LogInformation("Updating pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
+            
             try
             {
                 var pathfinder = await _pathfinderService.UpdateAsync(pathfinderId, updatedPathfinder, clubCode, token);
 
-                return pathfinder != default
-                    ? Ok(pathfinder)
-                    : NotFound();
+                if (pathfinder == default)
+                {
+                    _logger.LogWarning("Pathfinder with ID {PathfinderId} not found for club {ClubCode}", pathfinderId, clubCode);
+                    return NotFound();
+                }
+
+                _logger.LogInformation("Updated pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
+                return Ok(pathfinder);
             }
             catch (FluentValidation.ValidationException ex)
             {
+                _logger.LogWarning(ex, "Validation failed while updating pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
                 UpdateModelState(ex);
                 return ValidationProblem(ModelState);
             }
             catch (DbUpdateException ex)
             {
+                _logger.LogError(ex, "Database error while updating pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
                 return ValidationProblem(ex.Message);
             }
         }
@@ -163,6 +187,8 @@ namespace PathfinderHonorManager.Controllers
         public async Task<IActionResult> BulkPutPathfindersAsync([FromBody] IEnumerable<Incoming.BulkPutPathfinderDto> bulkData, CancellationToken token)
         {
             var clubCode = GetClubCodeFromContext();
+            _logger.LogInformation("Bulk updating {Count} pathfinders for club {ClubCode}", bulkData.Count(), clubCode);
+            
             var responses = new List<object>();
 
             foreach (var data in bulkData)
@@ -178,9 +204,19 @@ namespace PathfinderHonorManager.Controllers
                             status = pathfinder != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
                             pathfinderId = item.PathfinderId,
                         });
+                        
+                        if (pathfinder == null)
+                        {
+                            _logger.LogWarning("Pathfinder with ID {PathfinderId} not found during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Updated pathfinder with ID {PathfinderId} during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
+                        }
                     }
                     catch (FluentValidation.ValidationException ex)
                     {
+                        _logger.LogWarning(ex, "Validation failed while bulk updating pathfinder with ID {PathfinderId} for club {ClubCode}", item.PathfinderId, clubCode);
                         responses.Add(new
                         {
                             status = StatusCodes.Status400BadRequest,
@@ -190,6 +226,7 @@ namespace PathfinderHonorManager.Controllers
                     }
                     catch (DbUpdateException ex)
                     {
+                        _logger.LogError(ex, "Database error while bulk updating pathfinder with ID {PathfinderId} for club {ClubCode}", item.PathfinderId, clubCode);
                         responses.Add(new
                         {
                             status = StatusCodes.Status400BadRequest,
@@ -200,6 +237,7 @@ namespace PathfinderHonorManager.Controllers
                 }
             }
 
+            _logger.LogInformation("Completed bulk update of {Count} pathfinders for club {ClubCode}", bulkData.Count(), clubCode);
             return StatusCode(StatusCodes.Status207MultiStatus, responses);
         }
     }

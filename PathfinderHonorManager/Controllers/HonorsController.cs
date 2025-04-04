@@ -9,6 +9,8 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace PathfinderHonorManager.Controllers
 {
@@ -22,10 +24,12 @@ namespace PathfinderHonorManager.Controllers
     public class HonorsController : CustomApiController
     {
         private readonly IHonorService _honorService;
+        private readonly ILogger<HonorsController> _logger;
 
-        public HonorsController(IHonorService honorService)
+        public HonorsController(IHonorService honorService, ILogger<HonorsController> logger)
         {
             _honorService = honorService;
+            _logger = logger;
         }
 
         // GET Honors
@@ -38,13 +42,16 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Honor>>> GetHonors(CancellationToken token)
         {
+            _logger.LogInformation("Getting all honors");
             var honors = await this._honorService.GetAllAsync(token);
 
             if (honors == default)
             {
+                _logger.LogWarning("No honors found");
                 return NotFound();
             }
 
+            _logger.LogInformation("Retrieved {Count} honors", honors.Count());
             return Ok(honors);
         }
 
@@ -60,13 +67,16 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
+            _logger.LogInformation("Getting honor with ID {HonorId}", id);
             var honor = await this._honorService.GetByIdAsync(id, token);
 
             if (honor == default)
             {
+                _logger.LogWarning("Honor with ID {HonorId} not found", id);
                 return NotFound();
             }
 
+            _logger.LogInformation("Retrieved honor with ID {HonorId}", id);
             return Ok(new { id = honor.HonorID, honor });
         }
 
@@ -83,21 +93,25 @@ namespace PathfinderHonorManager.Controllers
         [HttpPost]
         public async Task<ActionResult<Honor>> Post([FromBody] Incoming.HonorDto newHonor, CancellationToken token)
         {
+            _logger.LogInformation("Creating new honor");
             try
             {
                 var honor = await _honorService.AddAsync(newHonor, token);
 
+                _logger.LogInformation("Created honor with ID {HonorId}", honor.HonorID);
                 return CreatedAtRoute(
                     routeValues: GetByIdAsync(honor.HonorID, token),
                     honor);
             }
             catch (FluentValidation.ValidationException ex)
             {
+                _logger.LogWarning(ex, "Validation failed while creating honor");
                 UpdateModelState(ex);
                 return ValidationProblem(ModelState);
             }
             catch (DbUpdateException ex)
             {
+                _logger.LogError(ex, "Database error while creating honor");
                 return ValidationProblem(ex.Message);
             }
         }
@@ -116,20 +130,37 @@ namespace PathfinderHonorManager.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] Incoming.HonorDto updatedHonor, CancellationToken token)
         {
+            _logger.LogInformation("Updating honor with ID {HonorId}", id);
             var honor = await _honorService.GetByIdAsync(id, token);
 
             if (honor == default)
             {
+                _logger.LogWarning("Honor with ID {HonorId} not found", id);
                 return NotFound();
             }
 
-            await _honorService.UpdateAsync(id, updatedHonor, token);
+            try
+            {
+                await _honorService.UpdateAsync(id, updatedHonor, token);
 
-            honor = await _honorService.GetByIdAsync(id, token);
+                honor = await _honorService.GetByIdAsync(id, token);
+                _logger.LogInformation("Updated honor with ID {HonorId}", id);
 
-            return honor != default
-                ? Ok(honor)
-                : NotFound();
+                return honor != default
+                    ? Ok(honor)
+                    : NotFound();
+            }
+            catch (FluentValidation.ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed while updating honor with ID {HonorId}", id);
+                UpdateModelState(ex);
+                return ValidationProblem(ModelState);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error while updating honor with ID {HonorId}", id);
+                return ValidationProblem(ex.Message);
+            }
         }
     }
 }

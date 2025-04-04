@@ -21,7 +21,7 @@ namespace PathfinderHonorManager.Service
 
         private readonly IMapper _mapper;
 
-        private readonly ILogger _logger;
+        private readonly ILogger<HonorService> _logger;
 
         private readonly IValidator<Incoming.HonorDto> _validator;
 
@@ -30,7 +30,7 @@ namespace PathfinderHonorManager.Service
             PathfinderContext context,
             IMapper mapper,
             IValidator<Incoming.HonorDto> validator,
-            ILogger<PathfinderService> logger)
+            ILogger<HonorService> logger)
         {
             _dbContext = context;
             _mapper = mapper;
@@ -40,20 +40,29 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.HonorDto>> GetAllAsync(CancellationToken token)
         {
+            _logger.LogInformation("Getting all honors");
             var honors = await _dbContext.Honors
                 .OrderBy(h => h.Name).ThenBy(h => h.Level)
                 .ToListAsync(token);
 
+            _logger.LogInformation("Retrieved {Count} honors", honors.Count);
             return _mapper.Map<ICollection<Outgoing.HonorDto>>(honors);
-
         }
 
         public async Task<Outgoing.HonorDto> GetByIdAsync(Guid id, CancellationToken token)
         {
-            Honor entity;
-
-            entity = await _dbContext.Honors
+            _logger.LogInformation("Getting honor with ID {HonorId}", id);
+            Honor entity = await _dbContext.Honors
                 .SingleOrDefaultAsync(p => p.HonorID == id, token);
+
+            if (entity == default)
+            {
+                _logger.LogWarning("Honor with ID {HonorId} not found", id);
+            }
+            else
+            {
+                _logger.LogInformation("Retrieved honor with ID {HonorId}", id);
+            }
 
             return entity == default
                 ? default
@@ -62,41 +71,61 @@ namespace PathfinderHonorManager.Service
 
         public async Task<Outgoing.HonorDto> AddAsync(Incoming.HonorDto newHonor, CancellationToken token)
         {
+            _logger.LogInformation("Adding new honor");
+            try
+            {
+                await _validator.ValidateAsync(
+                    newHonor,
+                    opt => opt
+                        .ThrowOnFailures()
+                        .IncludeAllRuleSets(),
+                    token);
 
-            _ = await _validator.ValidateAsync(
-                newHonor,
-                opt => opt
-                    .ThrowOnFailures()
-                    .IncludeAllRuleSets(),
-                token);
+                var honor = _mapper.Map<Honor>(newHonor);
 
-            var honor = _mapper.Map<Honor>(newHonor);
+                _dbContext.Honors.Add(honor);
+                await _dbContext.SaveChangesAsync(token);
+                _logger.LogInformation("Added honor with ID {HonorId}", honor.HonorID);
 
-            _dbContext.Honors.Add(honor);
-            await _dbContext.SaveChangesAsync(token);
-
-            return _mapper.Map<Outgoing.HonorDto>(honor);
+                return _mapper.Map<Outgoing.HonorDto>(honor);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding honor");
+                throw;
+            }
         }
 
         public async Task<Outgoing.HonorDto> UpdateAsync(Guid id, Incoming.HonorDto updatedHonor, CancellationToken token)
         {
-            _ = await _validator.ValidateAsync(updatedHonor, opt => opt.ThrowOnFailures(), token);
-
-            var existingHonor = await GetByIdAsync(id, token);
-
-            if (existingHonor == null)
+            _logger.LogInformation("Updating honor with ID {HonorId}", id);
+            try
             {
-                return null;
+                await _validator.ValidateAsync(updatedHonor, opt => opt.ThrowOnFailures(), token);
+
+                var existingHonor = await GetByIdAsync(id, token);
+
+                if (existingHonor == null)
+                {
+                    _logger.LogWarning("Honor with ID {HonorId} not found", id);
+                    return null;
+                }
+
+                existingHonor.Name = updatedHonor.Name;
+                existingHonor.Level = updatedHonor.Level;
+                existingHonor.PatchFilename = updatedHonor.PatchFilename;
+                existingHonor.WikiPath = updatedHonor.WikiPath;
+
+                await _dbContext.SaveChangesAsync(token);
+                _logger.LogInformation("Updated honor with ID {HonorId}", id);
+
+                return _mapper.Map<Outgoing.HonorDto>(existingHonor);
             }
-
-            existingHonor.Name = updatedHonor.Name;
-            existingHonor.Level = updatedHonor.Level;
-            existingHonor.PatchFilename = updatedHonor.PatchFilename;
-            existingHonor.WikiPath = updatedHonor.WikiPath;
-
-            await _dbContext.SaveChangesAsync(token);
-
-            return _mapper.Map<Outgoing.HonorDto>(existingHonor);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating honor with ID {HonorId}", id);
+                throw;
+            }
         }
 
     }

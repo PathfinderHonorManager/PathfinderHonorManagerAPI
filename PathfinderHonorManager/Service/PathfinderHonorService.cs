@@ -22,7 +22,7 @@ namespace PathfinderHonorManager.Service
 
         private readonly IMapper _mapper;
 
-        private readonly ILogger _logger;
+        private readonly ILogger<PathfinderHonorService> _logger;
 
         private readonly IValidator<Incoming.PathfinderHonorDto> _validator;
 
@@ -42,6 +42,7 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.PathfinderHonorDto>> GetAllAsync(Guid pathfinderId, CancellationToken token)
         {
+            _logger.LogInformation("Getting all honors for pathfinder with ID {PathfinderId}", pathfinderId);
             var pathfinderhonors = await _dbContext.PathfinderHonors
                 .Include(phs => phs.PathfinderHonorStatus)
                 .Include(h => h.Honor)
@@ -49,14 +50,17 @@ namespace PathfinderHonorManager.Service
                 .OrderBy(ph => ph.Honor.Name)
                 .ToListAsync(token);
 
+            _logger.LogInformation("Retrieved {Count} honors for pathfinder with ID {PathfinderId}", pathfinderhonors.Count, pathfinderId);
             return _mapper.Map<ICollection<Outgoing.PathfinderHonorDto>>(pathfinderhonors);
-
         }
 
         public async Task<ICollection<Outgoing.PathfinderHonorDto>> GetAllByStatusAsync(string honorStatus, CancellationToken token)
         {
+            _logger.LogInformation("Getting all honors with status {HonorStatus}", honorStatus);
+            
             if (string.IsNullOrWhiteSpace(honorStatus))
             {
+                _logger.LogWarning("Empty honor status provided");
                 return new List<Outgoing.PathfinderHonorDto>();
             }
 
@@ -67,17 +71,27 @@ namespace PathfinderHonorManager.Service
                 .OrderBy(ph => ph.Honor.Name)
                 .ToListAsync(token);
 
+            _logger.LogInformation("Retrieved {Count} honors with status {HonorStatus}", pathfinderhonors.Count, honorStatus);
             return _mapper.Map<ICollection<Outgoing.PathfinderHonorDto>>(pathfinderhonors);
         }
 
         public async Task<Outgoing.PathfinderHonorDto> GetByIdAsync(Guid pathfinderId, Guid honorId, CancellationToken token)
         {
-            PathfinderHonor entity;
-
-            entity = await GetFilteredPathfinderHonors(pathfinderId, honorId, token)
+            _logger.LogInformation("Getting honor with ID {HonorId} for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
+            
+            PathfinderHonor entity = await GetFilteredPathfinderHonors(pathfinderId, honorId, token)
                 .Include(phs => phs.PathfinderHonorStatus)
                 .Include(h => h.Honor)
                 .SingleOrDefaultAsync(cancellationToken: token);
+
+            if (entity == default)
+            {
+                _logger.LogWarning("Honor with ID {HonorId} not found for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
+            }
+            else
+            {
+                _logger.LogInformation("Retrieved honor with ID {HonorId} for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
+            }
 
             return entity == default
                 ? default
@@ -86,67 +100,85 @@ namespace PathfinderHonorManager.Service
 
         public async Task<Outgoing.PathfinderHonorDto> AddAsync(Guid pathfinderId, Incoming.PostPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
+            _logger.LogInformation("Adding honor for pathfinder with ID {PathfinderId}", pathfinderId);
+            try
+            {
+                Incoming.PathfinderHonorDto newPathfinderHonor = await MapStatus(pathfinderId, incomingPathfinderHonor, token);
 
-            Incoming.PathfinderHonorDto newPathfinderHonor = await MapStatus(pathfinderId, incomingPathfinderHonor, token);
-
-
-            await _validator.ValidateAsync(
-                newPathfinderHonor,
-                opts => opts.ThrowOnFailures()
+                await _validator.ValidateAsync(
+                    newPathfinderHonor,
+                    opts => opts.ThrowOnFailures()
                             .IncludeRulesNotInRuleSet()
                             .IncludeRuleSets("post"),
-                        token);
+                    token);
 
-            var newEntity = _mapper.Map<PathfinderHonor>(newPathfinderHonor);
+                var newEntity = _mapper.Map<PathfinderHonor>(newPathfinderHonor);
 
-            if (newPathfinderHonor.Status == HonorStatus.Earned.ToString())
-            {
-                newEntity.Earned = DateTime.UtcNow;
+                if (newPathfinderHonor.Status == HonorStatus.Earned.ToString())
+                {
+                    newEntity.Earned = DateTime.UtcNow;
+                }
+
+                await _dbContext.AddAsync(newEntity, token);
+                await _dbContext.SaveChangesAsync(token);
+                _logger.LogInformation("Added honor with ID {HonorId} for pathfinder with ID {PathfinderId}", newEntity.HonorID, pathfinderId);
+
+                var createdEntity = await GetFilteredPathfinderHonors(newEntity.PathfinderID, newEntity.HonorID, token)
+                    .Include(phs => phs.PathfinderHonorStatus)
+                    .Include(h => h.Honor)
+                    .SingleOrDefaultAsync(cancellationToken: token);
+
+                return _mapper.Map<Outgoing.PathfinderHonorDto>(createdEntity);
             }
-
-            await _dbContext.AddAsync(newEntity, token);
-            await _dbContext.SaveChangesAsync(token);
-            _logger.LogInformation($"Pathfinder honor(Id: {newEntity.PathfinderHonorID} added to database.");
-
-            var createdEntity = await GetFilteredPathfinderHonors(newEntity.PathfinderID, newEntity.HonorID, token)
-                .Include(phs => phs.PathfinderHonorStatus)
-                .Include(h => h.Honor)
-                .SingleOrDefaultAsync(cancellationToken: token);
-
-            return _mapper.Map<Outgoing.PathfinderHonorDto>(createdEntity);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding honor for pathfinder with ID {PathfinderId}", pathfinderId);
+                throw;
+            }
         }
 
         public async Task<Outgoing.PathfinderHonorDto> UpdateAsync(Guid pathfinderId, Guid honorId, Incoming.PutPathfinderHonorDto incomingPathfinderHonor, CancellationToken token)
         {
-            var targetPathfinderHonor = await _dbContext.PathfinderHonors
+            _logger.LogInformation("Updating honor with ID {HonorId} for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
+            try
+            {
+                var targetPathfinderHonor = await _dbContext.PathfinderHonors
                                                 .Where(p => p.PathfinderID == pathfinderId && p.HonorID == honorId)
                                                 .Include(phs => phs.PathfinderHonorStatus)
                                                 .Include(h => h.Honor)
                                                 .SingleOrDefaultAsync(token);
 
-            if (targetPathfinderHonor == default)
-            {
-                return default;
-            }
+                if (targetPathfinderHonor == default)
+                {
+                    _logger.LogWarning("Honor with ID {HonorId} not found for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
+                    return default;
+                }
 
-            Incoming.PathfinderHonorDto updatedPathfinderHonor = await MapStatus(pathfinderId, incomingPathfinderHonor, token, honorId);
+                Incoming.PathfinderHonorDto updatedPathfinderHonor = await MapStatus(pathfinderId, incomingPathfinderHonor, token, honorId);
 
-            await _validator.ValidateAsync(
-                updatedPathfinderHonor,
-                opts => opts.ThrowOnFailures()
+                await _validator.ValidateAsync(
+                    updatedPathfinderHonor,
+                    opts => opts.ThrowOnFailures()
                             .IncludeRulesNotInRuleSet(),
-                        token);
+                    token);
 
-            targetPathfinderHonor.StatusCode = updatedPathfinderHonor.StatusCode;
+                targetPathfinderHonor.StatusCode = updatedPathfinderHonor.StatusCode;
 
-            if (updatedPathfinderHonor.Status == HonorStatus.Earned.ToString())
-            {
-                targetPathfinderHonor.Earned = DateTime.UtcNow;
+                if (updatedPathfinderHonor.Status == HonorStatus.Earned.ToString())
+                {
+                    targetPathfinderHonor.Earned = DateTime.UtcNow;
+                }
+
+                await _dbContext.SaveChangesAsync(token);
+                _logger.LogInformation("Updated honor with ID {HonorId} for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
+
+                return _mapper.Map<Outgoing.PathfinderHonorDto>(targetPathfinderHonor);
             }
-
-            await _dbContext.SaveChangesAsync(token);
-
-            return _mapper.Map<Outgoing.PathfinderHonorDto>(targetPathfinderHonor);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating honor with ID {HonorId} for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
+                throw;
+            }
         }
 
         private IQueryable<PathfinderHonor> GetFilteredPathfinderHonors(Guid pathfinderId, Guid honorId, CancellationToken token)
@@ -159,8 +191,8 @@ namespace PathfinderHonorManager.Service
         private async Task<Incoming.PathfinderHonorDto> MapStatus(Guid pathfinderId, dynamic upsertPathfinderHonor, CancellationToken token,
                             Guid honorId = new Guid())
         {
-
-
+            _logger.LogInformation("Mapping status for honor with ID {HonorId} for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
+            
             Enum.TryParse(upsertPathfinderHonor.Status, true, out HonorStatus statusEntity);
 
             try
@@ -169,8 +201,9 @@ namespace PathfinderHonorManager.Service
                     .Where(s => s.Status == statusEntity.ToString())
                     .SingleAsync(token);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Status {Status} not found, using Unknown status", statusEntity.ToString());
                 _honorStatus = new()
                 {
                     Status = "Unknown",
@@ -178,12 +211,10 @@ namespace PathfinderHonorManager.Service
                 };
             }
 
-
             if (honorId == Guid.Empty)
             {
                 honorId = upsertPathfinderHonor.HonorID;
             }
-
 
             Incoming.PathfinderHonorDto mappedPathfinderHonor = new()
             {
