@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Dto.Incoming;
+using System;
 using System.Text.RegularExpressions;
 
 namespace PathfinderHonorManager.Validators
@@ -26,7 +27,7 @@ namespace PathfinderHonorManager.Validators
             RuleFor(c => c.ClubCode)
                 .NotEmpty()
                 .Length(4, 20)
-                .Matches(new Regex("^[A-Z0-9]+$"))
+                .Matches(new Regex("^[A-Z0-9]+$", RegexOptions.None, TimeSpan.FromMilliseconds(100)))
                 .WithMessage("Club code must be between 4 and 20 characters and contain only uppercase letters and numbers.");
 
             RuleSet(
