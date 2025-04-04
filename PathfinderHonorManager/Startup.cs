@@ -120,7 +120,8 @@ namespace PathfinderHonorManager
             });
             services
                 .AddDbContext<PathfinderContext>(options =>
-                    options.UseNpgsql(Configuration.GetConnectionString("PathfinderCS")));
+                    options.UseNpgsql(Configuration.GetConnectionString("PathfinderCS"), 
+                        npgsqlOptions => npgsqlOptions.CommandTimeout(30)));
             services
                 .AddAutoMapper(typeof(AutoMapperConfig));
             services
