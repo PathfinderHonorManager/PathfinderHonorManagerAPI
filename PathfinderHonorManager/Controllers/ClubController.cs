@@ -88,7 +88,7 @@ namespace PathfinderHonorManager.Controllers
         /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "GetClubById")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
             _logger.LogInformation("Getting club with ID {ClubId}", id);
@@ -115,7 +115,7 @@ namespace PathfinderHonorManager.Controllers
             try
             {
                 var createdClub = await _clubService.CreateAsync(club, token);
-                return CreatedAtAction(nameof(GetByIdAsync), new { id = createdClub.ClubID }, createdClub);
+                return CreatedAtRoute("GetClubById", new { id = createdClub.ClubID }, createdClub);
             }
             catch (FluentValidation.ValidationException ex)
             {
