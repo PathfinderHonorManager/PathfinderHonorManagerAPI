@@ -56,7 +56,14 @@ namespace PathfinderHonorManager
 
             if (!Environment.IsDevelopment())
             {
-                services.AddApplicationInsightsTelemetry();
+                services.AddApplicationInsightsTelemetry(options =>
+                {
+                    options.EnableAdaptiveSampling = false;
+                    options.EnableQuickPulseMetricStream = true;
+                    options.EnablePerformanceCounterCollectionModule = true;
+                    options.EnableDependencyTrackingTelemetryModule = true;
+                    options.EnableRequestTrackingTelemetryModule = true;
+                });
             }
 
             services.AddAuthorization(options =>
