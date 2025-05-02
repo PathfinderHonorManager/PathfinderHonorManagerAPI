@@ -34,10 +34,12 @@ namespace PathfinderHonorManager
                         options.FileName = "azure-diagnostics-";
                         options.FileSizeLimit = 50 * 1024;
                         options.RetainedFileCountLimit = 5;
+                        options.OutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message}{NewLine}{Exception}";
                     })
                 .Configure<AzureBlobLoggerOptions>(options =>
                 {
                     options.BlobName = "log.txt";
+                    options.OutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message}{NewLine}{Exception}";
                 }));
     }
 }
