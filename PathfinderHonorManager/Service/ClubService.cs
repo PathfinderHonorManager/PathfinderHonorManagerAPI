@@ -12,18 +12,16 @@ using PathfinderHonorManager.Service.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
+using PathfinderHonorManager.Validators;
 
 namespace PathfinderHonorManager.Service
 {
     public class ClubService : IClubService
     {
         private readonly PathfinderContext _dbContext;
-
         private readonly IMapper _mapper;
-
         private readonly ILogger _logger;
-
-        private readonly IValidator<Incoming.ClubDto> _validator;
+        private readonly ClubValidator _validator;
 
         public ClubService(
             PathfinderContext context,
@@ -34,7 +32,7 @@ namespace PathfinderHonorManager.Service
             _dbContext = context;
             _mapper = mapper;
             _logger = logger;
-            _validator = validator;
+            _validator = (ClubValidator)validator;
         }
 
         public async Task<ICollection<Outgoing.ClubDto>> GetAllAsync(CancellationToken token)
@@ -92,6 +90,7 @@ namespace PathfinderHonorManager.Service
 
             try
             {
+                _validator.SetExcludeClubId(null);
                 await _validator.ValidateAsync(club, options => options.ThrowOnFailures().IncludeRuleSets("post"), token);
 
                 var entity = _mapper.Map<Club>(club);
@@ -125,6 +124,7 @@ namespace PathfinderHonorManager.Service
 
                 if (entity.ClubCode != club.ClubCode)
                 {
+                    _validator.SetExcludeClubId(id);
                     await _validator.ValidateAsync(club, options => options.ThrowOnFailures().IncludeRuleSets("post"), token);
                 }
 
