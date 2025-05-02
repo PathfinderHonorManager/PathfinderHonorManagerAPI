@@ -23,14 +23,18 @@ namespace PathfinderHonorManager.Service
 
         private readonly ILogger _logger;
 
+        private readonly IValidator<Incoming.ClubDto> _validator;
+
         public ClubService(
             PathfinderContext context,
             IMapper mapper,
-            ILogger<ClubService> logger)
+            ILogger<ClubService> logger,
+            IValidator<Incoming.ClubDto> validator)
         {
             _dbContext = context;
             _mapper = mapper;
             _logger = logger;
+            _validator = validator;
         }
 
         public async Task<ICollection<Outgoing.ClubDto>> GetAllAsync(CancellationToken token)
@@ -88,6 +92,8 @@ namespace PathfinderHonorManager.Service
 
             try
             {
+                await _validator.ValidateAsync(club, options => options.ThrowOnFailures().IncludeRuleSets("post"), token);
+
                 var entity = _mapper.Map<Club>(club);
                 await _dbContext.Clubs.AddAsync(entity, token);
                 await _dbContext.SaveChangesAsync(token);
@@ -115,6 +121,11 @@ namespace PathfinderHonorManager.Service
                 {
                     _logger.LogWarning("Club with ID {ClubId} not found", id);
                     return default;
+                }
+
+                if (entity.ClubCode != club.ClubCode)
+                {
+                    await _validator.ValidateAsync(club, options => options.ThrowOnFailures().IncludeRuleSets("post"), token);
                 }
 
                 _mapper.Map(club, entity);
