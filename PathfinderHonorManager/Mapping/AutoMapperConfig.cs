@@ -55,6 +55,7 @@ namespace PathfinderHonorManager.Mapping
         private void RegisterClubMappings()
         {
             CreateMap<Club, Outgoing.ClubDto>();
+            CreateMap<Incoming.ClubDto, Club>();
         }
 
         private void RegisterPathfinderHonorMappings()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
+using Incoming = PathfinderHonorManager.Dto.Incoming;
 
 namespace PathfinderHonorManager.Service.Interfaces
 {
@@ -17,6 +18,15 @@ namespace PathfinderHonorManager.Service.Interfaces
             CancellationToken token);
 
         Task<ICollection<Outgoing.ClubDto>> GetAllAsync(
+            CancellationToken token);
+
+        Task<Outgoing.ClubDto> CreateAsync(
+            Incoming.ClubDto club,
+            CancellationToken token);
+
+        Task<Outgoing.ClubDto> UpdateAsync(
+            Guid id,
+            Incoming.ClubDto club,
             CancellationToken token);
     }
 }

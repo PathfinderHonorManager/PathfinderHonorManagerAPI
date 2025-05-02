@@ -9,6 +9,9 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Linq;
+using PathfinderHonorManager.Dto.Incoming;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace PathfinderHonorManager.Controllers
 {
@@ -19,15 +22,20 @@ namespace PathfinderHonorManager.Controllers
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public class ClubsController : ControllerBase
+    public class ClubsController : CustomApiController
     {
         private readonly IClubService _clubService;
         private readonly ILogger<ClubsController> _logger;
+        private readonly IValidator<ClubDto> _validator;
 
-        public ClubsController(IClubService clubService, ILogger<ClubsController> logger)
+        public ClubsController(
+            IClubService clubService, 
+            ILogger<ClubsController> logger,
+            IValidator<ClubDto> validator)
         {
             _clubService = clubService;
             _logger = logger;
+            _validator = validator;
         }
 
         // GET Clubs
@@ -80,7 +88,7 @@ namespace PathfinderHonorManager.Controllers
         /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "GetClubById")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
             _logger.LogInformation("Getting club with ID {ClubId}", id);
@@ -94,6 +102,55 @@ namespace PathfinderHonorManager.Controllers
 
             _logger.LogInformation("Retrieved club with ID {ClubId}", id);
             return Ok(club);
+        }
+
+        [Authorize("CreateClubs")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost]
+        public async Task<IActionResult> CreateAsync([FromBody] ClubDto club, CancellationToken token)
+        {
+            _logger.LogInformation("Creating new club with code {ClubCode}", club.ClubCode);
+
+            try
+            {
+                var createdClub = await _clubService.CreateAsync(club, token);
+                return CreatedAtRoute("GetClubById", new { id = createdClub.ClubID }, createdClub);
+            }
+            catch (FluentValidation.ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed while creating club with code {ClubCode}", club.ClubCode);
+                UpdateModelState(ex);
+                return ValidationProblem(ModelState);
+            }
+        }
+
+        [Authorize("UpdateClubs")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] ClubDto club, CancellationToken token)
+        {
+            _logger.LogInformation("Updating club with ID {ClubId}", id);
+
+            try
+            {
+                var updatedClub = await _clubService.UpdateAsync(id, club, token);
+                if (updatedClub == default)
+                {
+                    _logger.LogWarning("Club with ID {ClubId} not found for update", id);
+                    return NotFound();
+                }
+
+                return Ok(updatedClub);
+            }
+            catch (FluentValidation.ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed while updating club with ID {ClubId}", id);
+                UpdateModelState(ex);
+                return ValidationProblem(ModelState);
+            }
         }
     }
 }
