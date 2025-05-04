@@ -44,13 +44,19 @@ jobs:
           mkdir -p ./.sonar/scanner
           dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
 
-      - name: Run SonarQube analysis
+      - name: SonarQube begin analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./.sonar/scanner/dotnet-sonarscanner begin /k:"PathfinderHonorManager_PathfinderHonorManagerAPI" /o:"pathfinderhonormanager" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="PathfinderHonorManager.Tests/TestResults/coverage.opencover.xml"
-          dotnet build
-          ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Build solution (SonarQube)
+        run: dotnet build --no-incremental
+
+      - name: SonarQube end analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   test:
     name: Test
@@ -59,6 +65,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup-dotnet
+
+      - name: Build solution
+        run: dotnet build --no-incremental
 
       - name: Test with the dotnet CLI (OpenCover)
         run: dotnet test PathfinderHonorManager.Tests/PathfinderHonorManager.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover
