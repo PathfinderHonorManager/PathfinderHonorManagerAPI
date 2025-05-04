@@ -42,12 +42,12 @@ namespace PathfinderHonorManager.Service
             return query;
         }
 
-        private IQueryable<Pathfinder> QueryPathfinderByIdAsync(Guid pathfinderId, string clubCode)
+        private IQueryable<Pathfinder> QueryPathfinderByIdAsync(Guid pathfinderId)
         {
             return _dbContext.Pathfinders
                 .Include(pc => pc.PathfinderClass)
-                 .Include(c => c.Club)
-                .Where(c => c.Club.ClubCode == clubCode && c.PathfinderID == pathfinderId);
+                .Include(c => c.Club)
+                .Where(p => p.PathfinderID == pathfinderId);
         }
 
         public PathfinderService(
@@ -144,18 +144,19 @@ namespace PathfinderHonorManager.Service
         {
             _logger.LogInformation("Updating pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
             
-            Pathfinder targetPathfinder = await QueryPathfinderByIdAsync(pathfinderId, clubCode)
+            Pathfinder targetPathfinder = await QueryPathfinderByIdAsync(pathfinderId)
                                         .SingleOrDefaultAsync(token);
-
-            var club = await _clubService.GetByCodeAsync(clubCode, token);
-            if (club == null)
-            {
-                _logger.LogWarning("Club with code {ClubCode} not found while updating pathfinder {PathfinderId}", clubCode, pathfinderId);
-            }
 
             if (targetPathfinder == default)
             {
-                _logger.LogWarning("Pathfinder with ID {PathfinderId} not found for club {ClubCode}", pathfinderId, clubCode);
+                _logger.LogWarning("Pathfinder with ID {PathfinderId} not found", pathfinderId);
+                return default;
+            }
+
+            var currentClub = await _clubService.GetByCodeAsync(clubCode, token);
+            if (currentClub == null)
+            {
+                _logger.LogWarning("Current club with code {ClubCode} not found while updating pathfinder {PathfinderId}", clubCode, pathfinderId);
                 return default;
             }
 
@@ -168,12 +169,13 @@ namespace PathfinderHonorManager.Service
                     Email = targetPathfinder.Email,
                     Grade = updatedPathfinder.Grade,
                     IsActive = updatedPathfinder.IsActive,
-                    ClubID = club.ClubID
+                    ClubID = updatedPathfinder.ClubID ?? targetPathfinder.ClubID
                 };
 
                 await _validator.ValidateAsync(
                     mappedPathfinder,
-                    opts => opts.ThrowOnFailures(),
+                    opts => opts.ThrowOnFailures()
+                              .IncludeRuleSets("update"),
                     token);
 
                 if (mappedPathfinder.Grade != null)
@@ -188,6 +190,11 @@ namespace PathfinderHonorManager.Service
                 if (mappedPathfinder.IsActive.HasValue)
                 {
                     targetPathfinder.IsActive = mappedPathfinder.IsActive;
+                }
+
+                if (updatedPathfinder.ClubID.HasValue)
+                {
+                    targetPathfinder.ClubID = updatedPathfinder.ClubID.Value;
                 }
 
                 await _dbContext.SaveChangesAsync(token);
@@ -217,7 +224,7 @@ namespace PathfinderHonorManager.Service
                 {
                     try
                     {
-                        var targetPathfinder = await QueryPathfinderByIdAsync(item.PathfinderId, clubCode)
+                        var targetPathfinder = await QueryPathfinderByIdAsync(item.PathfinderId)
                                             .SingleOrDefaultAsync(token);
 
                         if (targetPathfinder != null)

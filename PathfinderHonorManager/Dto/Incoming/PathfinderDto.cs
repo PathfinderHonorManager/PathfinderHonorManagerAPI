@@ -31,6 +31,8 @@ namespace PathfinderHonorManager.Dto.Incoming
         public int? Grade { get; set; }
 
         public bool? IsActive { get; set; }
+
+        public Guid? ClubID { get; set; }
     }
 
     public class BulkPutPathfinderDto
