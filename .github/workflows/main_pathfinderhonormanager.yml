@@ -21,7 +21,7 @@ jobs:
       - name: Build solution
         run: dotnet build --no-incremental
       - name: Test with the dotnet CLI (OpenCover)
-        run: dotnet test PathfinderHonorManager.Tests/PathfinderHonorManager.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover /p:Exclude="[PathfinderHonorManager]*Startup;[PathfinderHonorManager]*Program;[PathfinderHonorManager]*Dto*"
+        run: dotnet test PathfinderHonorManager.Tests/PathfinderHonorManager.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
@@ -104,7 +104,7 @@ jobs:
 
   # Build job that depends on quality checks
   build:
-    needs: [sonar, test, analyze]
+    needs: [analyze, test, sonar]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

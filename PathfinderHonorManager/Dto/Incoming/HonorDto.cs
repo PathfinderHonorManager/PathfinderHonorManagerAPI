@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PathfinderHonorManager.Dto.Incoming
 {
+    [ExcludeFromCodeCoverage]
     public class HonorDto
     {
         [Required]

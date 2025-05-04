@@ -1,9 +1,11 @@
 ﻿using System;
 using Newtonsoft.Json;
 using PathfinderHonorManager.Converters;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PathfinderHonorManager.Dto.Outgoing
 {
+    [ExcludeFromCodeCoverage]
     public class PathfinderAchievementDto
     {
         public Guid PathfinderAchievementID { get; set; }
