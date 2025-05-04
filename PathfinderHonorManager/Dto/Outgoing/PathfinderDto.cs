@@ -3,10 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: ExcludeFromCodeCoverage]
-
 namespace PathfinderHonorManager.Dto.Outgoing
 {
+    [ExcludeFromCodeCoverage]
     public class PathfinderDto
     {
         public Guid PathfinderID { get; set; }
@@ -28,6 +27,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
         public DateTime Updated { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class PathfinderDependantDto
     {
         public Guid PathfinderID { get; set; }

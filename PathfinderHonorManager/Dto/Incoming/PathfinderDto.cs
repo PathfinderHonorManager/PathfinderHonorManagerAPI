@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: ExcludeFromCodeCoverage]
-
 namespace PathfinderHonorManager.Dto.Incoming
 {
+    [ExcludeFromCodeCoverage]
     public class PathfinderDto
     {
         [Required]
@@ -24,11 +23,13 @@ namespace PathfinderHonorManager.Dto.Incoming
 
     }
 
+    [ExcludeFromCodeCoverage]
     public class PathfinderDtoInternal : PathfinderDto
     {
         public Guid? ClubID { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class PutPathfinderDto
     {
         public int? Grade { get; set; }
@@ -38,12 +39,14 @@ namespace PathfinderHonorManager.Dto.Incoming
         public Guid? ClubID { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class BulkPutPathfinderDto
     {
         [Required]
         public IEnumerable<BulkPutPathfinderItemDto> Items { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class BulkPutPathfinderItemDto
     {
         [Required]

@@ -3,10 +3,9 @@ using System.Text.Json.Serialization;
 using PathfinderHonorManager.Converters;
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: ExcludeFromCodeCoverage]
-
 namespace PathfinderHonorManager.Dto.Outgoing
 {
+    [ExcludeFromCodeCoverage]
     public class PathfinderHonorDto
     {
         public Guid PathfinderHonorID { get; set; }

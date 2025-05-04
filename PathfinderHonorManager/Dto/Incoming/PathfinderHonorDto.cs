@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: ExcludeFromCodeCoverage]
-
 namespace PathfinderHonorManager.Dto.Incoming
 {
+    [ExcludeFromCodeCoverage]
     public class PathfinderHonorDto
     {
         [Required]
@@ -20,6 +19,7 @@ namespace PathfinderHonorManager.Dto.Incoming
         public string Status { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class PostPathfinderHonorDto
     {
         [Required]
@@ -29,6 +29,7 @@ namespace PathfinderHonorManager.Dto.Incoming
         public string Status { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class BulkPostPathfinderHonorDto
     {
         [Required]
@@ -38,6 +39,7 @@ namespace PathfinderHonorManager.Dto.Incoming
         public IEnumerable<PostPathfinderHonorDto> Honors { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class PutPathfinderHonorDto
     {
         [Required]
@@ -46,6 +48,7 @@ namespace PathfinderHonorManager.Dto.Incoming
         public Guid HonorID { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class BulkPutPathfinderHonorDto
     {
         [Required]

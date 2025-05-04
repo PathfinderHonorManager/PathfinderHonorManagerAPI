@@ -6,10 +6,9 @@ using Microsoft.Extensions.Logging.AzureAppServices;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: ExcludeFromCodeCoverage]
-
 namespace PathfinderHonorManager
 {
+    [ExcludeFromCodeCoverage]
     public static class Program
     {
         public static void Main(string[] args)

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: ExcludeFromCodeCoverage]
-
 namespace PathfinderHonorManager.Dto.Outgoing
 {
+    [ExcludeFromCodeCoverage]
     public class HonorDto
     {
         public Guid HonorID { get; set; }

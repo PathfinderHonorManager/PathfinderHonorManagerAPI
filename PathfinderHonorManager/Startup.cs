@@ -26,10 +26,9 @@ using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Validators;
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: ExcludeFromCodeCoverage]
-
 namespace PathfinderHonorManager
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
