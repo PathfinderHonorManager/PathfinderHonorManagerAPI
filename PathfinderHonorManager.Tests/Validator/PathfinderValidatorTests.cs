@@ -271,6 +271,90 @@ namespace PathfinderHonorManager.Tests.Validator
             validationResult.ShouldHaveValidationErrorFor(p => p.ClubID);
         }
 
+        [Test]
+        public async Task Validate_InvalidClubId_ValidationError()
+        {
+            using (var context = new PathfinderContext(ContextOptions))
+            {
+                var newPathfinder = new Incoming.PathfinderDtoInternal
+                {
+                    FirstName = "Test",
+                    LastName = "User",
+                    Email = "test@example.com",
+                    ClubID = Guid.NewGuid()
+                };
+
+                var validationResult = await _pathfinderValidator
+                    .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("update"));
+
+                validationResult.ShouldHaveValidationErrorFor(p => p.ClubID)
+                    .WithErrorMessage("New club ID must be valid if provided");
+            }
+        }
+
+        [Test]
+        public async Task Validate_ValidClubIdInUpdate_ShouldPass()
+        {
+            using (var context = new PathfinderContext(ContextOptions))
+            {
+                var club = new Club
+                {
+                    ClubID = Guid.NewGuid(),
+                    Name = "Test Club",
+                    ClubCode = "TEST"
+                };
+                await context.Clubs.AddAsync(club);
+                await context.SaveChangesAsync();
+
+                var newPathfinder = new Incoming.PathfinderDtoInternal
+                {
+                    FirstName = "Test",
+                    LastName = "User",
+                    Email = "test@example.com",
+                    ClubID = club.ClubID
+                };
+
+                var validationResult = await _pathfinderValidator
+                    .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("update"));
+
+                validationResult.ShouldNotHaveValidationErrorFor(p => p.ClubID);
+            }
+        }
+
+        [Test]
+        public async Task Validate_NullClubId_ShouldPass()
+        {
+            var newPathfinder = new Incoming.PathfinderDtoInternal
+            {
+                FirstName = "Test",
+                LastName = "User",
+                Email = "test@example.com",
+                ClubID = null
+            };
+
+            var validationResult = await _pathfinderValidator
+                .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("update"));
+
+            validationResult.ShouldNotHaveValidationErrorFor(p => p.ClubID);
+        }
+
+        [Test]
+        public async Task Validate_EmptyGuidClubId_ShouldPass()
+        {
+            var newPathfinder = new Incoming.PathfinderDtoInternal
+            {
+                FirstName = "Test",
+                LastName = "User",
+                Email = "test@example.com",
+                ClubID = Guid.Empty
+            };
+
+            var validationResult = await _pathfinderValidator
+                .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("update"));
+
+            validationResult.ShouldNotHaveValidationErrorFor(p => p.ClubID);
+        }
+
         public static void SeedDatabase(PathfinderContext context)
         {
             context.Database.EnsureDeleted();
