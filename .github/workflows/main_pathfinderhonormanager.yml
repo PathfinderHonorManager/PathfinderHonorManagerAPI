@@ -61,7 +61,7 @@ jobs:
       - uses: ./.github/actions/setup-dotnet
 
       - name: Test with the dotnet CLI (OpenCover)
-        run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=PathfinderHonorManager.Tests/TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover
+        run: dotnet test PathfinderHonorManager.Tests/PathfinderHonorManager.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
