@@ -60,8 +60,11 @@ jobs:
 
       - uses: ./.github/actions/setup-dotnet
 
-      - name: Test with the dotnet CLI (OpenCover & Cobertura)
-        run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage /p:CoverletOutputFormat="opencover,cobertura"
+      - name: Test with the dotnet CLI (OpenCover)
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover
+
+      - name: Test with the dotnet CLI (Cobertura)
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.cobertura.xml /p:CoverletOutputFormat=cobertura
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
