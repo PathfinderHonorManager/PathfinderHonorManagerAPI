@@ -136,7 +136,7 @@ namespace PathfinderHonorManager.Service
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding pathfinder for club {ClubCode}", clubCode);
-                throw;
+                throw new InvalidOperationException($"Failed to add pathfinder for club {clubCode}", ex);
             }
         }
 
@@ -205,7 +205,7 @@ namespace PathfinderHonorManager.Service
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
-                throw;
+                throw new InvalidOperationException($"Failed to update pathfinder {pathfinderId} for club {clubCode}", ex);
             }
         }
 
@@ -253,7 +253,7 @@ namespace PathfinderHonorManager.Service
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error updating pathfinder with ID {PathfinderId} during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
-                        throw;
+                        throw new InvalidOperationException($"Failed to update pathfinder {item.PathfinderId} during bulk update for club {clubCode}", ex);
                     }
                 }
             }
