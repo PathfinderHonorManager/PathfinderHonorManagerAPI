@@ -63,20 +63,11 @@ jobs:
       - name: Test with the dotnet CLI (OpenCover)
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover
 
-      - name: Test with the dotnet CLI (Cobertura)
-        run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.cobertura.xml /p:CoverletOutputFormat=cobertura
-
-      - name: Upload coverage reports
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
-          path: TestResults
-
-      - name: Publish Code Coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: TestResults/coverage.cobertura.xml
-          fail_ci_if_error: false
+          name: coverage-report
+          path: TestResults/coverage.opencover.xml
 
   analyze:
     name: Analyze
