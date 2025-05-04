@@ -48,7 +48,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./.sonar/scanner/dotnet-sonarscanner begin /k:"PathfinderHonorManager_PathfinderHonorManagerAPI" /o:"pathfinderhonormanager" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:"PathfinderHonorManager_PathfinderHonorManagerAPI" /o:"pathfinderhonormanager" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="TestResults/coverage.opencover.xml"
           dotnet build
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
@@ -60,21 +60,21 @@ jobs:
 
       - uses: ./.github/actions/setup-dotnet
 
-      - name: Test with the dotnet CLI
-        run: dotnet test --collect:"XPlat Code Coverage" --results-directory:"TestResults"
+      - name: Test with the dotnet CLI (OpenCover & Cobertura)
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage /p:CoverletOutputFormat="opencover,cobertura"
 
-      - name: Upload coverage report
+      - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: coverage-reports
           path: TestResults
 
-      - name: Publish Code Coverage
+      - name: Publish Code Coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: TestResults/**/*.coverage.xml
+          files: TestResults/coverage.cobertura.xml
           fail_ci_if_error: false
-  
+
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
