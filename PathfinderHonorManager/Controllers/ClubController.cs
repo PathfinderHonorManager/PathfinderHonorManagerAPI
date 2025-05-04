@@ -26,16 +26,13 @@ namespace PathfinderHonorManager.Controllers
     {
         private readonly IClubService _clubService;
         private readonly ILogger<ClubsController> _logger;
-        private readonly IValidator<ClubDto> _validator;
 
         public ClubsController(
             IClubService clubService, 
-            ILogger<ClubsController> logger,
-            IValidator<ClubDto> validator)
+            ILogger<ClubsController> logger)
         {
             _clubService = clubService;
             _logger = logger;
-            _validator = validator;
         }
 
         // GET Clubs
