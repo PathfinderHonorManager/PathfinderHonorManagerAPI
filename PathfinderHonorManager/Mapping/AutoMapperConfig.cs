@@ -6,9 +6,11 @@ using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Model.Enum;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 using Outgoing = PathfinderHonorManager.Dto.Outgoing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PathfinderHonorManager.Mapping
 {
+    [ExcludeFromCodeCoverage]
     public class AutoMapperConfig : Profile
     {
         public AutoMapperConfig()

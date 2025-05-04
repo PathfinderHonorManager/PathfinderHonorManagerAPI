@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PathfinderHonorManager.Model;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PathfinderHonorManager.DataAccess
 {
+    [ExcludeFromCodeCoverage]
     public class PathfinderContext : DbContext
     {
         public PathfinderContext(DbContextOptions<PathfinderContext> options)
