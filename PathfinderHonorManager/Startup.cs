@@ -24,6 +24,9 @@ using PathfinderHonorManager.Mapping;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Validators;
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: ExcludeFromCodeCoverage]
 
 namespace PathfinderHonorManager
 {

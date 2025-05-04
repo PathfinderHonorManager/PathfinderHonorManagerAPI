@@ -1,6 +1,9 @@
 ﻿using System;
 using Newtonsoft.Json;
 using PathfinderHonorManager.Converters;
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: ExcludeFromCodeCoverage]
 
 namespace PathfinderHonorManager.Dto.Outgoing
 {

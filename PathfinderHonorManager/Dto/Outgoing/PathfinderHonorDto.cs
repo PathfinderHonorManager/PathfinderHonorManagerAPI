@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 using PathfinderHonorManager.Converters;
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: ExcludeFromCodeCoverage]
 
 namespace PathfinderHonorManager.Dto.Outgoing
 {
