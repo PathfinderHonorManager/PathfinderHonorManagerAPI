@@ -185,8 +185,6 @@ namespace PathfinderHonorManager
                 c.OAuthScopes("openid profile email");
             });
 
-            // Commented out HTTPS redirection because Azure Healthcheck only uses HTTP and doesn't like 307
-            // app.UseHttpsRedirection();
             app.UseHttpLogging();
 
             app.UseRouting();
