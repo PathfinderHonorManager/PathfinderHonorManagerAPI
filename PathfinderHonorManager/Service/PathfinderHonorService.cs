@@ -132,8 +132,8 @@ namespace PathfinderHonorManager.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding honor for pathfinder with ID {PathfinderId} and honor name {HonorName}", pathfinderId, incomingPathfinderHonor.HonorName);
-                throw new InvalidOperationException($"Failed to add honor for pathfinder with ID {pathfinderId} and honor name {incomingPathfinderHonor.HonorName}", ex);
+                _logger.LogError(ex, "Error adding honor for pathfinder with ID {PathfinderId}", pathfinderId);
+                throw new InvalidOperationException($"Failed to add honor for pathfinder with ID {pathfinderId}", ex);
             }
         }
 
