@@ -143,14 +143,13 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task TearDown()
         {
             await DatabaseCleaner.CleanDatabase(_dbContext);
-            _dbContext.Dispose();
+            await _dbContext.DisposeAsync();
         }
 
-
         [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public async Task OneTimeTearDown()
         {
-            _dbContext.Dispose();
+            await _dbContext.DisposeAsync();
         }
     }
 }

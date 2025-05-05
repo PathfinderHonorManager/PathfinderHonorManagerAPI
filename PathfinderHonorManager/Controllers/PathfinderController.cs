@@ -61,7 +61,7 @@ namespace PathfinderHonorManager.Controllers
                 return NotFound();
             }
 
-            _logger.LogInformation("Retrieved {Count} pathfinders for club {ClubCode}", pathfinders.Count(), clubCode);
+            _logger.LogInformation("Retrieved {Count} pathfinders for club {ClubCode}", pathfinders.Count, clubCode);
             return Ok(pathfinders);
         }
 

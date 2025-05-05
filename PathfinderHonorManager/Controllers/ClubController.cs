@@ -57,7 +57,7 @@ namespace PathfinderHonorManager.Controllers
                     return NotFound();
                 }
 
-                _logger.LogInformation("Retrieved {Count} clubs", clubs.Count());
+                _logger.LogInformation("Retrieved {Count} clubs", clubs.Count);
                 return Ok(clubs);
             }
             else

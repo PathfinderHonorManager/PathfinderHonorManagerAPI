@@ -123,7 +123,13 @@ namespace PathfinderHonorManager.Tests.Controllers
         public async Task TearDown()
         {
             await DatabaseCleaner.CleanDatabase(_dbContext);
-            _dbContext.Dispose();
+            await _dbContext.DisposeAsync();
+        }
+
+        [OneTimeTearDown]
+        public async Task OneTimeTearDown()
+        {
+            await _dbContext.DisposeAsync();
         }
     }
 } 

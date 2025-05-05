@@ -36,7 +36,7 @@ namespace PathfinderHonorManager.Validators
                 });
         }
 
-        private bool IsValidUri(Uri uri)
+        private static bool IsValidUri(Uri uri)
         {
             return Uri.TryCreate(uri.ToString(), UriKind.Absolute, out Uri result)
                 && (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);

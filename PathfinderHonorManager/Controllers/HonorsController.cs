@@ -51,7 +51,7 @@ namespace PathfinderHonorManager.Controllers
                 return NotFound();
             }
 
-            _logger.LogInformation("Retrieved {Count} honors", honors.Count());
+            _logger.LogInformation("Retrieved {Count} honors", honors.Count);
             return Ok(honors);
         }
 
