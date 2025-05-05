@@ -189,8 +189,6 @@ namespace PathfinderHonorManager
 
             app.UseRouting();
 
-            // app.UseCors("AllowSpecificOrigin");
-
             app.UseAuthentication();
             app.UseAuthorization();
 

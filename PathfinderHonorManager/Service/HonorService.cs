@@ -89,10 +89,14 @@ namespace PathfinderHonorManager.Service
 
                 return _mapper.Map<Outgoing.HonorDto>(honor);
             }
+            catch (ValidationException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding honor");
-                throw;
+                _logger.LogError(ex, "Error adding honor with name {HonorName}", newHonor.Name);
+                throw new InvalidOperationException($"Failed to add honor with name {newHonor.Name}", ex);
             }
         }
 
@@ -121,10 +125,14 @@ namespace PathfinderHonorManager.Service
 
                 return _mapper.Map<Outgoing.HonorDto>(existingHonor);
             }
+            catch (ValidationException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating honor with ID {HonorId}", id);
-                throw;
+                _logger.LogError(ex, "Error updating honor with ID {HonorId} and name {HonorName}", id, updatedHonor.Name);
+                throw new InvalidOperationException($"Failed to update honor with ID {id} and name {updatedHonor.Name}", ex);
             }
         }
 

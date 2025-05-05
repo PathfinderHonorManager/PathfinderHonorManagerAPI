@@ -133,7 +133,7 @@ namespace PathfinderHonorManager.Service
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding honor for pathfinder with ID {PathfinderId}", pathfinderId);
-                throw;
+                throw new InvalidOperationException($"Failed to add honor for pathfinder with ID {pathfinderId}", ex);
             }
         }
 
@@ -176,8 +176,8 @@ namespace PathfinderHonorManager.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating honor with ID {HonorId} for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
-                throw;
+                _logger.LogError(ex, "Error updating honor with ID {HonorId} for pathfinder with ID {PathfinderId} and status {Status}", honorId, pathfinderId, incomingPathfinderHonor.Status);
+                throw new InvalidOperationException($"Failed to update honor with ID {honorId} for pathfinder with ID {pathfinderId} and status {incomingPathfinderHonor.Status}", ex);
             }
         }
 
