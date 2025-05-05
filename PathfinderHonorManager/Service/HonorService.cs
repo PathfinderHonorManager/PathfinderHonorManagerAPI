@@ -89,6 +89,10 @@ namespace PathfinderHonorManager.Service
 
                 return _mapper.Map<Outgoing.HonorDto>(honor);
             }
+            catch (ValidationException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding honor with name {HonorName}", newHonor.Name);
@@ -120,6 +124,10 @@ namespace PathfinderHonorManager.Service
                 _logger.LogInformation("Updated honor with ID {HonorId}", id);
 
                 return _mapper.Map<Outgoing.HonorDto>(existingHonor);
+            }
+            catch (ValidationException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
