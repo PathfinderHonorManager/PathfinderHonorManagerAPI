@@ -77,7 +77,7 @@ namespace PathfinderHonorManager.Tests.Service
         {
             // Arrange
             var token = new CancellationToken();
-            var expectedHonor = _honors.First();
+            var expectedHonor = _honors[0];
 
             // Act
             var result = await _honorService.GetByIdAsync(expectedHonor.HonorID, token);
@@ -135,7 +135,7 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public async Task AddAsync_WithValidationError_ThrowsValidationException()
+        public void AddAsync_WithValidationError_ThrowsValidationException()
         {
             // Arrange
             var token = new CancellationToken();
@@ -148,8 +148,8 @@ namespace PathfinderHonorManager.Tests.Service
             };
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
-                await _honorService.AddAsync(newHonor, token));
+            var ex = Assert.ThrowsAsync<ValidationException>(() =>
+                _honorService.AddAsync(newHonor, token));
             Assert.That(ex.Message, Does.Contain("'Name' must not be empty"));
         }
 
@@ -158,7 +158,7 @@ namespace PathfinderHonorManager.Tests.Service
         {
             // Arrange
             var token = new CancellationToken();
-            var existingHonor = await _dbContext.Honors.AsNoTracking().FirstAsync(token);
+            var existingHonor = _honors[0];
             var updatedHonor = new Incoming.HonorDto
             {
                 Name = "Updated Honor Name",
@@ -217,11 +217,11 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public async Task UpdateAsync_WithValidationError_ThrowsValidationException()
+        public void UpdateAsync_WithValidationError_ThrowsValidationException()
         {
             // Arrange
             var token = new CancellationToken();
-            var existingHonor = _honors.First();
+            var existingHonor = _honors[0];
             var updatedHonor = new Incoming.HonorDto
             {
                 Name = string.Empty, // Invalid - name is required
@@ -231,8 +231,8 @@ namespace PathfinderHonorManager.Tests.Service
             };
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
-                await _honorService.UpdateAsync(existingHonor.HonorID, updatedHonor, token));
+            var ex = Assert.ThrowsAsync<ValidationException>(() =>
+                _honorService.UpdateAsync(existingHonor.HonorID, updatedHonor, token));
             Assert.That(ex.Message, Does.Contain("'Name' must not be empty"));
         }
 
@@ -240,13 +240,13 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task TearDown()
         {
             await DatabaseCleaner.CleanDatabase(_dbContext);
-            _dbContext.Dispose();
+            await _dbContext.DisposeAsync();
         }
 
         [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public async Task OneTimeTearDown()
         {
-            _dbContext.Dispose();
+            await _dbContext.DisposeAsync();
         }
     }
 } 

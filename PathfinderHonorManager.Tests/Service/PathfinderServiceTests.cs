@@ -28,13 +28,11 @@ namespace PathfinderHonorManager.Tests.Service
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
 
-        private PathfinderService _pathfinderService;
+        private readonly PathfinderService _pathfinderService;
         private PathfinderContext _dbContext;
 
-        private Mock<IClubService> _clubServiceMock;
+        private readonly Mock<IClubService> _clubServiceMock;
         private List<Pathfinder> _pathfinders;
-        private List<Club> _clubs;
-        private List<Honor> _honors;
         private List<PathfinderHonor> _pathfinderHonors;
         private List<PathfinderAchievement> _pathfinderAchievements;
         private PathfinderSelectorHelper _pathfinderSelectorHelper;
@@ -72,15 +70,12 @@ namespace PathfinderHonorManager.Tests.Service
         {
             await DatabaseSeeder.SeedDatabase(SharedContextOptions);
             _dbContext = new PathfinderContext(SharedContextOptions);
-            _clubs = await _dbContext.Clubs.ToListAsync();
             _pathfinders = await _dbContext.Pathfinders.ToListAsync();
-            _honors = await _dbContext.Honors.ToListAsync();
             _pathfinderHonors = await _dbContext.PathfinderHonors.ToListAsync();
             _pathfinderAchievements = await _dbContext.PathfinderAchievements
                                                 .Include(a => a.Achievement)
                                                 .ToListAsync();
             _pathfinderSelectorHelper = new PathfinderSelectorHelper(_pathfinders, _pathfinderHonors);
-
         }
 
         [Test]
@@ -93,12 +88,12 @@ namespace PathfinderHonorManager.Tests.Service
             int expectedCount;
             if (showInactive)
             {
-                expectedCount = _pathfinders.Count();
+                expectedCount = _pathfinders.Count;
             }
             else
             {
                 expectedCount = _pathfinders.Count(p => p.IsActive == true);
-            };
+            }
             // Act
             var result = await _pathfinderService.GetAllAsync(clubCode, showInactive, cancellationToken);
 
@@ -184,7 +179,7 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task GetPathfinderAchievementDetailsAsync_ReturnsAccurateCounts(string clubCode)
         {
             // Arrange
-            var pathfinder = _pathfinders.First();
+            var pathfinder = _pathfinders[0];
             var expectedAssignedBasicAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 1); 
             var expectedCompletedBasicAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 1 && pa.IsAchieved);
             var expectedAssignedAdvancedAchievementCount = _pathfinderAchievements.Count(pa => pa.PathfinderID == pathfinder.PathfinderID && pa.Achievement.Grade == pathfinder.Grade && pa.Achievement.Level == 2);
@@ -233,18 +228,18 @@ namespace PathfinderHonorManager.Tests.Service
             // Arrange
             var cancellationToken = new CancellationToken();
             var bulkData = new List<Incoming.BulkPutPathfinderDto>();
-            var pathfinderIds = _pathfinderSelectorHelper.SelectUniquePathfinderIds(3);
 
             // Act
             var results = await _pathfinderService.BulkUpdateAsync(bulkData, clubCode, cancellationToken);
 
             // Assert
-            Assert.That(results, Is.Not.Null);
             Assert.That(results, Has.Count.EqualTo(bulkData.Count));
+            var resultsList = results.ToList();
+            var bulkDataItems = bulkData.Select(b => b.Items.First()).ToList();
             for (int i = 0; i < bulkData.Count; i++)
             {
-                Assert.That(results.ElementAt(i).PathfinderID, Is.EqualTo(bulkData.ElementAt(i).Items.First().PathfinderId));
-                Assert.That(results.ElementAt(i).Grade, Is.EqualTo(bulkData.ElementAt(i).Items.First().Grade));
+                Assert.That(resultsList[i].PathfinderID, Is.EqualTo(bulkDataItems[i].PathfinderId));
+                Assert.That(resultsList[i].Grade, Is.EqualTo(bulkDataItems[i].Grade));
             }
 
             // Verify that the changes were persisted in the database
@@ -460,13 +455,13 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task TearDown()
         {
             await DatabaseCleaner.CleanDatabase(_dbContext);
-            _dbContext.Dispose();
+            await _dbContext.DisposeAsync();
         }
 
         [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public async Task OneTimeTearDown()
         {
-            _dbContext.Dispose();
+            await _dbContext.DisposeAsync();
         }
     }
 }
