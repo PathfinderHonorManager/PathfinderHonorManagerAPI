@@ -259,6 +259,203 @@ namespace PathfinderHonorManager.Tests.Service
             }
         }
 
+        [Test]
+        public async Task UpdateAsync_WithValidData_ReturnsUpdatedPathfinder()
+        {
+            // Arrange
+            var token = new CancellationToken();
+            var pathfinder = _pathfinders.First(p => p.IsActive == true);
+            var updatedPathfinder = new Incoming.PutPathfinderDto
+            {
+                Grade = 8,
+                IsActive = true
+            };
+
+            // Act
+            var result = await _pathfinderService.UpdateAsync(pathfinder.PathfinderID, updatedPathfinder, "VALIDCLUBCODE", token);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.PathfinderID, Is.EqualTo(pathfinder.PathfinderID));
+            Assert.That(result.Grade, Is.EqualTo(updatedPathfinder.Grade));
+            Assert.That(result.IsActive, Is.EqualTo(updatedPathfinder.IsActive));
+            Assert.That(result.FirstName, Is.EqualTo(pathfinder.FirstName));
+            Assert.That(result.LastName, Is.EqualTo(pathfinder.LastName));
+            Assert.That(result.Email, Is.EqualTo(pathfinder.Email));
+
+            // Verify database update
+            var dbPathfinder = await _dbContext.Pathfinders.AsNoTracking().FirstOrDefaultAsync(p => p.PathfinderID == pathfinder.PathfinderID);
+            Assert.That(dbPathfinder, Is.Not.Null);
+            Assert.That(dbPathfinder.Grade, Is.EqualTo(updatedPathfinder.Grade));
+            Assert.That(dbPathfinder.IsActive, Is.EqualTo(updatedPathfinder.IsActive));
+            Assert.That(dbPathfinder.FirstName, Is.EqualTo(pathfinder.FirstName));
+            Assert.That(dbPathfinder.LastName, Is.EqualTo(pathfinder.LastName));
+            Assert.That(dbPathfinder.Email, Is.EqualTo(pathfinder.Email));
+        }
+
+        [Test]
+        public async Task UpdateAsync_WithInvalidId_ReturnsNull()
+        {
+            // Arrange
+            var token = new CancellationToken();
+            var invalidId = Guid.NewGuid();
+            var updatedPathfinder = new Incoming.PutPathfinderDto
+            {
+                Grade = 8,
+                IsActive = true
+            };
+
+            // Act
+            var result = await _pathfinderService.UpdateAsync(invalidId, updatedPathfinder, "VALIDCLUBCODE", token);
+
+            // Assert
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public async Task UpdateAsync_WithInvalidClubCode_ReturnsNull()
+        {
+            // Arrange
+            var token = new CancellationToken();
+            var pathfinder = _pathfinders.First(p => p.IsActive == true);
+            var updatedPathfinder = new Incoming.PutPathfinderDto
+            {
+                Grade = 8,
+                IsActive = true
+            };
+
+            // Act
+            var result = await _pathfinderService.UpdateAsync(pathfinder.PathfinderID, updatedPathfinder, "INVALIDCLUBCODE", token);
+
+            // Assert
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public async Task BulkUpdateAsync_WithValidData_ReturnsUpdatedPathfinders()
+        {
+            // Arrange
+            var token = new CancellationToken();
+            var pathfinders = _pathfinders.Where(p => p.IsActive == true).Take(2).ToList();
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = pathfinders.Select(p => new Incoming.BulkPutPathfinderItemDto
+                    {
+                        PathfinderId = p.PathfinderID,
+                        Grade = 8,
+                        IsActive = true
+                    }).ToList()
+                }
+            };
+
+            // Act
+            var result = await _pathfinderService.BulkUpdateAsync(bulkData, "VALIDCLUBCODE", token);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(pathfinders.Count));
+            foreach (var updatedPathfinder in result)
+            {
+                var originalPathfinder = pathfinders.First(p => p.PathfinderID == updatedPathfinder.PathfinderID);
+                Assert.That(updatedPathfinder.Grade, Is.EqualTo(8));
+                Assert.That(updatedPathfinder.IsActive, Is.EqualTo(true));
+                Assert.That(updatedPathfinder.FirstName, Is.EqualTo(originalPathfinder.FirstName));
+                Assert.That(updatedPathfinder.LastName, Is.EqualTo(originalPathfinder.LastName));
+                Assert.That(updatedPathfinder.Email, Is.EqualTo(originalPathfinder.Email));
+            }
+
+            // Verify database updates
+            foreach (var pathfinder in pathfinders)
+            {
+                var dbPathfinder = await _dbContext.Pathfinders.AsNoTracking().FirstOrDefaultAsync(p => p.PathfinderID == pathfinder.PathfinderID);
+                Assert.That(dbPathfinder, Is.Not.Null);
+                Assert.That(dbPathfinder.Grade, Is.EqualTo(8));
+                Assert.That(dbPathfinder.IsActive, Is.EqualTo(true));
+                Assert.That(dbPathfinder.FirstName, Is.EqualTo(pathfinder.FirstName));
+                Assert.That(dbPathfinder.LastName, Is.EqualTo(pathfinder.LastName));
+                Assert.That(dbPathfinder.Email, Is.EqualTo(pathfinder.Email));
+            }
+        }
+
+        [Test]
+        public async Task BulkUpdateAsync_WithInvalidIds_ReturnsEmptyList()
+        {
+            // Arrange
+            var token = new CancellationToken();
+            var invalidId = Guid.NewGuid();
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = new List<Incoming.BulkPutPathfinderItemDto>
+                    {
+                        new Incoming.BulkPutPathfinderItemDto
+                        {
+                            PathfinderId = invalidId,
+                            Grade = 8,
+                            IsActive = true
+                        }
+                    }
+                }
+            };
+
+            // Act
+            var result = await _pathfinderService.BulkUpdateAsync(bulkData, "VALIDCLUBCODE", token);
+
+            // Assert
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        public async Task BulkUpdateAsync_WithInvalidClubCode_SavesChanges()
+        {
+            // Arrange
+            var token = new CancellationToken();
+            var pathfinders = _pathfinders.Where(p => p.IsActive == true).Take(2).ToList();
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = pathfinders.Select(p => new Incoming.BulkPutPathfinderItemDto
+                    {
+                        PathfinderId = p.PathfinderID,
+                        Grade = 8,
+                        IsActive = true
+                    }).ToList()
+                }
+            };
+
+            // Act
+            var result = await _pathfinderService.BulkUpdateAsync(bulkData, "INVALIDCLUBCODE", token);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(pathfinders.Count));
+            foreach (var updatedPathfinder in result)
+            {
+                var originalPathfinder = pathfinders.First(p => p.PathfinderID == updatedPathfinder.PathfinderID);
+                Assert.That(updatedPathfinder.Grade, Is.EqualTo(8));
+                Assert.That(updatedPathfinder.IsActive, Is.EqualTo(true));
+                Assert.That(updatedPathfinder.FirstName, Is.EqualTo(originalPathfinder.FirstName));
+                Assert.That(updatedPathfinder.LastName, Is.EqualTo(originalPathfinder.LastName));
+                Assert.That(updatedPathfinder.Email, Is.EqualTo(originalPathfinder.Email));
+            }
+
+            // Verify database updates
+            foreach (var pathfinder in pathfinders)
+            {
+                var dbPathfinder = await _dbContext.Pathfinders.AsNoTracking().FirstOrDefaultAsync(p => p.PathfinderID == pathfinder.PathfinderID);
+                Assert.That(dbPathfinder, Is.Not.Null);
+                Assert.That(dbPathfinder.Grade, Is.EqualTo(8));
+                Assert.That(dbPathfinder.IsActive, Is.EqualTo(true));
+                Assert.That(dbPathfinder.FirstName, Is.EqualTo(pathfinder.FirstName));
+                Assert.That(dbPathfinder.LastName, Is.EqualTo(pathfinder.LastName));
+                Assert.That(dbPathfinder.Email, Is.EqualTo(pathfinder.Email));
+            }
+        }
+
         [TearDown]
         public async Task TearDown()
         {
