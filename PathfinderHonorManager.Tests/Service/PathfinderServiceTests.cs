@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
@@ -449,6 +450,75 @@ namespace PathfinderHonorManager.Tests.Service
                 Assert.That(dbPathfinder.LastName, Is.EqualTo(pathfinder.LastName));
                 Assert.That(dbPathfinder.Email, Is.EqualTo(pathfinder.Email));
             }
+        }
+
+        [Test]
+        public void AddAsync_WithValidationException_ThrowsValidationException()
+        {
+            var newPathfinderDto = new Incoming.PathfinderDto
+            {
+                FirstName = "Test",
+                LastName = "User",
+                Email = "test@example.com",
+                Grade = 5
+            };
+
+            var validationErrors = new List<ValidationFailure>
+            {
+                new ValidationFailure("Email", "Pathfinder email address (test@example.com) is taken.")
+            };
+            var validationException = new ValidationException(validationErrors);
+
+            var validatorMock = new Mock<IValidator<Incoming.PathfinderDtoInternal>>();
+            validatorMock
+                .Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<Incoming.PathfinderDtoInternal>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(validationException);
+
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            var logger = NullLogger<PathfinderService>.Instance;
+            
+            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validatorMock.Object, logger);
+
+            var ex = Assert.ThrowsAsync<ValidationException>(
+                async () => await pathfinderService.AddAsync(newPathfinderDto, "VALIDCLUBCODE", CancellationToken.None));
+
+            Assert.That(ex.Errors.First().PropertyName, Is.EqualTo("Email"));
+            Assert.That(ex.Errors.First().ErrorMessage, Is.EqualTo("Pathfinder email address (test@example.com) is taken."));
+        }
+
+        [Test]
+        public void UpdateAsync_WithValidationException_ThrowsValidationException()
+        {
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var updatePathfinderDto = new Incoming.PutPathfinderDto
+            {
+                Grade = 15,
+                IsActive = true
+            };
+
+            var validationErrors = new List<ValidationFailure>
+            {
+                new ValidationFailure("Grade", "Grade must be between 5 and 12.")
+            };
+            var validationException = new ValidationException(validationErrors);
+
+            var validatorMock = new Mock<IValidator<Incoming.PathfinderDtoInternal>>();
+            validatorMock
+                .Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<Incoming.PathfinderDtoInternal>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(validationException);
+
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            var logger = NullLogger<PathfinderService>.Instance;
+            
+            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validatorMock.Object, logger);
+
+            var ex = Assert.ThrowsAsync<ValidationException>(
+                async () => await pathfinderService.UpdateAsync(pathfinderId, updatePathfinderDto, "VALIDCLUBCODE", CancellationToken.None));
+
+            Assert.That(ex.Errors.First().PropertyName, Is.EqualTo("Grade"));
+            Assert.That(ex.Errors.First().ErrorMessage, Is.EqualTo("Grade must be between 5 and 12."));
         }
 
         [TearDown]

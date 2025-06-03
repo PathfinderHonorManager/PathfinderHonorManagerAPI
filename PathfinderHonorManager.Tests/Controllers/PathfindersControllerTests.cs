@@ -132,21 +132,24 @@ namespace PathfinderHonorManager.Tests.Controllers
         }
 
         [Test]
-        public async Task Post_WithValidData_ReturnsCreatedResult()
+        public async Task Post_WithValidData_ReturnsCreatedAtRouteWithCorrectRouteValues()
         {
             var newPathfinder = new Incoming.PathfinderDto
             {
                 FirstName = "Test",
                 LastName = "User",
+                Email = "test@example.com",
                 Grade = 5,
                 IsActive = true
             };
 
+            var createdPathfinderId = Guid.NewGuid();
             var createdPathfinder = new Outgoing.PathfinderDto
             {
-                PathfinderID = Guid.NewGuid(),
+                PathfinderID = createdPathfinderId,
                 FirstName = "Test",
                 LastName = "User",
+                Email = "test@example.com",
                 Grade = 5,
                 IsActive = true
             };
@@ -159,30 +162,44 @@ namespace PathfinderHonorManager.Tests.Controllers
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.InstanceOf<CreatedAtRouteResult>());
+            
             var createdResult = result as CreatedAtRouteResult;
             Assert.That(createdResult.Value, Is.EqualTo(createdPathfinder));
+            Assert.That(createdResult.RouteName, Is.EqualTo("GetPathfinderById"));
+            Assert.That(createdResult.RouteValues, Is.Not.Null);
+            Assert.That(createdResult.RouteValues["id"], Is.EqualTo(createdPathfinderId));
         }
 
         [Test]
-        public async Task Post_WithValidationError_ReturnsValidationProblem()
+        public async Task Post_WithValidationException_Returns400BadRequest()
         {
             var newPathfinder = new Incoming.PathfinderDto
             {
                 FirstName = "Test",
                 LastName = "User",
-                Grade = 0,
+                Email = "duplicate@example.com",
+                Grade = 5,
                 IsActive = true
             };
 
+            var validationErrors = new List<FluentValidation.Results.ValidationFailure>
+            {
+                new FluentValidation.Results.ValidationFailure("Email", "Pathfinder email address (duplicate@example.com) is taken.")
+            };
+            var validationException = new ValidationException(validationErrors);
+
             _pathfinderServiceMock
                 .Setup(x => x.AddAsync(newPathfinder, TestClubCode, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new ValidationException("Validation failed"));
+                .ThrowsAsync(validationException);
 
             var result = await _controller.PostAsync(newPathfinder, new CancellationToken());
 
             Assert.That(result, Is.InstanceOf<ObjectResult>());
             var badRequestResult = result as ObjectResult;
             Assert.That(badRequestResult.Value, Is.InstanceOf<ValidationProblemDetails>());
+            
+            var validationProblem = badRequestResult.Value as ValidationProblemDetails;
+            Assert.That(validationProblem.Errors, Contains.Key("Email"));
         }
 
         [Test]
@@ -258,24 +275,33 @@ namespace PathfinderHonorManager.Tests.Controllers
         }
 
         [Test]
-        public async Task Put_WithValidationError_ReturnsValidationProblem()
+        public async Task Put_WithValidationException_Returns400BadRequest()
         {
             var pathfinderId = Guid.NewGuid();
             var updatePathfinder = new Incoming.PutPathfinderDto
             {
-                Grade = 0,
+                Grade = 15,
                 IsActive = true
             };
 
+            var validationErrors = new List<FluentValidation.Results.ValidationFailure>
+            {
+                new FluentValidation.Results.ValidationFailure("Grade", "Grade must be between 5 and 12.")
+            };
+            var validationException = new ValidationException(validationErrors);
+
             _pathfinderServiceMock
                 .Setup(x => x.UpdateAsync(pathfinderId, updatePathfinder, TestClubCode, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new ValidationException("Validation failed"));
+                .ThrowsAsync(validationException);
 
             var result = await _controller.PutAsync(pathfinderId, updatePathfinder, new CancellationToken());
 
             Assert.That(result, Is.InstanceOf<ObjectResult>());
             var badRequestResult = result as ObjectResult;
             Assert.That(badRequestResult.Value, Is.InstanceOf<ValidationProblemDetails>());
+            
+            var validationProblem = badRequestResult.Value as ValidationProblemDetails;
+            Assert.That(validationProblem.Errors, Contains.Key("Grade"));
         }
 
         [Test]
