@@ -64,7 +64,7 @@ namespace PathfinderHonorManager.Controllers
         /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "GetHonorById")]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken token)
         {
             _logger.LogInformation("Getting honor with ID {HonorId}", id);
@@ -100,7 +100,8 @@ namespace PathfinderHonorManager.Controllers
 
                 _logger.LogInformation("Created honor with ID {HonorId}", honor.HonorID);
                 return CreatedAtRoute(
-                    routeValues: GetByIdAsync(honor.HonorID, token),
+                    "GetHonorById",
+                    new { id = honor.HonorID },
                     honor);
             }
             catch (FluentValidation.ValidationException ex)

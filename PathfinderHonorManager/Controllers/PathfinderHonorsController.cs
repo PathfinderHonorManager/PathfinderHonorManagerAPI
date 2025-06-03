@@ -116,7 +116,8 @@ namespace PathfinderHonorManager.Controllers
                 var pathfinderHonor = await _pathfinderHonorService.AddAsync(pathfinderId, newPathfinderHonor, token);
 
                 return CreatedAtRoute(
-                    routeValues: GetByIdAsync(pathfinderHonor.PathfinderID, pathfinderHonor.HonorID, token),
+                    "GetPathfinderHonorById",
+                    new { pathfinderId = pathfinderHonor.PathfinderID, honorId = pathfinderHonor.HonorID },
                     pathfinderHonor);
             }
             catch (FluentValidation.ValidationException ex)

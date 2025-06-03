@@ -133,6 +133,10 @@ namespace PathfinderHonorManager.Service
 
                 return _mapper.Map<Outgoing.PathfinderDto>(createdPathfinder);
             }
+            catch (FluentValidation.ValidationException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding pathfinder for club {ClubCode}", clubCode);
@@ -202,6 +206,10 @@ namespace PathfinderHonorManager.Service
 
                 return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);
             }
+            catch (FluentValidation.ValidationException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
@@ -249,6 +257,10 @@ namespace PathfinderHonorManager.Service
                         {
                             _logger.LogWarning("Pathfinder with ID {PathfinderId} not found during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
                         }
+                    }
+                    catch (FluentValidation.ValidationException)
+                    {
+                        throw;
                     }
                     catch (Exception ex)
                     {

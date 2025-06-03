@@ -114,7 +114,8 @@ namespace PathfinderHonorManager.Controllers
 
                 _logger.LogInformation("Created pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinder.PathfinderID, clubCode);
                 return CreatedAtRoute(
-                    routeValues: GetByIdAsync(pathfinder.PathfinderID, token),
+                    "GetPathfinderById",
+                    new { id = pathfinder.PathfinderID },
                     pathfinder);
             }
             catch (FluentValidation.ValidationException ex)
