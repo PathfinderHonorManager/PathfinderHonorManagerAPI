@@ -160,7 +160,7 @@ namespace PathfinderHonorManager.Tests.Controllers
         }
 
         [Test]
-        public async Task Post_WithValidData_ReturnsCreatedResult()
+        public async Task Post_WithValidData_ReturnsCreatedAtRouteWithCorrectRouteValues()
         {
             var pathfinderId = Guid.NewGuid();
             var honorId = Guid.NewGuid();
@@ -185,8 +185,13 @@ namespace PathfinderHonorManager.Tests.Controllers
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.InstanceOf<CreatedAtRouteResult>());
+            
             var createdResult = result as CreatedAtRouteResult;
             Assert.That(createdResult.Value, Is.EqualTo(createdHonor));
+            Assert.That(createdResult.RouteName, Is.EqualTo("GetPathfinderHonorById"));
+            Assert.That(createdResult.RouteValues, Is.Not.Null);
+            Assert.That(createdResult.RouteValues["pathfinderId"], Is.EqualTo(pathfinderId));
+            Assert.That(createdResult.RouteValues["honorId"], Is.EqualTo(honorId));
         }
 
         [Test]

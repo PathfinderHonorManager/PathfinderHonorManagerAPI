@@ -134,7 +134,7 @@ namespace PathfinderHonorManager.Tests.Controllers
         }
 
         [Test]
-        public async Task Post_WithValidData_ReturnsCreatedResult()
+        public async Task Post_WithValidData_ReturnsCreatedAtRouteWithCorrectRouteValues()
         {
             var newHonor = new Incoming.HonorDto
             {
@@ -144,9 +144,10 @@ namespace PathfinderHonorManager.Tests.Controllers
                 WikiPath = new Uri("https://example.com")
             };
 
+            var createdHonorId = Guid.NewGuid();
             var createdHonor = new Outgoing.HonorDto
             {
-                HonorID = Guid.NewGuid(),
+                HonorID = createdHonorId,
                 Name = "Test Honor",
                 Level = 1,
                 PatchFilename = "test.png",
@@ -161,8 +162,12 @@ namespace PathfinderHonorManager.Tests.Controllers
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Result, Is.InstanceOf<CreatedAtRouteResult>());
+            
             var createdResult = result.Result as CreatedAtRouteResult;
             Assert.That(createdResult.Value, Is.EqualTo(createdHonor));
+            Assert.That(createdResult.RouteName, Is.EqualTo("GetHonorById"));
+            Assert.That(createdResult.RouteValues, Is.Not.Null);
+            Assert.That(createdResult.RouteValues["id"], Is.EqualTo(createdHonorId));
         }
 
         [Test]
