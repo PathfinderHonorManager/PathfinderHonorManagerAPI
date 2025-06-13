@@ -13,6 +13,9 @@ using PathfinderHonorManager.Mapping;
 using PathfinderHonorManager.Model;
 using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Tests.Helpers;
+using FluentValidation;
+using Moq;
+using PathfinderHonorManager.Validators;
 
 namespace PathfinderHonorManager.Tests.Service
 {
@@ -31,6 +34,7 @@ namespace PathfinderHonorManager.Tests.Service
         private List<PathfinderHonor> _pathfinderHonors;
         private PathfinderSelectorHelper _pathfinderSelectorHelper;
 
+        private Mock<IValidator<PathfinderHonorDto>> _validatorMock;
 
         public PathfinderHonorServiceTests()
         {
@@ -55,9 +59,9 @@ namespace PathfinderHonorManager.Tests.Service
 
             var logger = new NullLogger<PathfinderHonorService>();
 
-            var validator = new DummyValidator<PathfinderHonorDto>();
+            _validatorMock = new Mock<IValidator<PathfinderHonorDto>>();
 
-            _pathfinderHonorService = new PathfinderHonorService(_dbContext, mapper, validator, logger);
+            _pathfinderHonorService = new PathfinderHonorService(_dbContext, mapper, _validatorMock.Object, logger);
 
         }
 
@@ -137,6 +141,95 @@ namespace PathfinderHonorManager.Tests.Service
             Assert.That(result.PathfinderID, Is.EqualTo(pathfinderId));
             Assert.That(result.HonorID, Is.EqualTo(_honors[honorIndex].HonorID));
             Assert.That(result.Status, Is.EqualTo(honorStatus).IgnoreCase);
+        }
+
+        [Test]
+        public async Task AddAsync_WithDuplicateHonor_ThrowsValidationException()
+        {
+            var pathfinderId = Guid.NewGuid();
+            var honorId = Guid.NewGuid();
+            var newHonor = new PostPathfinderHonorDto
+            {
+                HonorID = honorId,
+                Status = "Planned"
+            };
+
+            using (var context = new PathfinderContext(SharedContextOptions))
+            {
+                var existingHonor = new PathfinderHonor
+                {
+                    PathfinderID = pathfinderId,
+                    HonorID = honorId,
+                    StatusCode = 1,
+                    Created = DateTime.UtcNow
+                };
+                await context.PathfinderHonors.AddAsync(existingHonor);
+                await context.SaveChangesAsync();
+
+                var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+                var mapper = mapperConfiguration.CreateMapper();
+                var logger = new NullLogger<PathfinderHonorService>();
+                var validator = new PathfinderHonorValidator(context);
+                var service = new PathfinderHonorService(context, mapper, validator, logger);
+
+                var exception = Assert.ThrowsAsync<FluentValidation.ValidationException>(() => 
+                    service.AddAsync(pathfinderId, newHonor, CancellationToken.None));
+
+                Assert.That(exception.Errors.First().ErrorMessage, Is.EqualTo($"Pathfinder {pathfinderId} already has honor {honorId}."));
+            }
+        }
+
+        [Test]
+        public async Task UpdateAsync_WithInvalidStatus_ThrowsValidationException()
+        {
+            var pathfinderId = Guid.NewGuid();
+            var honorId = Guid.NewGuid();
+            var updateHonor = new PutPathfinderHonorDto
+            {
+                Status = "InvalidStatus"
+            };
+
+            using (var context = new PathfinderContext(SharedContextOptions))
+            {
+                // Ensure only valid statuses are present
+                context.PathfinderHonorStatuses.RemoveRange(context.PathfinderHonorStatuses);
+                await context.SaveChangesAsync();
+                await context.PathfinderHonorStatuses.AddRangeAsync(
+                    new Model.PathfinderHonorStatus { Status = "Planned", StatusCode = 1 },
+                    new Model.PathfinderHonorStatus { Status = "Earned", StatusCode = 2 },
+                    new Model.PathfinderHonorStatus { Status = "Awarded", StatusCode = 3 }
+                );
+                await context.SaveChangesAsync();
+
+                var existingHonor = new PathfinderHonor
+                {
+                    PathfinderID = pathfinderId,
+                    HonorID = honorId,
+                    StatusCode = 1,
+                    Created = DateTime.UtcNow
+                };
+                await context.PathfinderHonors.AddAsync(existingHonor);
+                await context.SaveChangesAsync();
+
+                var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+                var mapper = mapperConfiguration.CreateMapper();
+                var logger = new NullLogger<PathfinderHonorService>();
+                var validator = new PathfinderHonorValidator(context);
+                var service = new PathfinderHonorService(context, mapper, validator, logger);
+
+                // Map the status as the service would
+                var mapStatusMethod = service.GetType().GetMethod("MapStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var mapStatusTask = (System.Threading.Tasks.Task<PathfinderHonorDto>)mapStatusMethod.Invoke(service, new object[] { pathfinderId, updateHonor, default(CancellationToken), honorId });
+                var mappedDto = await mapStatusTask;
+
+                var validationException = Assert.ThrowsAsync<FluentValidation.ValidationException>(async () =>
+                    await validator.ValidateAsync(
+                        mappedDto,
+                        opts => opts.ThrowOnFailures().IncludeRulesNotInRuleSet(),
+                        CancellationToken.None));
+
+                Assert.That(validationException.Errors.First().ErrorMessage, Is.EqualTo("Honor status Unknown is invalid. Valid statuses are: Planned, Earned, Awarded."));
+            }
         }
 
         [TearDown]

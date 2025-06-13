@@ -237,6 +237,38 @@ namespace PathfinderHonorManager.Tests.Controllers
         }
 
         [Test]
+        public async Task Post_WithDuplicateHonor_ReturnsValidationProblem()
+        {
+            var pathfinderId = Guid.NewGuid();
+            var honorId = Guid.NewGuid();
+            var newHonor = new Incoming.PostPathfinderHonorDto
+            {
+                HonorID = honorId,
+                Status = "planned"
+            };
+
+            var validationErrors = new List<FluentValidation.Results.ValidationFailure>
+            {
+                new FluentValidation.Results.ValidationFailure("HonorID", $"Pathfinder {pathfinderId} already has honor {honorId}.")
+            };
+            var validationException = new FluentValidation.ValidationException(validationErrors);
+
+            _pathfinderHonorServiceMock
+                .Setup(x => x.AddAsync(pathfinderId, newHonor, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(validationException);
+
+            var result = await _controller.PostAsync(pathfinderId, newHonor, new CancellationToken());
+
+            Assert.That(result, Is.InstanceOf<ObjectResult>());
+            var objectResult = result as ObjectResult;
+            Assert.That(objectResult.Value, Is.InstanceOf<ValidationProblemDetails>());
+            
+            var validationProblem = objectResult.Value as ValidationProblemDetails;
+            Assert.That(validationProblem.Errors, Contains.Key("HonorID"));
+            Assert.That(validationProblem.Errors["HonorID"], Contains.Item($"Pathfinder {pathfinderId} already has honor {honorId}."));
+        }
+
+        [Test]
         public async Task BulkPost_WithValidData_ReturnsMultiStatus()
         {
             var pathfinderId = Guid.NewGuid();

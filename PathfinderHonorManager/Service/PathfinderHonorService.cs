@@ -130,6 +130,14 @@ namespace PathfinderHonorManager.Service
 
                 return _mapper.Map<Outgoing.PathfinderHonorDto>(createdEntity);
             }
+            catch (FluentValidation.ValidationException)
+            {
+                throw;
+            }
+            catch (DbUpdateException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding honor for pathfinder with ID {PathfinderId}", pathfinderId);
@@ -173,6 +181,14 @@ namespace PathfinderHonorManager.Service
                 _logger.LogInformation("Updated honor with ID {HonorId} for pathfinder with ID {PathfinderId}", honorId, pathfinderId);
 
                 return _mapper.Map<Outgoing.PathfinderHonorDto>(targetPathfinderHonor);
+            }
+            catch (FluentValidation.ValidationException)
+            {
+                throw;
+            }
+            catch (DbUpdateException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
