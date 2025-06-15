@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PathfinderHonorManager.Controllers
 {
+    [ExcludeFromCodeCoverage]
     public abstract class CustomApiController : Controller
     {
         [NonAction]

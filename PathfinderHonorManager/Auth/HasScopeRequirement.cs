@@ -1,8 +1,10 @@
 using System;
 using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PathfinderHonorManager.Auth
 {
+    [ExcludeFromCodeCoverage]
     public class HasScopeRequirement : IAuthorizationRequirement
     {
         public string Issuer { get; }

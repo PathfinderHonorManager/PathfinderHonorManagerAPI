@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PathfinderHonorManager.Swagger
 {
+    [ExcludeFromCodeCoverage]
     public class HealthCheckEndpointFilter : IDocumentFilter
     {
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
