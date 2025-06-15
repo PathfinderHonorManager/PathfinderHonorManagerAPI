@@ -33,18 +33,9 @@
   <ItemGroup>
     <None Remove="FluentValidation.DependencyInjectionExtensions" />
     <None Remove="StrykerOutput\2023-03-20.19-48-01\" />
-    <None Update="appsettings.Development.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="StrykerOutput\2023-03-20.19-48-01\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="..\PathfinderHonorManager\appsettings.Development.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 </Project>

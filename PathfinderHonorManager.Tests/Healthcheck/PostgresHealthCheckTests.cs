@@ -2,30 +2,28 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NUnit.Framework;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Healthcheck;
+using PathfinderHonorManager.Tests.Helpers;
 
 namespace PathfinderHonorManager.Tests.Healthcheck
 {
     [TestFixture]
     public class PostgresHealthCheckTests
     {
-        private string _connectionString;
         private DbContextOptions<PathfinderContext> _dbContextOptions;
 
         [SetUp]
         public void SetUp()
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.Development.json")
-                .Build();
-            _connectionString = config.GetConnectionString("PathfinderCS");
             _dbContextOptions = new DbContextOptionsBuilder<PathfinderContext>()
-                .UseNpgsql(_connectionString)
+                .UseInMemoryDatabase(databaseName: "TestDb")
                 .Options;
+            using var dbContext = new PathfinderContext(_dbContextOptions);
+            DatabaseCleaner.CleanDatabase(dbContext).Wait();
+            DatabaseSeeder.SeedDatabase(_dbContextOptions).Wait();
         }
 
         [Test]
@@ -37,7 +35,7 @@ namespace PathfinderHonorManager.Tests.Healthcheck
             {
                 Registration = new HealthCheckRegistration("test", healthCheck, HealthStatus.Unhealthy, null)
             };
-            var result = await healthCheck.CheckHealthAsync(context, CancellationToken.None);
+            var result = await healthCheck.CheckHealthAsync(context, System.Threading.CancellationToken.None);
             Assert.That(result.Status, Is.EqualTo(HealthStatus.Healthy));
         }
 
