@@ -30,6 +30,7 @@ namespace PathfinderHonorManager.Tests
         public async Task SetUp()
         {
             var context = new PathfinderContext(ContextOptions);
+            await DatabaseCleaner.CleanDatabase(context);
             _achievementValidator = new PathfinderAchievementValidator(context);
             await SeedDatabase(context);
         }
