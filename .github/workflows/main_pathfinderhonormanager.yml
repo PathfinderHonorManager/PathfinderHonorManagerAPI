@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-dotnet
-      - name: Build solution
+      - name: Build solution (Debug)
         run: dotnet build --no-incremental
       - name: Test with the dotnet CLI (OpenCover)
         run: dotnet test PathfinderHonorManager.Tests/PathfinderHonorManager.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover /p:Exclude="[PathfinderHonorManager.Tests*]*"
@@ -65,7 +65,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./.sonar/scanner/dotnet-sonarscanner begin /k:"PathfinderHonorManager_PathfinderHonorManagerAPI" /o:"pathfinderhonormanager" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml"
-      - name: Build solution (SonarQube)
+      - name: Build solution (for SonarQube)
         run: dotnet build --no-incremental
       - name: SonarQube end analysis
         env:
@@ -74,15 +74,13 @@ jobs:
 
   build:
     needs: [sonar, test]
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./.github/actions/setup-dotnet
-
-      - name: Build with dotnet
+      - name: Build with dotnet (Release)
         run: dotnet build --configuration Release
-
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
       
@@ -100,7 +98,6 @@ jobs:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
 
-  # Deployment job that only runs on main
   deploy:
     needs: build
     runs-on: ubuntu-latest
