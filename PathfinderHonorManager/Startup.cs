@@ -25,6 +25,7 @@ using PathfinderHonorManager.Service;
 using PathfinderHonorManager.Service.Interfaces;
 using PathfinderHonorManager.Validators;
 using System.Diagnostics.CodeAnalysis;
+using PathfinderHonorManager.Swagger;
 
 namespace PathfinderHonorManager
 {
@@ -120,12 +121,13 @@ namespace PathfinderHonorManager
                 {
                     {
                         new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-                    },
-                    new[] { Configuration["AzureAD:ApiScope"] }
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
+                        },
+                        new[] { Configuration["AzureAD:ApiScope"] }
                     }
                 });
+                c.DocumentFilter<HealthCheckEndpointFilter>();
             });
             services
                 .AddDbContext<PathfinderContext>(options =>
@@ -156,11 +158,10 @@ namespace PathfinderHonorManager
 
                 });
             services.AddHealthChecks()
-                .AddCheck(
-                "PathfinderDB-check",
-                new PostgresHealthCheck(Configuration.GetConnectionString("PathfinderCS")),
-                HealthStatus.Unhealthy,
-                new string[] { "pathfinderdb" });
+                .AddCheck<PostgresHealthCheck>(
+                    "PathfinderDB-check",
+                    failureStatus: HealthStatus.Unhealthy,
+                    tags: new[] { "pathfinderdb" });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

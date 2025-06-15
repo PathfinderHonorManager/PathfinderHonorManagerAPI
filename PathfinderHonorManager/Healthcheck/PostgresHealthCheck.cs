@@ -1,54 +1,32 @@
 ﻿using System;
-using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Npgsql;
+using PathfinderHonorManager.DataAccess;
 
 namespace PathfinderHonorManager.Healthcheck
 {
     public class PostgresHealthCheck : IHealthCheck
     {
-        private const string DefaultTestQuery = "Select 1";
+        private readonly PathfinderContext _dbContext;
 
-        public string ConnectionString { get; }
-
-        public string TestQuery { get; }
-
-        public PostgresHealthCheck(string connectionString)
-            : this(connectionString, testQuery: DefaultTestQuery)
+        public PostgresHealthCheck(PathfinderContext dbContext)
         {
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public PostgresHealthCheck(string connectionString, string testQuery)
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-            TestQuery = testQuery;
-        }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var connection = new NpgsqlConnection(ConnectionString))
+            try
             {
-                try
-                {
-                    await connection.OpenAsync(cancellationToken);
-
-                    if (TestQuery != null)
-                    {
-                        var command = connection.CreateCommand();
-                        command.CommandText = TestQuery;
-
-                        await command.ExecuteNonQueryAsync(cancellationToken);
-                    }
-                }
-                catch (DbException ex)
-                {
-                    return new HealthCheckResult(status: context.Registration.FailureStatus, exception: ex);
-                }
+                await _dbContext.Clubs.FirstOrDefaultAsync(cancellationToken);
+                return HealthCheckResult.Healthy();
             }
-
-            return HealthCheckResult.Healthy();
+            catch (Exception ex)
+            {
+                return new HealthCheckResult(status: context.Registration.FailureStatus, exception: ex);
+            }
         }
     }
 }
