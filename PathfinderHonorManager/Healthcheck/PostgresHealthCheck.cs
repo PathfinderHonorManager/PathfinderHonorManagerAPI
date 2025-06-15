@@ -20,7 +20,11 @@ namespace PathfinderHonorManager.Healthcheck
         {
             try
             {
-                await _dbContext.Clubs.FirstOrDefaultAsync(cancellationToken);
+                var club = await _dbContext.Clubs.FirstOrDefaultAsync(cancellationToken);
+                if (club == null)
+                {
+                    return HealthCheckResult.Unhealthy("No clubs found");
+                }
                 return HealthCheckResult.Healthy();
             }
             catch (Exception ex)
