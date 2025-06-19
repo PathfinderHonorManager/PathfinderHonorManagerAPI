@@ -36,13 +36,26 @@ namespace PathfinderHonorManager.Service
             _validator = validator;
         }
 
-        public async Task<ICollection<Outgoing.PathfinderAchievementDto>> GetAllAsync(CancellationToken token)
+        public async Task<ICollection<Outgoing.PathfinderAchievementDto>> GetAllAsync(bool showAllAchievements = false, CancellationToken token = default)
         {
-            _logger.LogInformation("Getting all pathfinder achievements");
-            var achievements = await _dbContext.PathfinderAchievements
+            _logger.LogInformation($"Getting all pathfinder achievements, showAllAchievements: {showAllAchievements}");
+            IQueryable<PathfinderAchievement> query = _dbContext.PathfinderAchievements
                 .Include(a => a.Achievement)
                 .Include(c => c.Achievement.PathfinderClass)
                 .Include(pa => pa.Achievement.Category)
+                .Include(p => p.Pathfinder);
+
+            if (!showAllAchievements)
+            {
+                query = query.Where(pa => pa.Pathfinder.Grade != null && pa.Achievement.Grade == pa.Pathfinder.Grade);
+            }
+
+            var achievements = await query
+                .OrderBy(pa => pa.PathfinderID)
+                .ThenBy(pa => pa.Achievement.Grade)
+                .ThenBy(pa => pa.Achievement.Category.CategorySequenceOrder)
+                .ThenBy(pa => pa.Achievement.Level)
+                .ThenBy(pa => pa.Achievement.AchievementSequenceOrder)
                 .ToListAsync(token);
 
             return _mapper.Map<ICollection<Outgoing.PathfinderAchievementDto>>(achievements);
@@ -53,21 +66,38 @@ namespace PathfinderHonorManager.Service
             _logger.LogInformation($"Getting pathfinder achievement by Pathfinder ID: {pathfinderId} Achievement ID {achievementId}");
             var pathfinderAchievement = await _dbContext.PathfinderAchievements
                 .Include(a => a.Achievement)
+                .Include(a => a.Achievement.Category)
                 .Where(pa => pa.PathfinderID == pathfinderId && pa.AchievementID == achievementId)
                 .SingleOrDefaultAsync(token);
 
             return pathfinderAchievement == null ? null : _mapper.Map<Outgoing.PathfinderAchievementDto>(pathfinderAchievement);
         }
-        public async Task<ICollection<Outgoing.PathfinderAchievementDto>> GetAllAchievementsForPathfinderAsync(Guid pathfinderId, CancellationToken token)
+        public async Task<ICollection<Outgoing.PathfinderAchievementDto>> GetAllAchievementsForPathfinderAsync(Guid pathfinderId, bool showAllAchievements = false, CancellationToken token = default)
         {
-            _logger.LogInformation($"Getting all achievements for Pathfinder ID: {pathfinderId}");
+            _logger.LogInformation($"Getting all achievements for Pathfinder ID: {pathfinderId}, showAllAchievements: {showAllAchievements}");
 
-            var achievements = await _dbContext.PathfinderAchievements
+            IQueryable<PathfinderAchievement> query = _dbContext.PathfinderAchievements
                 .Where(pa => pa.PathfinderID == pathfinderId)
                 .Include(pa => pa.Achievement)
                 .Include(c => c.Achievement.PathfinderClass)
                 .Include(pa => pa.Achievement.Category)
-                .ToListAsync(token);
+                .OrderBy(pa => pa.Achievement.Grade)
+                .ThenBy(pa => pa.Achievement.Category.CategorySequenceOrder)
+                .ThenBy(pa => pa.Achievement.Level)
+                .ThenBy(pa => pa.Achievement.AchievementSequenceOrder);
+
+            if (!showAllAchievements)
+            {
+                var pathfinder = await _dbContext.Pathfinders
+                    .FirstOrDefaultAsync(p => p.PathfinderID == pathfinderId, token);
+
+                if (pathfinder?.Grade != null)
+                {
+                    query = query.Where(pa => pa.Achievement.Grade == pathfinder.Grade);
+                }
+            }
+
+            var achievements = await query.ToListAsync(token);
 
             return _mapper.Map<ICollection<Outgoing.PathfinderAchievementDto>>(achievements);
         }

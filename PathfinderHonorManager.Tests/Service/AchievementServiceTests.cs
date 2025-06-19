@@ -73,6 +73,61 @@ namespace PathfinderHonorManager.Tests.Service
             Assert.That(result.Description, Is.EqualTo(expectedAchievement.Description));
         }
 
+        [TestCase]
+        public async Task GetAllAsync_ReturnsAchievementsWithCategoryInfo()
+        {
+            // Arrange
+            var cancellationToken = new CancellationToken();
+
+            // Act
+            var result = await _achievementService.GetAllAsync(cancellationToken);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<ICollection<AchievementDto>>());
+            Assert.That(result.Count, Is.GreaterThan(0));
+            
+            // Verify that category information is included
+            foreach (var achievement in result)
+            {
+                Assert.That(achievement.CategoryName, Is.Not.Null, "CategoryName should not be null");
+                Assert.That(achievement.CategorySequenceOrder, Is.GreaterThanOrEqualTo(0), "CategorySequenceOrder should be a valid number");
+            }
+        }
+
+        [TestCase]
+        public async Task GetByIdAsync_ReturnsAchievementWithCategoryInfo()
+        {
+            // Arrange
+            var cancellationToken = new CancellationToken();
+            var expectedAchievement = _achievements.First();
+            var expectedId = expectedAchievement.AchievementID;
+
+            // Act
+            var result = await _achievementService.GetByIdAsync(expectedId, cancellationToken);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.AchievementID, Is.EqualTo(expectedId));
+            Assert.That(result.CategoryName, Is.Not.Null, "CategoryName should not be null");
+            Assert.That(result.CategorySequenceOrder, Is.GreaterThanOrEqualTo(0), "CategorySequenceOrder should be a valid number");
+        }
+
+        [TestCase]
+        public async Task Debug_CategoryNavigationProperty()
+        {
+            // Arrange
+            var cancellationToken = new CancellationToken();
+            var achievement = await _dbContext.Achievements
+                .Include(a => a.Category)
+                .FirstAsync(cancellationToken);
+
+            // Act & Assert
+            Assert.That(achievement.Category, Is.Not.Null, "Category navigation property should not be null");
+            Assert.That(achievement.Category.CategoryName, Is.Not.Null, "Category.CategoryName should not be null");
+            Assert.That(achievement.Category.CategorySequenceOrder, Is.GreaterThanOrEqualTo(0), "Category.CategorySequenceOrder should be a valid number");
+        }
+
         [TearDown]
         public async Task TearDown()
         {

@@ -34,9 +34,9 @@ namespace PathfinderHonorManager.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderAchievementDto>>> GetPathfinderAchievements(CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderAchievementDto>>> GetPathfinderAchievements([FromQuery] bool showAllAchievements = false, CancellationToken token = default)
         {
-            var pathfinderAchievements = await _pathfinderAchievementService.GetAllAsync(token);
+            var pathfinderAchievements = await _pathfinderAchievementService.GetAllAsync(showAllAchievements, token);
 
             if (pathfinderAchievements == null || pathfinderAchievements.Count == 0)
             {
@@ -120,9 +120,9 @@ namespace PathfinderHonorManager.Controllers
         [Route("Pathfinders/{pathfinderId:guid}/PathfinderAchievements")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderAchievementDto>>> GetAllAchievementsForPathfinder(Guid pathfinderId, CancellationToken token)
+        public async Task<ActionResult<IEnumerable<Outgoing.PathfinderAchievementDto>>> GetAllAchievementsForPathfinder(Guid pathfinderId, [FromQuery] bool showAllAchievements = false, CancellationToken token = default)
         {
-            var achievements = await _pathfinderAchievementService.GetAllAchievementsForPathfinderAsync(pathfinderId, token);
+            var achievements = await _pathfinderAchievementService.GetAllAchievementsForPathfinderAsync(pathfinderId, showAllAchievements, token);
 
             if (achievements == null || !achievements.Any())
             {
