@@ -55,10 +55,38 @@ namespace PathfinderHonorManager.Tests.Controllers
             };
 
             _pathfinderAchievementServiceMock
-                .Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAllAsync(false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedAchievements);
 
-            var result = await _controller.GetPathfinderAchievements(new CancellationToken());
+            var result = await _controller.GetPathfinderAchievements(false, new CancellationToken());
+
+            Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+            var okResult = result.Result as OkObjectResult;
+            Assert.That(okResult.Value, Is.EqualTo(expectedAchievements));
+        }
+
+        [Test]
+        public async Task GetPathfinderAchievements_WithShowAllAchievementsTrue_ReturnsOkResult()
+        {
+            var expectedAchievements = new List<Outgoing.PathfinderAchievementDto>
+            {
+                new Outgoing.PathfinderAchievementDto
+                {
+                    PathfinderAchievementID = Guid.NewGuid(),
+                    PathfinderID = Guid.NewGuid(),
+                    AchievementID = Guid.NewGuid(),
+                    IsAchieved = true,
+                    Level = 1,
+                    Grade = 5,
+                    Description = "Test Achievement"
+                }
+            };
+
+            _pathfinderAchievementServiceMock
+                .Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedAchievements);
+
+            var result = await _controller.GetPathfinderAchievements(true, new CancellationToken());
 
             Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
             var okResult = result.Result as OkObjectResult;
@@ -69,10 +97,10 @@ namespace PathfinderHonorManager.Tests.Controllers
         public async Task GetPathfinderAchievements_WithNoAchievements_ReturnsNotFound()
         {
             _pathfinderAchievementServiceMock
-                .Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAllAsync(false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Outgoing.PathfinderAchievementDto>());
 
-            var result = await _controller.GetPathfinderAchievements(new CancellationToken());
+            var result = await _controller.GetPathfinderAchievements(false, new CancellationToken());
 
             Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
         }
@@ -254,10 +282,49 @@ namespace PathfinderHonorManager.Tests.Controllers
             };
 
             _pathfinderAchievementServiceMock
-                .Setup(x => x.GetAllAchievementsForPathfinderAsync(pathfinderId, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAllAchievementsForPathfinderAsync(pathfinderId, false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedAchievements);
 
-            var result = await _controller.GetAllAchievementsForPathfinder(pathfinderId, new CancellationToken());
+            var result = await _controller.GetAllAchievementsForPathfinder(pathfinderId, false, new CancellationToken());
+
+            Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+            var okResult = result.Result as OkObjectResult;
+            Assert.That(okResult.Value, Is.EqualTo(expectedAchievements));
+        }
+
+        [Test]
+        public async Task GetAllAchievementsForPathfinder_WithShowAllAchievementsTrue_ReturnsAllAchievements()
+        {
+            var pathfinderId = Guid.NewGuid();
+            var expectedAchievements = new List<Outgoing.PathfinderAchievementDto>
+            {
+                new Outgoing.PathfinderAchievementDto
+                {
+                    PathfinderAchievementID = Guid.NewGuid(),
+                    PathfinderID = pathfinderId,
+                    AchievementID = Guid.NewGuid(),
+                    IsAchieved = true,
+                    Level = 1,
+                    Grade = 5,
+                    Description = "Test Achievement 1"
+                },
+                new Outgoing.PathfinderAchievementDto
+                {
+                    PathfinderAchievementID = Guid.NewGuid(),
+                    PathfinderID = pathfinderId,
+                    AchievementID = Guid.NewGuid(),
+                    IsAchieved = false,
+                    Level = 2,
+                    Grade = 6,
+                    Description = "Test Achievement 2"
+                }
+            };
+
+            _pathfinderAchievementServiceMock
+                .Setup(x => x.GetAllAchievementsForPathfinderAsync(pathfinderId, true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedAchievements);
+
+            var result = await _controller.GetAllAchievementsForPathfinder(pathfinderId, true, new CancellationToken());
 
             Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
             var okResult = result.Result as OkObjectResult;
@@ -270,10 +337,10 @@ namespace PathfinderHonorManager.Tests.Controllers
             var pathfinderId = Guid.NewGuid();
 
             _pathfinderAchievementServiceMock
-                .Setup(x => x.GetAllAchievementsForPathfinderAsync(pathfinderId, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAllAchievementsForPathfinderAsync(pathfinderId, false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Outgoing.PathfinderAchievementDto>());
 
-            var result = await _controller.GetAllAchievementsForPathfinder(pathfinderId, new CancellationToken());
+            var result = await _controller.GetAllAchievementsForPathfinder(pathfinderId, false, new CancellationToken());
 
             Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
         }

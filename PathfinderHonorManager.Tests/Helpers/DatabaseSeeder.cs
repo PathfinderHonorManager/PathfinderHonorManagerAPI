@@ -240,11 +240,13 @@ namespace PathfinderHonorManager.Tests.Helpers
                 {
                     CategoryID = Guid.NewGuid(),
                     CategoryName = "Test Category 1",
+                    CategorySequenceOrder = 1
                 },
                 new Category
                 {
                     CategoryID = Guid.NewGuid(),
                     CategoryName = "Test Category 2",
+                    CategorySequenceOrder = 2
                 }
             };
 
