@@ -81,23 +81,19 @@ namespace PathfinderHonorManager.Service
                 .Include(pa => pa.Achievement)
                 .Include(c => c.Achievement.PathfinderClass)
                 .Include(pa => pa.Achievement.Category)
-                .OrderBy(pa => pa.Achievement.Grade)
-                .ThenBy(pa => pa.Achievement.Category.CategorySequenceOrder)
-                .ThenBy(pa => pa.Achievement.Level)
-                .ThenBy(pa => pa.Achievement.AchievementSequenceOrder);
+                .Include(p => p.Pathfinder);
 
             if (!showAllAchievements)
             {
-                var pathfinder = await _dbContext.Pathfinders
-                    .FirstOrDefaultAsync(p => p.PathfinderID == pathfinderId, token);
-
-                if (pathfinder?.Grade != null)
-                {
-                    query = query.Where(pa => pa.Achievement.Grade == pathfinder.Grade);
-                }
+                query = query.Where(pa => pa.Pathfinder.Grade != null && pa.Achievement.Grade == pa.Pathfinder.Grade);
             }
 
-            var achievements = await query.ToListAsync(token);
+            var achievements = await query
+                .OrderBy(pa => pa.Achievement.Grade)
+                .ThenBy(pa => pa.Achievement.Category.CategorySequenceOrder)
+                .ThenBy(pa => pa.Achievement.Level)
+                .ThenBy(pa => pa.Achievement.AchievementSequenceOrder)
+                .ToListAsync(token);
 
             return _mapper.Map<ICollection<Outgoing.PathfinderAchievementDto>>(achievements);
         }
