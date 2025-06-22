@@ -20,8 +20,6 @@ namespace PathfinderHonorManager.Dto.Outgoing
         public int AchievementSequenceOrder { get; set; }
         public int Grade { get; set; }
         public string ClassName { get; set; }
-        public string Description { get; set; }
-        public string CategoryName { get; set; }
         public int CategorySequenceOrder { get; set; }
     }
 }

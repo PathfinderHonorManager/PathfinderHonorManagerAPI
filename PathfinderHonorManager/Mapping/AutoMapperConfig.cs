@@ -89,9 +89,8 @@ namespace PathfinderHonorManager.Mapping
                 .ForMember(dest => dest.LevelName, opt => opt.MapFrom(src => Enum.GetName(typeof(LevelName), src.Achievement.Level)))
                 .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Achievement.Grade))
                 .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Achievement.PathfinderClass.ClassName))
-                .IncludeMembers(src => src.Achievement)
-                .IncludeMembers(src => src.Achievement.PathfinderClass)
-                .IncludeMembers(src => src.Achievement.Category);
+                .ForMember(dest => dest.AchievementSequenceOrder, opt => opt.MapFrom(src => src.Achievement.AchievementSequenceOrder))
+                .ForMember(dest => dest.CategorySequenceOrder, opt => opt.MapFrom(src => src.Achievement.Category.CategorySequenceOrder));
             CreateMap<Category, Outgoing.PathfinderAchievementDto>();
             CreateMap<Outgoing.PathfinderAchievementDto, PathfinderAchievement>();
             CreateMap<Incoming.PostPathfinderAchievementDto, PathfinderAchievement>();

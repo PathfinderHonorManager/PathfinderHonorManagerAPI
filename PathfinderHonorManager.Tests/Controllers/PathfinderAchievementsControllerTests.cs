@@ -49,8 +49,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                     AchievementID = Guid.NewGuid(),
                     IsAchieved = true,
                     Level = 1,
-                    Grade = 5,
-                    Description = "Test Achievement"
+                    Grade = 5
                 }
             };
 
@@ -77,8 +76,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                     AchievementID = Guid.NewGuid(),
                     IsAchieved = true,
                     Level = 1,
-                    Grade = 5,
-                    Description = "Test Achievement"
+                    Grade = 5
                 }
             };
 
@@ -117,8 +115,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                 AchievementID = achievementId,
                 IsAchieved = true,
                 Level = 1,
-                Grade = 5,
-                Description = "Test Achievement"
+                Grade = 5
             };
 
             _pathfinderAchievementServiceMock
@@ -164,8 +161,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                 AchievementID = achievementId,
                 IsAchieved = false,
                 Level = 1,
-                Grade = 5,
-                Description = "Test Achievement"
+                Grade = 5
             };
 
             _pathfinderAchievementServiceMock
@@ -219,8 +215,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                 AchievementID = achievementId,
                 IsAchieved = true,
                 Level = 1,
-                Grade = 5,
-                Description = "Test Achievement"
+                Grade = 5
             };
 
             _pathfinderAchievementServiceMock
@@ -266,8 +261,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                     AchievementID = Guid.NewGuid(),
                     IsAchieved = true,
                     Level = 1,
-                    Grade = 5,
-                    Description = "Test Achievement 1"
+                    Grade = 5
                 },
                 new Outgoing.PathfinderAchievementDto
                 {
@@ -276,8 +270,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                     AchievementID = Guid.NewGuid(),
                     IsAchieved = false,
                     Level = 2,
-                    Grade = 5,
-                    Description = "Test Achievement 2"
+                    Grade = 5
                 }
             };
 
@@ -305,8 +298,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                     AchievementID = Guid.NewGuid(),
                     IsAchieved = true,
                     Level = 1,
-                    Grade = 5,
-                    Description = "Test Achievement 1"
+                    Grade = 5
                 },
                 new Outgoing.PathfinderAchievementDto
                 {
@@ -315,8 +307,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                     AchievementID = Guid.NewGuid(),
                     IsAchieved = false,
                     Level = 2,
-                    Grade = 6,
-                    Description = "Test Achievement 2"
+                    Grade = 6
                 }
             };
 
@@ -363,8 +354,7 @@ namespace PathfinderHonorManager.Tests.Controllers
                     AchievementID = Guid.NewGuid(),
                     IsAchieved = false,
                     Level = 1,
-                    Grade = 5,
-                    Description = "Test Achievement"
+                    Grade = 5
                 }
             };
 
