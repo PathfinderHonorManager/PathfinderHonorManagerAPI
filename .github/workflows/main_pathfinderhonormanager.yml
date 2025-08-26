@@ -81,6 +81,28 @@ jobs:
       - uses: ./.github/actions/setup-dotnet
       - name: Build with dotnet (Release)
         run: dotnet build --configuration Release
+      
+      - name: Install EF Tools
+        run: dotnet tool install --global dotnet-ef
+      
+      - name: Generate Migration Script for Review
+        run: |
+          dotnet ef migrations script --output migration.sql
+        working-directory: ./PathfinderHonorManager
+      
+      - name: Upload Migration Script
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-script
+          path: PathfinderHonorManager/migration.sql
+      
+      - name: Apply EF Migrations (Safe - Additive Only)
+        run: |
+          dotnet ef database update --connection "${{ secrets.PRODCONNECTIONSTRING }}"
+        working-directory: ./PathfinderHonorManager
+        env:
+          ConnectionStrings__PathfinderCS: ${{ secrets.PRODCONNECTIONSTRING }}
+      
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
       

@@ -161,7 +161,11 @@ namespace PathfinderHonorManager
                 .AddCheck<PostgresHealthCheck>(
                     "PathfinderDB-check",
                     failureStatus: HealthStatus.Unhealthy,
-                    tags: new[] { "pathfinderdb" });
+                    tags: new[] { "pathfinderdb" })
+                .AddCheck<MigrationHealthCheck>(
+                    "Migration-check",
+                    failureStatus: HealthStatus.Degraded,
+                    tags: new[] { "migrations" });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

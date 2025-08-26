@@ -162,6 +162,12 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# Entity Framework Core
+*.migration.sql
+migration.sql
+baseline-migration.sql
+*.efmigrations
+
 # StyleCop
 StyleCopReport.xml
 
