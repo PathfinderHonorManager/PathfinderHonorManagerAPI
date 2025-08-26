@@ -64,13 +64,13 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./.sonar/scanner/dotnet-sonarscanner begin /k:"PathfinderHonorManager_PathfinderHonorManagerAPI" /o:"pathfinderhonormanager" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml"
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:"PathfinderHonorManager_PathfinderHonorManagerAPI" /o:"pathfinderhonormanager" /d:sonar.token="$SONAR_TOKEN" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml"
       - name: Build solution (for SonarQube)
         run: dotnet build --no-incremental
       - name: SonarQube end analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        run: ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
   build:
     needs: [sonar, test]
