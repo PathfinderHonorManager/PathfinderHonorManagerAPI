@@ -98,9 +98,10 @@ jobs:
       
       - name: Apply EF Migrations (Safe - Additive Only)
         run: |
-          dotnet ef database update --connection "${{ secrets.PRODCONNECTIONSTRING }}"
+          dotnet ef database update --connection "$PROD_CONNECTION_STRING"
         working-directory: ./PathfinderHonorManager
         env:
+          PROD_CONNECTION_STRING: ${{ secrets.PRODCONNECTIONSTRING }}
           ConnectionStrings__PathfinderCS: ${{ secrets.PRODCONNECTIONSTRING }}
       
       - name: dotnet publish
