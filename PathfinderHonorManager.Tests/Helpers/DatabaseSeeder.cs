@@ -38,6 +38,13 @@ namespace PathfinderHonorManager.Tests.Helpers
 
         public static async Task SeedClubs(PathfinderContext dbContext)
         {
+            // Check if Clubs already exist to avoid duplicates
+            if (dbContext.Clubs.Any())
+            {
+                _clubs = await dbContext.Clubs.ToListAsync();
+                return;
+            }
+
             _clubs = new List<Club>
             {
                 new Club
@@ -175,6 +182,13 @@ namespace PathfinderHonorManager.Tests.Helpers
         }
         public static async Task SeedPathfinderHonorStatuses(PathfinderContext dbContext)
         {
+            // Check if PathfinderHonorStatuses already exist to avoid duplicates
+            if (dbContext.PathfinderHonorStatuses.Any())
+            {
+                _pathfinderHonorStatuses = await dbContext.PathfinderHonorStatuses.ToListAsync();
+                return;
+            }
+
             _pathfinderHonorStatuses = new List<PathfinderHonorStatus>
             {
             new PathfinderHonorStatus
