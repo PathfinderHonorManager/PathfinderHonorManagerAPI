@@ -23,19 +23,27 @@ namespace PathfinderHonorManager.Healthcheck
             try
             {
                 var pendingMigrations = await _context.Database.GetPendingMigrationsAsync(cancellationToken);
+                var appliedMigrations = await _context.Database.GetAppliedMigrationsAsync(cancellationToken);
                 
                 if (pendingMigrations.Any())
                 {
                     return HealthCheckResult.Degraded(
-                        "Database has pending migrations",
+                        "Database has pending migrations - migrations should be applied at startup",
                         data: new Dictionary<string, object>
                         {
                             ["PendingMigrations"] = pendingMigrations.ToArray(),
-                            ["PendingCount"] = pendingMigrations.Count()
+                            ["PendingCount"] = pendingMigrations.Count(),
+                            ["AppliedCount"] = appliedMigrations.Count()
                         });
                 }
                 
-                return HealthCheckResult.Healthy("Database schema is up-to-date");
+                return HealthCheckResult.Healthy(
+                    "Database schema is up-to-date",
+                    data: new Dictionary<string, object>
+                    {
+                        ["AppliedMigrations"] = appliedMigrations.Count(),
+                        ["LastMigration"] = appliedMigrations.LastOrDefault() ?? "None"
+                    });
             }
             catch (Exception ex)
             {

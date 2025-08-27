@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.AzureAppServices;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics.CodeAnalysis;
+using PathfinderHonorManager.Service;
 
 namespace PathfinderHonorManager
 {
