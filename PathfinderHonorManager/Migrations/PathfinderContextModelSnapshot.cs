@@ -55,7 +55,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasIndex("Grade");
 
-                    b.ToTable("achievement");
+                    b.ToTable("achievement", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.Category", b =>
@@ -75,7 +75,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasKey("CategoryID");
 
-                    b.ToTable("category");
+                    b.ToTable("category", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.Club", b =>
@@ -95,7 +95,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasKey("ClubID");
 
-                    b.ToTable("club");
+                    b.ToTable("club", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.Honor", b =>
@@ -127,7 +127,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasKey("HonorID");
 
-                    b.ToTable("honor");
+                    b.ToTable("honor", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.Pathfinder", b =>
@@ -181,7 +181,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasIndex("Grade");
 
-                    b.ToTable("pathfinder");
+                    b.ToTable("pathfinder", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.PathfinderAchievement", b =>
@@ -218,7 +218,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasIndex("PathfinderID");
 
-                    b.ToTable("pathfinder_achievement");
+                    b.ToTable("pathfinder_achievement", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.PathfinderClass", b =>
@@ -236,7 +236,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasKey("Grade");
 
-                    b.ToTable("pathfinder_class");
+                    b.ToTable("pathfinder_class", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.PathfinderHonor", b =>
@@ -275,7 +275,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasIndex("StatusCode");
 
-                    b.ToTable("pathfinder_honor");
+                    b.ToTable("pathfinder_honor", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.PathfinderHonorStatus", b =>
@@ -293,7 +293,7 @@ namespace PathfinderHonorManager.Migrations
 
                     b.HasKey("StatusCode");
 
-                    b.ToTable("pathfinder_honor_status");
+                    b.ToTable("pathfinder_honor_status", (string)null);
                 });
 
             modelBuilder.Entity("PathfinderHonorManager.Model.Achievement", b =>

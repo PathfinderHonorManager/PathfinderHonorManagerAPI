@@ -30,27 +30,48 @@ namespace PathfinderHonorManager.Service
 
             try
             {
+                // Check if database exists and can be connected to
+                var canConnect = await context.Database.CanConnectAsync(cancellationToken);
+                if (!canConnect)
+                {
+                    _logger.LogError("Cannot connect to database. Check connection string and database availability.");
+                    throw new InvalidOperationException("Database connection failed");
+                }
+
+                _logger.LogInformation("Database connection verified. Checking migration status...");
+
+                // Check if we have an existing database without migration history (baseline scenario)
+                if (await NeedsBaselineAsync(context, cancellationToken))
+                {
+                    _logger.LogInformation("Existing database detected without migration history. Creating baseline...");
+                    await CreateBaselineAsync(context, cancellationToken);
+                }
+
+                // Now apply any pending migrations
                 var pendingMigrations = await context.Database.GetPendingMigrationsAsync(cancellationToken);
                 
                 if (pendingMigrations.Any())
                 {
                     _logger.LogInformation("Found {Count} pending migrations. Applying...", pendingMigrations.Count());
-                    
                     foreach (var migration in pendingMigrations)
                     {
-                        _logger.LogInformation("Pending migration: {Migration}", migration);
+                        _logger.LogInformation("Applying migration: {Migration}", migration);
                     }
-
+                    
                     await context.Database.MigrateAsync(cancellationToken);
-                    _logger.LogInformation("Database migrations completed successfully");
                 }
                 else
                 {
-                    _logger.LogInformation("Database is up-to-date, no migrations needed");
+                    _logger.LogInformation("No pending migrations found.");
                 }
-
+                
                 var appliedMigrations = await context.Database.GetAppliedMigrationsAsync(cancellationToken);
-                _logger.LogInformation("Total applied migrations: {Count}", appliedMigrations.Count());
+                _logger.LogInformation("Database migrations completed. Total applied: {Count}", appliedMigrations.Count());
+                
+                if (appliedMigrations.Any())
+                {
+                    _logger.LogInformation("Latest migration: {Migration}", appliedMigrations.Last());
+                }
             }
             catch (Exception ex)
             {
@@ -60,5 +81,85 @@ namespace PathfinderHonorManager.Service
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+        private async Task<bool> NeedsBaselineAsync(PathfinderContext context, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // First check if our application tables exist (pathfinder, club, honor)
+                // If they don't exist, this is a fresh database - no baseline needed
+                try
+                {
+                    await context.Pathfinders.AnyAsync(cancellationToken);
+                    await context.Clubs.AnyAsync(cancellationToken);
+                    await context.Honors.AnyAsync(cancellationToken);
+                }
+                catch
+                {
+                    // Tables don't exist, this is a fresh database
+                    _logger.LogInformation("Application tables not found - fresh database, no baseline needed");
+                    return false;
+                }
+
+                // Tables exist, now check if migration history exists
+                try
+                {
+                    var appliedMigrations = await context.Database.GetAppliedMigrationsAsync(cancellationToken);
+                    var hasHistory = appliedMigrations.Any();
+                    
+                    if (!hasHistory)
+                    {
+                        _logger.LogInformation("Application tables exist but no migration history - baseline needed");
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                catch
+                {
+                    // Migration table doesn't exist, need baseline
+                    _logger.LogInformation("Cannot read migration history - baseline needed");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error checking baseline status, assuming no baseline needed");
+                return false;
+            }
+        }
+
+        private async Task CreateBaselineAsync(PathfinderContext context, CancellationToken cancellationToken)
+        {
+            try
+            {
+                _logger.LogInformation("Creating migrations table and baseline entries...");
+
+                // Create the migrations table
+                await context.Database.ExecuteSqlRawAsync(@"
+                    CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
+                        ""MigrationId"" character varying(150) NOT NULL,
+                        ""ProductVersion"" character varying(32) NOT NULL,
+                        CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY (""MigrationId"")
+                    )
+                ");
+
+                // Add baseline migration entry for existing schema
+                // Since the production database already has all the schema we need,
+                // we just mark the initial migration as applied
+                await context.Database.ExecuteSqlRawAsync(@"
+                    INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+                    VALUES ('20250826224824_InitialSchemaWithProperDeleteBehavior', '9.0.8')
+                    ON CONFLICT (""MigrationId"") DO NOTHING
+                ");
+
+                _logger.LogInformation("Baseline migration history created successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create baseline migration history");
+                throw;
+            }
+        }
     }
 }
