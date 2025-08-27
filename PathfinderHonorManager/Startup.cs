@@ -32,6 +32,9 @@ namespace PathfinderHonorManager
     [ExcludeFromCodeCoverage]
     public class Startup
     {
+        private static readonly string[] PathfinderDbTags = { "pathfinderdb" };
+        private static readonly string[] MigrationTags = { "migrations" };
+
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
@@ -161,11 +164,11 @@ namespace PathfinderHonorManager
                 .AddCheck<PostgresHealthCheck>(
                     "PathfinderDB-check",
                     failureStatus: HealthStatus.Unhealthy,
-                    tags: new[] { "pathfinderdb" })
+                    tags: PathfinderDbTags)
                 .AddCheck<MigrationHealthCheck>(
                     "Migration-check",
                     failureStatus: HealthStatus.Degraded,
-                    tags: new[] { "migrations" });
+                    tags: MigrationTags);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
