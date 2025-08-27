@@ -135,7 +135,14 @@ namespace PathfinderHonorManager
             services
                 .AddDbContext<PathfinderContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("PathfinderCS"), 
-                        npgsqlOptions => npgsqlOptions.CommandTimeout(30)));
+                        npgsqlOptions => 
+                        {
+                            npgsqlOptions.CommandTimeout(60);
+                            npgsqlOptions.EnableRetryOnFailure(
+                                maxRetryCount: 3,
+                                maxRetryDelay: TimeSpan.FromSeconds(10),
+                                errorCodesToAdd: null);
+                        }));
             services
                 .AddAutoMapper(typeof(AutoMapperConfig));
             services
@@ -145,6 +152,8 @@ namespace PathfinderHonorManager
                 .AddScoped<IClubService, ClubService>()
                 .AddScoped<IAchievementService, AchievementService>()
                 .AddScoped<IPathfinderAchievementService, PathfinderAchievementService>();
+            
+            services.AddHostedService<MigrationService>();
             services
                 .AddFluentValidationAutoValidation()
                 .AddFluentValidationClientsideAdapters()
