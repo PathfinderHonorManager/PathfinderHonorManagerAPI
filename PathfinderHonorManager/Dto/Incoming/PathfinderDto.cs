@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
@@ -9,13 +10,12 @@ namespace PathfinderHonorManager.Dto.Incoming
     public class PathfinderDto
     {
         [Required]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = null!;
 
         [Required]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = null!;
 
-        [Required]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         public int? Grade { get; set; }
 
@@ -43,7 +43,7 @@ namespace PathfinderHonorManager.Dto.Incoming
     public class BulkPutPathfinderDto
     {
         [Required]
-        public IEnumerable<BulkPutPathfinderItemDto> Items { get; set; }
+        public IEnumerable<BulkPutPathfinderItemDto> Items { get; set; } = null!;
     }
 
     [ExcludeFromCodeCoverage]

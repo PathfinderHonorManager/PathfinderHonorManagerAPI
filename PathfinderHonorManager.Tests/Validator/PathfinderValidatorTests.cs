@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Model;
+using PathfinderHonorManager.Tests.Helpers;
 using PathfinderHonorManager.Validators;
 using Incoming = PathfinderHonorManager.Dto.Incoming;
 
@@ -27,17 +28,18 @@ namespace PathfinderHonorManager.Tests.Validator
         protected DbContextOptions<PathfinderContext> ContextOptions { get; }
 
         [SetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
             var context = new PathfinderContext(ContextOptions);
+            await DatabaseCleaner.CleanDatabase(context);
             _pathfinderValidator = new PathfinderValidator(context);
-            SeedDatabase(context);
+            await DatabaseSeeder.SeedDatabase(ContextOptions);
         }
 
-        // Email tests
-        [TestCase("")]
-        [TestCase(null)]
+        // Email tests - invalid format should fail
         [TestCase("nonemailstring")]
+        [TestCase("invalid@")]
+        [TestCase("@invalid.com")]
         public async Task Validate_InvalidEmail_ValidationError(string email)
         {
             var newPathfinder = new Incoming.PathfinderDtoInternal
@@ -58,12 +60,32 @@ namespace PathfinderHonorManager.Tests.Validator
 
         }
 
+        // Email tests - empty/null emails should be allowed
+        [TestCase("")]
+        [TestCase(null)]
+        public async Task Validate_EmptyOrNullEmail_ShouldPass(string email)
+        {
+            var newPathfinder = new Incoming.PathfinderDtoInternal
+            {
+                FirstName = "test",
+                LastName = "user",
+                Email = email
+            };
+
+            var validationResult = await _pathfinderValidator
+                .TestValidateAsync(newPathfinder, options =>
+                {
+                    options.IncludeAllRuleSets();
+                });
+
+            validationResult.ShouldNotHaveValidationErrorFor(p => p.Email);
+        }
+
         // FirstName tests
         [TestCase("")]
         [TestCase(null)]
         public async Task Validate_FirstName_ValidationError(string firstName)
         {
-            var randEmail = RandomString(10);
             var newPathfinder = new Incoming.PathfinderDtoInternal
             {
                 FirstName = firstName,
@@ -272,6 +294,23 @@ namespace PathfinderHonorManager.Tests.Validator
         }
 
         [Test]
+        public async Task Validate_ValidEmail_ShouldPass()
+        {
+            var newPathfinder = new Incoming.PathfinderDtoInternal
+            {
+                FirstName = "Test",
+                LastName = "User",
+                Email = "valid@example.com",
+                ClubID = Guid.NewGuid()
+            };
+
+            var validationResult = await _pathfinderValidator
+                .TestValidateAsync(newPathfinder, options => options.IncludeRuleSets("post"));
+
+            validationResult.ShouldNotHaveValidationErrorFor(p => p.Email);
+        }
+
+        [Test]
         public async Task Validate_InvalidClubId_ValidationError()
         {
             using (var context = new PathfinderContext(ContextOptions))
@@ -355,58 +394,15 @@ namespace PathfinderHonorManager.Tests.Validator
             validationResult.ShouldNotHaveValidationErrorFor(p => p.ClubID);
         }
 
-        public static void SeedDatabase(PathfinderContext context)
+        [TearDown]
+        public async Task TearDown()
         {
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-
-            context.Pathfinders.AddRange(
-                new Pathfinder[]
-                {
-
-                    new Pathfinder
-                        {
-                            FirstName = "test1",
-                            LastName = "pathfinder",
-                            Email = "test1@validemail.com",
-                            Created = System.DateTime.Now,
-                            Updated = System.DateTime.Now
-                        },
-                    new Pathfinder
-                        {
-                            FirstName = "test2",
-                            LastName = "pathfinder",
-                            Email = "test2@validemail.com",
-                            Created = System.DateTime.Now,
-                            Updated = System.DateTime.Now
-                        },
-                    new Pathfinder
-                        {
-                            FirstName = "test3",
-                            LastName = "pathfinder",
-                            Email = "test3@validemail.com",
-                            Created = System.DateTime.Now,
-                            Updated = System.DateTime.Now
-                        }
-                }); ;
-
-            context.SaveChangesAsync();
-        }
-        public static string RandomString(int length)
-        {
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var stringChars = new char[length];
-            var random = new Random();
-
-            for (int i = 0; i < stringChars.Length; i++)
+            using (var context = new PathfinderContext(ContextOptions))
             {
-                stringChars[i] = chars[random.Next(chars.Length)];
+                await DatabaseCleaner.CleanDatabase(context);
             }
-
-            var finalString = new String(stringChars);
-
-            return finalString;
         }
+
     }
 }
 

@@ -35,6 +35,18 @@ namespace PathfinderHonorManager.DataAccess
                 .HasForeignKey(p => p.ClubID)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Pathfinder>()
+                .Property(p => p.FirstName)
+                .IsRequired();
+
+            modelBuilder.Entity<Pathfinder>()
+                .Property(p => p.LastName)
+                .IsRequired();
+
+            modelBuilder.Entity<Pathfinder>()
+                .Property(p => p.Email)
+                .IsRequired(false);
+
             // Pathfinder -> PathfinderClass: Restrict (nullable relationship already)
             modelBuilder.Entity<Pathfinder>()
                 .HasOne(p => p.PathfinderClass)
