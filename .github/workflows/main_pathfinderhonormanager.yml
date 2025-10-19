@@ -105,6 +105,7 @@ jobs:
           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
         env:
           ConnectionStrings.PathfinderCS: ${{ secrets.PRODCONNECTIONSTRING }}
+          ConnectionStrings.PathfinderMigrationCS: ${{ secrets.PROD_ADMIN_CONNECTIONSTRING }}
           App.ServerRootAddress: ${{ env.SERVER_ROOT_ADDRESS }}
 
       - name: Upload artifact for deployment job
