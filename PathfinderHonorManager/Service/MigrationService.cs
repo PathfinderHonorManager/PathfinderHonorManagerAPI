@@ -31,6 +31,13 @@ namespace PathfinderHonorManager.Service
             using var scope = _serviceProvider.CreateScope();
             
             var migrationConnectionString = _configuration.GetConnectionString("PathfinderMigrationCS");
+            
+            if (string.IsNullOrEmpty(migrationConnectionString))
+            {
+                _logger.LogError("PathfinderMigrationCS connection string is not configured. Cannot apply migrations.");
+                throw new InvalidOperationException("Migration connection string not configured");
+            }
+            
             var optionsBuilder = new DbContextOptionsBuilder<PathfinderContext>();
             optionsBuilder.UseNpgsql(migrationConnectionString, 
                 npgsqlOptions => 
@@ -47,8 +54,8 @@ namespace PathfinderHonorManager.Service
             try
             {
                 var builder = new Npgsql.NpgsqlConnectionStringBuilder(migrationConnectionString);
-                _logger.LogDebug("Connecting to database for migrations: Host={Host}, Database={Database}, Username={Username}", 
-                    builder.Host, builder.Database, builder.Username);
+                _logger.LogWarning("Using migration connection: Username={Username} (Password length: {Length})", 
+                    builder.Username, builder.Password?.Length ?? 0);
                 
                 var canConnect = await context.Database.CanConnectAsync(cancellationToken);
                 if (!canConnect)
@@ -56,8 +63,6 @@ namespace PathfinderHonorManager.Service
                     _logger.LogError("Cannot connect to database. Check connection string and database availability.");
                     throw new InvalidOperationException("Database connection failed");
                 }
-
-                _logger.LogInformation("Database connection verified. Checking migration status...");
 
                 // Check if we have an existing database without migration history (baseline scenario)
                 if (await NeedsBaselineAsync(context, cancellationToken))
