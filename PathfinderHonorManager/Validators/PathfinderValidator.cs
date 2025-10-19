@@ -33,15 +33,17 @@ namespace PathfinderHonorManager.Validators
                 "post",
                 () =>
                 {
-                    RuleFor(p => p.Email)
-                        .EmailAddress()
-                        .NotEmpty()
-                        .MustAsync(
-                            async (email, token) =>
-                                !await _dbContext.Pathfinders
-                                    .AnyAsync(p => p.Email == email, token))
-                        .WithMessage(
-                            p => $"Pathfinder email address ({p.Email}) is taken.");
+                    When(p => !string.IsNullOrEmpty(p.Email), () =>
+                    {
+                        RuleFor(p => p.Email)
+                            .EmailAddress()
+                            .MustAsync(
+                                async (email, token) =>
+                                    !await _dbContext.Pathfinders
+                                        .AnyAsync(p => p.Email == email, token))
+                            .WithMessage(
+                                p => $"Pathfinder email address ({p.Email}) is taken.");
+                    });
                     RuleFor(p => p.ClubID)
                        .Must(id => id != Guid.Empty)
                        .WithMessage("User must be associated with a valid club before adding a Pathfinder");

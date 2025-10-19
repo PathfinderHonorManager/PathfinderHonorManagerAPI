@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,11 +16,11 @@ namespace PathfinderHonorManager.Model
         [Column("pathfinder_id")]
         public Guid PathfinderID { get; set; }
         [Column("first_name")]
-        public String FirstName { get; set; }
+        public String FirstName { get; set; } = null!;
         [Column("last_name")]
-        public String LastName { get; set; }
+        public String LastName { get; set; } = null!;
         [Column("email")]
-        public String Email { get; set; }
+        public String? Email { get; set; }
         [Column("grade")]
         public int? Grade { get; set; }
         [Column("club_id")]
@@ -32,14 +33,14 @@ namespace PathfinderHonorManager.Model
         public DateTime Updated { get; set; }
 
         [ForeignKey("ClubID")]
-        public Club Club { get; set; }
+        public Club Club { get; set; } = null!;
 
         [ForeignKey("Grade")]
-        public PathfinderClass PathfinderClass { get; set; }
+        public PathfinderClass? PathfinderClass { get; set; }
 
         [ForeignKey("PathfinderID")]
-        public ICollection<PathfinderHonor> PathfinderHonors { get; set; }
-        public ICollection<PathfinderAchievement> PathfinderAchievements { get; set; }
+        public ICollection<PathfinderHonor>? PathfinderHonors { get; set; }
+        public ICollection<PathfinderAchievement>? PathfinderAchievements { get; set; }
 
     }
 }

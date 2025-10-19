@@ -14,7 +14,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public string LastName { get; set; } = null!;
 
-        public string Email { get; set; } = null!;
+        public string? Email { get; set; }
 
         public int? Grade { get; set; }
 
@@ -36,7 +36,7 @@ namespace PathfinderHonorManager.Dto.Outgoing
 
         public string LastName { get; set; } = null!;
 
-        public string Email { get; set; } = null!;
+        public string? Email { get; set; }
 
         public int? Grade { get; set; }
 

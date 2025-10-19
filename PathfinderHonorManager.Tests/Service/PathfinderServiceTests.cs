@@ -138,7 +138,12 @@ namespace PathfinderHonorManager.Tests.Service
         public async Task AddAsync_AddsNewPathfinderAndReturnsDto(string clubCode)
         {
             // Arrange
-            var newPathfinderDto = new Incoming.PathfinderDto { /* Populate required properties */ };
+            var newPathfinderDto = new Incoming.PathfinderDto 
+            { 
+                FirstName = "Test",
+                LastName = "Pathfinder",
+                Email = "test.pathfinder@example.com"
+            };
             var cancellationToken = new CancellationToken();
 
             // Act
