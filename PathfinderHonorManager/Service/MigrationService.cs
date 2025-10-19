@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,11 +15,13 @@ namespace PathfinderHonorManager.Service
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<MigrationService> _logger;
+        private readonly IConfiguration _configuration;
 
-        public MigrationService(IServiceProvider serviceProvider, ILogger<MigrationService> logger)
+        public MigrationService(IServiceProvider serviceProvider, ILogger<MigrationService> logger, IConfiguration configuration)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -26,13 +29,25 @@ namespace PathfinderHonorManager.Service
             _logger.LogInformation("Starting database migration check...");
 
             using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<PathfinderContext>();
+            
+            var migrationConnectionString = _configuration.GetConnectionString("PathfinderMigrationCS");
+            var optionsBuilder = new DbContextOptionsBuilder<PathfinderContext>();
+            optionsBuilder.UseNpgsql(migrationConnectionString, 
+                npgsqlOptions => 
+                {
+                    npgsqlOptions.CommandTimeout(60);
+                    npgsqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorCodesToAdd: null);
+                });
+            
+            var context = new PathfinderContext(optionsBuilder.Options);
 
             try
             {
-                var connectionString = context.Database.GetConnectionString();
-                var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
-                _logger.LogDebug("Connecting to database: Host={Host}, Database={Database}, Username={Username}", 
+                var builder = new Npgsql.NpgsqlConnectionStringBuilder(migrationConnectionString);
+                _logger.LogDebug("Connecting to database for migrations: Host={Host}, Database={Database}, Username={Username}", 
                     builder.Host, builder.Database, builder.Username);
                 
                 var canConnect = await context.Database.CanConnectAsync(cancellationToken);
