@@ -30,7 +30,11 @@ namespace PathfinderHonorManager.Service
 
             try
             {
-                // Check if database exists and can be connected to
+                var connectionString = context.Database.GetConnectionString();
+                var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+                _logger.LogDebug("Connecting to database: Host={Host}, Database={Database}, Username={Username}", 
+                    builder.Host, builder.Database, builder.Username);
+                
                 var canConnect = await context.Database.CanConnectAsync(cancellationToken);
                 if (!canConnect)
                 {
