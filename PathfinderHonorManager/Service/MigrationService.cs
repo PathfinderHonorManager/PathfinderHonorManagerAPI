@@ -53,10 +53,6 @@ namespace PathfinderHonorManager.Service
 
             try
             {
-                var builder = new Npgsql.NpgsqlConnectionStringBuilder(migrationConnectionString);
-                _logger.LogWarning("Using migration connection: Username={Username} (Password length: {Length})", 
-                    builder.Username, builder.Password?.Length ?? 0);
-                
                 var canConnect = await context.Database.CanConnectAsync(cancellationToken);
                 if (!canConnect)
                 {
