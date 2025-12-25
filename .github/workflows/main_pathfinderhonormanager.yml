@@ -16,14 +16,14 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-dotnet
       - name: Build solution (Debug)
         run: dotnet build --no-incremental
       - name: Test with the dotnet CLI (OpenCover)
         run: dotnet test PathfinderHonorManager.Tests/PathfinderHonorManager.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/coverage.opencover.xml /p:CoverletOutputFormat=opencover /p:Exclude="[PathfinderHonorManager.Tests*]*"
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: PathfinderHonorManager.Tests/TestResults/coverage.opencover.xml
@@ -33,24 +33,24 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-dotnet
       - name: Download coverage report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: coverage-report
           path: .
       - name: Cache SonarQube packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Cache SonarQube scanner
         id: cache-sonar-scanner
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner
@@ -77,7 +77,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-dotnet
       - name: Build with dotnet (Release)
         run: dotnet build --configuration Release
@@ -91,7 +91,7 @@ jobs:
         working-directory: ./PathfinderHonorManager
       
       - name: Upload Migration Script
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: migration-script
           path: PathfinderHonorManager/migration.sql
@@ -109,7 +109,7 @@ jobs:
           App.ServerRootAddress: ${{ env.SERVER_ROOT_ADDRESS }}
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
@@ -124,7 +124,7 @@ jobs:
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: .net-app
 
