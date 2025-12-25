@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using PathfinderHonorManager.Auth;
 using PathfinderHonorManager.DataAccess;
 using PathfinderHonorManager.Healthcheck;
@@ -120,15 +120,16 @@ namespace PathfinderHonorManager
                         }
                     }
                 });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(doc => 
                 {
+                    var requirement = new OpenApiSecurityRequirement
                     {
-                        new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-                        },
-                        new[] { Configuration["AzureAD:ApiScope"] }
-                    }
+                            new OpenApiSecuritySchemeReference("oauth2", null, null),
+                            new List<string> { Configuration["AzureAD:ApiScope"] }
+                        }
+                    };
+                    return requirement;
                 });
                 c.DocumentFilter<HealthCheckEndpointFilter>();
             });

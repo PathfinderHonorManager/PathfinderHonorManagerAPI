@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics.CodeAnalysis;
 
@@ -11,66 +12,25 @@ namespace PathfinderHonorManager.Swagger
     {
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            var path = new OpenApiPathItem
+            var getOperation = new OpenApiOperation
             {
-                Operations = new Dictionary<OperationType, OpenApiOperation>
-                {
-                    {
-                        OperationType.Get,
-                        new OpenApiOperation
-                        {
-                            Tags = new List<OpenApiTag> { new OpenApiTag { Name = "Health" } },
-                            Summary = "Health Check",
-                            Description = "Checks the health of the API and its dependencies",
-                            Responses = new OpenApiResponses
-                            {
-                                {
-                                    "200",
-                                    new OpenApiResponse
-                                    {
-                                        Description = "Healthy",
-                                        Content = new Dictionary<string, OpenApiMediaType>
-                                        {
-                                            {
-                                                "text/plain",
-                                                new OpenApiMediaType
-                                                {
-                                                    Schema = new OpenApiSchema
-                                                    {
-                                                        Type = "string",
-                                                        Example = new Microsoft.OpenApi.Any.OpenApiString("Healthy")
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "503",
-                                    new OpenApiResponse
-                                    {
-                                        Description = "Unhealthy",
-                                        Content = new Dictionary<string, OpenApiMediaType>
-                                        {
-                                            {
-                                                "text/plain",
-                                                new OpenApiMediaType
-                                                {
-                                                    Schema = new OpenApiSchema
-                                                    {
-                                                        Type = "string",
-                                                        Example = new Microsoft.OpenApi.Any.OpenApiString("Unhealthy")
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                Summary = "Health Check",
+                Description = "Checks the health of the API and its dependencies",
+                Responses = new OpenApiResponses()
             };
+
+            getOperation.Responses.Add("200", new OpenApiResponse
+            {
+                Description = "Healthy"
+            });
+
+            getOperation.Responses.Add("503", new OpenApiResponse
+            {
+                Description = "Unhealthy"
+            });
+
+            var path = new OpenApiPathItem();
+            path.AddOperation(HttpMethod.Get, getOperation);
 
             swaggerDoc.Paths.Add("/health", path);
         }
