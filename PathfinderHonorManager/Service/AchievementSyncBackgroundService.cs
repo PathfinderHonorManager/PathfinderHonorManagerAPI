@@ -69,9 +69,9 @@ namespace PathfinderHonorManager.Service
                     await Task.Delay(_options.ProcessingInterval, stoppingToken);
                     await ProcessQueueAsync(stoppingToken);
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException ex)
                 {
-                    _logger.LogInformation("Achievement sync background service stopping");
+                    _logger.LogInformation(ex, "Achievement sync background service stopping");
                     break;
                 }
                 catch (Exception ex)
@@ -138,8 +138,7 @@ namespace PathfinderHonorManager.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during startup audit");
-                throw;
+                throw new InvalidOperationException("Failed to complete startup audit of pathfinder achievements", ex);
             }
         }
 

@@ -23,10 +23,7 @@ namespace PathfinderHonorManager.Service
 
         public Task<bool> TryEnqueueAsync(GradeChangeEvent gradeChange, CancellationToken token = default)
         {
-            if (gradeChange == null)
-            {
-                throw new ArgumentNullException(nameof(gradeChange));
-            }
+            ArgumentNullException.ThrowIfNull(gradeChange);
 
             lock (_lock)
             {

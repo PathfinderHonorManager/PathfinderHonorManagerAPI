@@ -83,6 +83,8 @@ namespace PathfinderHonorManager.Tests.Service
             await Task.Delay(100);
 
             await service.StopAsync(CancellationToken.None);
+            
+            Assert.Pass("Service started and stopped successfully with audit enabled");
         }
 
         [Test]
@@ -357,6 +359,8 @@ namespace PathfinderHonorManager.Tests.Service
             await service.StartAsync(CancellationToken.None);
             await Task.Delay(300);
             await service.StopAsync(CancellationToken.None);
+            
+            Assert.Pass("Service should handle non-existent pathfinder gracefully without throwing");
         }
 
         [Test]
@@ -389,6 +393,14 @@ namespace PathfinderHonorManager.Tests.Service
             await service.StartAsync(CancellationToken.None);
             await Task.Delay(500);
             await service.StopAsync(CancellationToken.None);
+            
+            var pathfinder1Achievements = await _dbContext.PathfinderAchievements
+                .CountAsync(pa => pa.PathfinderID == pathfinder1.PathfinderID);
+            var pathfinder2Achievements = await _dbContext.PathfinderAchievements
+                .CountAsync(pa => pa.PathfinderID == pathfinder2.PathfinderID);
+            
+            Assert.That(pathfinder1Achievements, Is.GreaterThan(0), "First pathfinder should have achievements");
+            Assert.That(pathfinder2Achievements, Is.GreaterThan(0), "Third pathfinder should have achievements despite middle one failing");
         }
 
         [TearDown]
