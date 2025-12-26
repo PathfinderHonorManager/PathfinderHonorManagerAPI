@@ -29,7 +29,6 @@ namespace PathfinderHonorManager
                     logging.AddConsole();
                     logging.AddDebug();
                     logging.AddAzureWebAppDiagnostics();
-                    logging.AddApplicationInsights();
                 })
                 .ConfigureServices(services =>
                     services.Configure<AzureFileLoggerOptions>(options =>
