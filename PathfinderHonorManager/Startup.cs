@@ -146,6 +146,9 @@ namespace PathfinderHonorManager
                         }));
             services
                 .AddAutoMapper(typeof(AutoMapperConfig));
+            services.Configure<AchievementSyncOptions>(
+                Configuration.GetSection("AchievementSync"));
+            services.AddSingleton<IGradeChangeQueue, InMemoryGradeChangeQueue>();
             services
                 .AddScoped<IPathfinderService, PathfinderService>()
                 .AddScoped<IHonorService, HonorService>()
@@ -155,6 +158,7 @@ namespace PathfinderHonorManager
                 .AddScoped<IPathfinderAchievementService, PathfinderAchievementService>();
             
             services.AddHostedService<MigrationService>();
+            services.AddHostedService<AchievementSyncBackgroundService>();
             services
                 .AddFluentValidationAutoValidation()
                 .AddFluentValidationClientsideAdapters()

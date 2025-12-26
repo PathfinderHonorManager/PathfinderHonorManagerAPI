@@ -33,6 +33,7 @@ namespace PathfinderHonorManager.Tests.Service
         private PathfinderContext _dbContext;
 
         private readonly Mock<IClubService> _clubServiceMock;
+        private readonly Mock<IGradeChangeQueue> _gradeChangeQueueMock;
         private List<Pathfinder> _pathfinders;
         private List<PathfinderHonor> _pathfinderHonors;
         private List<PathfinderAchievement> _pathfinderAchievements;
@@ -47,6 +48,7 @@ namespace PathfinderHonorManager.Tests.Service
             var validator = new DummyValidator<Incoming.PathfinderDtoInternal>();
             var logger = NullLogger<PathfinderService>.Instance;
             _clubServiceMock = new Mock<IClubService>();
+            _gradeChangeQueueMock = new Mock<IGradeChangeQueue>();
 
             _clubServiceMock.Setup(x => x.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((string code, CancellationToken cancellationToken) =>
@@ -63,7 +65,11 @@ namespace PathfinderHonorManager.Tests.Service
 
                     return club;
                 });
-            _pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validator, logger);
+            
+            _gradeChangeQueueMock.Setup(x => x.TryEnqueueAsync(It.IsAny<GradeChangeEvent>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            _pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validator, logger, _gradeChangeQueueMock.Object);
         }
 
         [SetUp]
@@ -482,8 +488,11 @@ namespace PathfinderHonorManager.Tests.Service
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
             IMapper mapper = mapperConfiguration.CreateMapper();
             var logger = NullLogger<PathfinderService>.Instance;
+            var gradeChangeQueueMock = new Mock<IGradeChangeQueue>();
+            gradeChangeQueueMock.Setup(x => x.TryEnqueueAsync(It.IsAny<GradeChangeEvent>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
             
-            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validatorMock.Object, logger);
+            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validatorMock.Object, logger, gradeChangeQueueMock.Object);
 
             var ex = Assert.ThrowsAsync<ValidationException>(
                 async () => await pathfinderService.AddAsync(newPathfinderDto, "VALIDCLUBCODE", CancellationToken.None));
@@ -516,14 +525,271 @@ namespace PathfinderHonorManager.Tests.Service
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
             IMapper mapper = mapperConfiguration.CreateMapper();
             var logger = NullLogger<PathfinderService>.Instance;
+            var gradeChangeQueueMock = new Mock<IGradeChangeQueue>();
+            gradeChangeQueueMock.Setup(x => x.TryEnqueueAsync(It.IsAny<GradeChangeEvent>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
             
-            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validatorMock.Object, logger);
+            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validatorMock.Object, logger, gradeChangeQueueMock.Object);
 
             var ex = Assert.ThrowsAsync<ValidationException>(
                 async () => await pathfinderService.UpdateAsync(pathfinderId, updatePathfinderDto, "VALIDCLUBCODE", CancellationToken.None));
 
             Assert.That(ex.Errors.First().PropertyName, Is.EqualTo("Grade"));
             Assert.That(ex.Errors.First().ErrorMessage, Is.EqualTo("Grade must be between 5 and 12."));
+        }
+
+        [Test]
+        public async Task UpdateAsync_WhenGradeChanges_EnqueuesGradeChangeEvent()
+        {
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var pathfinder = await _dbContext.Pathfinders.FindAsync(pathfinderId);
+            var oldGrade = pathfinder.Grade;
+            var newGrade = oldGrade.HasValue ? oldGrade.Value + 1 : 6;
+
+            var updateDto = new Incoming.PutPathfinderDto
+            {
+                Grade = newGrade,
+                IsActive = true
+            };
+
+            var result = await _pathfinderService.UpdateAsync(pathfinderId, updateDto, "VALIDCLUBCODE", CancellationToken.None);
+
+            _gradeChangeQueueMock.Verify(q => q.TryEnqueueAsync(
+                It.Is<GradeChangeEvent>(e => 
+                    e.PathfinderId == pathfinderId && 
+                    e.OldGrade == oldGrade && 
+                    e.NewGrade == newGrade),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateAsync_WhenGradeDoesNotChange_DoesNotEnqueueEvent()
+        {
+            var gradeChangeQueueMockLocal = new Mock<IGradeChangeQueue>();
+            gradeChangeQueueMockLocal.Setup(x => x.TryEnqueueAsync(It.IsAny<GradeChangeEvent>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            var validator = new DummyValidator<Incoming.PathfinderDtoInternal>();
+            var logger = NullLogger<PathfinderService>.Instance;
+            
+            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validator, logger, gradeChangeQueueMockLocal.Object);
+
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var pathfinder = await _dbContext.Pathfinders.FindAsync(pathfinderId);
+
+            var updateDto = new Incoming.PutPathfinderDto
+            {
+                Grade = pathfinder.Grade,
+                IsActive = true
+            };
+
+            await pathfinderService.UpdateAsync(pathfinderId, updateDto, "VALIDCLUBCODE", CancellationToken.None);
+
+            gradeChangeQueueMockLocal.Verify(q => q.TryEnqueueAsync(
+                It.IsAny<GradeChangeEvent>(),
+                It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Test]
+        public async Task UpdateAsync_WhenGradeChangesToNull_EnqueuesGradeChangeEvent()
+        {
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var pathfinder = await _dbContext.Pathfinders.FindAsync(pathfinderId);
+            var oldGrade = pathfinder.Grade;
+
+            var updateDto = new Incoming.PutPathfinderDto
+            {
+                Grade = null,
+                IsActive = true
+            };
+
+            await _pathfinderService.UpdateAsync(pathfinderId, updateDto, "VALIDCLUBCODE", CancellationToken.None);
+
+            _gradeChangeQueueMock.Verify(q => q.TryEnqueueAsync(
+                It.Is<GradeChangeEvent>(e => 
+                    e.PathfinderId == pathfinderId && 
+                    e.OldGrade == oldGrade && 
+                    e.NewGrade == null),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateAsync_WhenGradeChangesFromNull_EnqueuesGradeChangeEvent()
+        {
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var pathfinder = await _dbContext.Pathfinders.FindAsync(pathfinderId);
+            pathfinder.Grade = null;
+            await _dbContext.SaveChangesAsync();
+
+            var newGrade = 6;
+            var updateDto = new Incoming.PutPathfinderDto
+            {
+                Grade = newGrade,
+                IsActive = true
+            };
+
+            await _pathfinderService.UpdateAsync(pathfinderId, updateDto, "VALIDCLUBCODE", CancellationToken.None);
+
+            _gradeChangeQueueMock.Verify(q => q.TryEnqueueAsync(
+                It.Is<GradeChangeEvent>(e => 
+                    e.PathfinderId == pathfinderId && 
+                    e.OldGrade == null && 
+                    e.NewGrade == newGrade),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateAsync_WhenOnlyIsActiveChanges_DoesNotEnqueueEvent()
+        {
+            var gradeChangeQueueMockLocal = new Mock<IGradeChangeQueue>();
+            gradeChangeQueueMockLocal.Setup(x => x.TryEnqueueAsync(It.IsAny<GradeChangeEvent>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            var validator = new DummyValidator<Incoming.PathfinderDtoInternal>();
+            var logger = NullLogger<PathfinderService>.Instance;
+            
+            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validator, logger, gradeChangeQueueMockLocal.Object);
+
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var pathfinder = await _dbContext.Pathfinders.FindAsync(pathfinderId);
+
+            var updateDto = new Incoming.PutPathfinderDto
+            {
+                Grade = pathfinder.Grade,
+                IsActive = false
+            };
+
+            await pathfinderService.UpdateAsync(pathfinderId, updateDto, "VALIDCLUBCODE", CancellationToken.None);
+
+            gradeChangeQueueMockLocal.Verify(q => q.TryEnqueueAsync(
+                It.IsAny<GradeChangeEvent>(),
+                It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Test]
+        public async Task BulkUpdateAsync_WhenGradeChanges_EnqueuesGradeChangeEvent()
+        {
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var pathfinder = await _dbContext.Pathfinders.FindAsync(pathfinderId);
+            var oldGrade = pathfinder.Grade;
+            var newGrade = oldGrade.HasValue ? oldGrade.Value + 1 : 6;
+
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = new List<Incoming.BulkPutPathfinderItemDto>
+                    {
+                        new Incoming.BulkPutPathfinderItemDto
+                        {
+                            PathfinderId = pathfinderId,
+                            Grade = newGrade,
+                            IsActive = true
+                        }
+                    }
+                }
+            };
+
+            await _pathfinderService.BulkUpdateAsync(bulkData, "VALIDCLUBCODE", CancellationToken.None);
+
+            _gradeChangeQueueMock.Verify(q => q.TryEnqueueAsync(
+                It.Is<GradeChangeEvent>(e => 
+                    e.PathfinderId == pathfinderId && 
+                    e.OldGrade == oldGrade && 
+                    e.NewGrade == newGrade),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task BulkUpdateAsync_WithMultipleGradeChanges_EnqueuesAllEvents()
+        {
+            var gradeChangeQueueMockLocal = new Mock<IGradeChangeQueue>();
+            gradeChangeQueueMockLocal.Setup(x => x.TryEnqueueAsync(It.IsAny<GradeChangeEvent>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            var validator = new DummyValidator<Incoming.PathfinderDtoInternal>();
+            var logger = NullLogger<PathfinderService>.Instance;
+            
+            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validator, logger, gradeChangeQueueMockLocal.Object);
+
+            var pathfinderIds = _pathfinders
+                .Where(p => p.IsActive == true && p.Grade != null)
+                .Take(3)
+                .Select(p => p.PathfinderID)
+                .ToList();
+
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = pathfinderIds.Select(id => new Incoming.BulkPutPathfinderItemDto
+                    {
+                        PathfinderId = id,
+                        Grade = 8,
+                        IsActive = true
+                    }).ToList()
+                }
+            };
+
+            await pathfinderService.BulkUpdateAsync(bulkData, "VALIDCLUBCODE", CancellationToken.None);
+
+            gradeChangeQueueMockLocal.Verify(q => q.TryEnqueueAsync(
+                It.IsAny<GradeChangeEvent>(),
+                It.IsAny<CancellationToken>()),
+                Times.AtLeast(1));
+        }
+
+        [Test]
+        public async Task BulkUpdateAsync_WhenGradeDoesNotChange_DoesNotEnqueueEvent()
+        {
+            var gradeChangeQueueMockLocal = new Mock<IGradeChangeQueue>();
+            gradeChangeQueueMockLocal.Setup(x => x.TryEnqueueAsync(It.IsAny<GradeChangeEvent>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            var validator = new DummyValidator<Incoming.PathfinderDtoInternal>();
+            var logger = NullLogger<PathfinderService>.Instance;
+            
+            var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validator, logger, gradeChangeQueueMockLocal.Object);
+
+            var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
+            var pathfinder = await _dbContext.Pathfinders.FindAsync(pathfinderId);
+
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = new List<Incoming.BulkPutPathfinderItemDto>
+                    {
+                        new Incoming.BulkPutPathfinderItemDto
+                        {
+                            PathfinderId = pathfinderId,
+                            Grade = pathfinder.Grade,
+                            IsActive = true
+                        }
+                    }
+                }
+            };
+
+            await pathfinderService.BulkUpdateAsync(bulkData, "VALIDCLUBCODE", CancellationToken.None);
+
+            gradeChangeQueueMockLocal.Verify(q => q.TryEnqueueAsync(
+                It.IsAny<GradeChangeEvent>(),
+                It.IsAny<CancellationToken>()),
+                Times.Never);
         }
 
         [TearDown]

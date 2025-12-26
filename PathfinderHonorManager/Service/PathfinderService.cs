@@ -28,6 +28,8 @@ namespace PathfinderHonorManager.Service
 
         private readonly IValidator<Incoming.PathfinderDtoInternal> _validator;
 
+        private readonly IGradeChangeQueue _gradeChangeQueue;
+
         private IQueryable<Outgoing.PathfinderDependantDto> QueryPathfindersWithAchievementCountsAsync(string clubCode, bool showInactive)
         {
             var query = _dbContext.Pathfinders
@@ -55,13 +57,15 @@ namespace PathfinderHonorManager.Service
             IClubService clubService,
             IMapper mapper,
             IValidator<Incoming.PathfinderDtoInternal> validator,
-            ILogger<PathfinderService> logger)
+            ILogger<PathfinderService> logger,
+            IGradeChangeQueue gradeChangeQueue)
         {
             _dbContext = context;
             _clubService = clubService;
             _mapper = mapper;
             _logger = logger;
             _validator = validator;
+            _gradeChangeQueue = gradeChangeQueue;
         }
 
         public async Task<ICollection<Outgoing.PathfinderDependantDto>> GetAllAsync(string clubCode, bool showInactive, CancellationToken token)
@@ -166,6 +170,8 @@ namespace PathfinderHonorManager.Service
 
             try
             {
+                var oldGrade = targetPathfinder.Grade;
+
                 Incoming.PathfinderDtoInternal mappedPathfinder = new()
                 {
                     FirstName = targetPathfinder.FirstName,
@@ -182,12 +188,21 @@ namespace PathfinderHonorManager.Service
                               .IncludeRuleSets("update"),
                     token);
 
+                bool gradeChanged = false;
                 if (mappedPathfinder.Grade != null)
                 {
+                    if (targetPathfinder.Grade != mappedPathfinder.Grade)
+                    {
+                        gradeChanged = true;
+                    }
                     targetPathfinder.Grade = mappedPathfinder.Grade;
                 }
                 else
                 {
+                    if (targetPathfinder.Grade != null)
+                    {
+                        gradeChanged = true;
+                    }
                     targetPathfinder.Grade = null;
                 }
                 
@@ -203,6 +218,13 @@ namespace PathfinderHonorManager.Service
 
                 await _dbContext.SaveChangesAsync(token);
                 _logger.LogInformation("Updated pathfinder with ID {PathfinderId} for club {ClubCode}", pathfinderId, clubCode);
+
+                if (gradeChanged)
+                {
+                    var gradeChangeEvent = new GradeChangeEvent(pathfinderId, oldGrade, targetPathfinder.Grade);
+                    await _gradeChangeQueue.TryEnqueueAsync(gradeChangeEvent, token);
+                    _logger.LogInformation("Grade change detected for pathfinder {PathfinderId}: {OldGrade} → {NewGrade}, queued for achievement sync", pathfinderId, oldGrade, targetPathfinder.Grade);
+                }
 
                 return _mapper.Map<Outgoing.PathfinderDto>(targetPathfinder);
             }
@@ -237,8 +259,15 @@ namespace PathfinderHonorManager.Service
 
                         if (targetPathfinder != null)
                         {
+                            var oldGrade = targetPathfinder.Grade;
+                            bool gradeChanged = false;
+
                             if (item.Grade.HasValue)
                             {
+                                if (targetPathfinder.Grade != item.Grade.Value)
+                                {
+                                    gradeChanged = true;
+                                }
                                 targetPathfinder.Grade = item.Grade.Value;
                             }
 
@@ -249,6 +278,13 @@ namespace PathfinderHonorManager.Service
 
                             var mappedPathfinder = _mapper.Map<Incoming.PathfinderDtoInternal>(targetPathfinder);
                             await _validator.ValidateAsync(mappedPathfinder, opts => opts.ThrowOnFailures(), token);
+
+                            if (gradeChanged)
+                            {
+                                var gradeChangeEvent = new GradeChangeEvent(item.PathfinderId, oldGrade, targetPathfinder.Grade);
+                                await _gradeChangeQueue.TryEnqueueAsync(gradeChangeEvent, token);
+                                _logger.LogInformation("Grade change detected for pathfinder {PathfinderId}: {OldGrade} → {NewGrade}, queued for achievement sync", item.PathfinderId, oldGrade, targetPathfinder.Grade);
+                            }
 
                             updatedPathfinders.Add(_mapper.Map<Outgoing.PathfinderDto>(targetPathfinder));
                             _logger.LogInformation("Updated pathfinder with ID {PathfinderId} during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
