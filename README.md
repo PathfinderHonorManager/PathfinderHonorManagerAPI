@@ -43,3 +43,4 @@ This repo uses a baseline migration for existing databases. See `EF_MIGRATIONS_R
 ## Notes
 - Tests use NUnit (`[Test]`, `[TestCase]`) and EF Core in-memory/SQLite helpers.
 - Validators use FluentValidation (`PathfinderHonorManager/Validators`).
+- Swagger UI OAuth2 auth wiring is handled by a document filter (`PathfinderHonorManager/Swagger/AuthorizeCheckDocumentFilter.cs`) to ensure secured endpoints declare `security` requirements under Swashbuckle v10/.NET 10. This only affects the generated OpenAPI document and Swagger UI behavior.
