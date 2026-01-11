@@ -5,7 +5,7 @@
     <IsPackable>false</IsPackable>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <IsPublishable>false</IsPublishable>
-    <ExcludeByFile>**/Migrations/*.cs</ExcludeByFile>
+    <ExcludeByFile>**/Migrations/*.cs;**/Dto/**/*.cs</ExcludeByFile>
   </PropertyGroup>
 
   <ItemGroup>
