@@ -120,18 +120,8 @@ namespace PathfinderHonorManager
                         }
                     }
                 });
-                c.AddSecurityRequirement(doc => 
-                {
-                    var requirement = new OpenApiSecurityRequirement
-                    {
-                        {
-                            new OpenApiSecuritySchemeReference("oauth2", null, null),
-                            new List<string> { Configuration["AzureAD:ApiScope"] }
-                        }
-                    };
-                    return requirement;
-                });
                 c.DocumentFilter<HealthCheckEndpointFilter>();
+                c.DocumentFilter<AuthorizeCheckDocumentFilter>();
             });
             services
                 .AddDbContext<PathfinderContext>(options =>
