@@ -253,6 +253,7 @@ _TeamCity*
 
 # Coverlet code coverage results
 coverage.json
+coverage.opencover.xml
 
 # NCrunch
 _NCrunch_*

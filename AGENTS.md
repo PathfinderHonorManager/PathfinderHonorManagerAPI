@@ -3,7 +3,6 @@
 ## Project Structure & Module Organization
 - `PathfinderHonorManager/` hosts the ASP.NET Core API. Key areas: `Controllers/`, `Service/`, `DataAccess/`, `Model/`, `Dto/`, `Validators/`, `Healthcheck/`, `Migrations/`, `Swagger/`, `Mapping/`, and `Converters/`.
 - `PathfinderHonorManager.Tests/` contains NUnit tests plus test helpers and seeders.
-- `PathfinderHonorManager/Pathfinder-DB/` stores database SQL scripts.
 - Configuration lives in `PathfinderHonorManager/appsettings.json`, `PathfinderHonorManager/appsettings.Development.json`, and `PathfinderHonorManager/Properties/launchSettings.json`.
 
 ## Build, Test, and Development Commands

@@ -35,8 +35,11 @@ namespace PathfinderHonorManager.Tests.Integration
             IOptionsMonitor<TestAuthOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
+            // TODO: Switch to TimeProvider when AuthenticationHandler supports it for this target framework.
+#pragma warning disable CS0618
             ISystemClock clock)
             : base(options, logger, encoder, clock)
+#pragma warning restore CS0618
         {
         }
 

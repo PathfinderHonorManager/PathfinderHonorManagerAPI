@@ -38,7 +38,9 @@ namespace PathfinderHonorManager.Service
 
         public async Task<ICollection<Outgoing.PathfinderAchievementDto>> GetAllAsync(bool showAllAchievements = false, CancellationToken token = default)
         {
-            _logger.LogInformation($"Getting all pathfinder achievements, showAllAchievements: {showAllAchievements}");
+            _logger.LogInformation(
+                "Getting all pathfinder achievements, showAllAchievements: {ShowAllAchievements}",
+                showAllAchievements);
             IQueryable<PathfinderAchievement> query = _dbContext.PathfinderAchievements
                 .Include(a => a.Achievement)
                 .Include(c => c.Achievement.PathfinderClass)
@@ -63,7 +65,13 @@ namespace PathfinderHonorManager.Service
 
         public async Task<Outgoing.PathfinderAchievementDto> GetByIdAsync(Guid pathfinderId, Guid achievementId, CancellationToken token)
         {
-            _logger.LogInformation($"Getting pathfinder achievement by Pathfinder ID: {pathfinderId} Achievement ID {achievementId}");
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Getting pathfinder achievement by Pathfinder ID: {PathfinderId} Achievement ID {AchievementId}",
+                    pathfinderId,
+                    achievementId);
+            }
             var pathfinderAchievement = await _dbContext.PathfinderAchievements
                 .Include(a => a.Achievement)
                 .Include(a => a.Achievement.Category)
@@ -74,7 +82,13 @@ namespace PathfinderHonorManager.Service
         }
         public async Task<ICollection<Outgoing.PathfinderAchievementDto>> GetAllAchievementsForPathfinderAsync(Guid pathfinderId, bool showAllAchievements = false, CancellationToken token = default)
         {
-            _logger.LogInformation($"Getting all achievements for Pathfinder ID: {pathfinderId}, showAllAchievements: {showAllAchievements}");
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Getting all achievements for Pathfinder ID: {PathfinderId}, showAllAchievements: {ShowAllAchievements}",
+                    pathfinderId,
+                    showAllAchievements);
+            }
 
             IQueryable<PathfinderAchievement> query = _dbContext.PathfinderAchievements
                 .Where(pa => pa.PathfinderID == pathfinderId)
