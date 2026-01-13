@@ -10,6 +10,8 @@ namespace PathfinderHonorManager.Swagger
 {
     public class AuthorizeCheckDocumentFilter : IDocumentFilter
     {
+        private const char UrlPathSeparator = '/';
+
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
             var schemeReference = new OpenApiSecuritySchemeReference("oauth2", swaggerDoc, null);
@@ -28,7 +30,7 @@ namespace PathfinderHonorManager.Swagger
                     continue;
                 }
 
-                var pathKey = "/" + (apiDescription.RelativePath ?? string.Empty);
+                var pathKey = UrlPathSeparator + (apiDescription.RelativePath ?? string.Empty);
                 pathKey = pathKey.Split('?', 2)[0].TrimEnd('/');
 
                 if (!swaggerDoc.Paths.TryGetValue(pathKey, out var pathItem))

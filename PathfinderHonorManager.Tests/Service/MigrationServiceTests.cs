@@ -30,7 +30,7 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public async Task StopAsync_ReturnsCompletedTask()
+        public void StopAsync_ReturnsCompletedTask()
         {
             var services = new ServiceCollection().BuildServiceProvider();
             var configuration = new ConfigurationBuilder()
@@ -39,7 +39,7 @@ namespace PathfinderHonorManager.Tests.Service
             var logger = NullLogger<MigrationService>.Instance;
             var service = new MigrationService(services, logger, configuration);
 
-            await service.StopAsync(CancellationToken.None);
+            Assert.DoesNotThrowAsync(() => service.StopAsync(CancellationToken.None));
         }
     }
 }

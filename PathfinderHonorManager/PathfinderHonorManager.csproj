@@ -5,6 +5,7 @@
     <UserSecretsId>8e74b3e9-b279-4879-9bf9-9e1d25205f9f</UserSecretsId>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <ExcludeByFile>**/Migrations/*.cs;**/Dto/**/*.cs</ExcludeByFile>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'PathfinderHonorManager' " />
