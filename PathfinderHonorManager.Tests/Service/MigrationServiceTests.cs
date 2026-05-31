@@ -41,5 +41,26 @@ namespace PathfinderHonorManager.Tests.Service
 
             Assert.DoesNotThrowAsync(() => service.StopAsync(CancellationToken.None));
         }
+
+        [Test]
+        public void StartAsync_InvalidDatabaseConnection_ThrowsWrappedInvalidOperationException()
+        {
+            var services = new ServiceCollection().BuildServiceProvider();
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:PathfinderMigrationCS"] =
+                        "Host=127.0.0.1;Port=1;Database=testdb;Username=test;Password=test;Timeout=1;Command Timeout=1"
+                })
+                .Build();
+            var logger = NullLogger<MigrationService>.Instance;
+            var service = new MigrationService(services, logger, configuration);
+
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(
+                () => service.StartAsync(CancellationToken.None));
+
+            Assert.That(ex!.Message, Does.Contain("Database migration failed during application startup"));
+            Assert.That(ex.InnerException, Is.Not.Null);
+        }
     }
 }
