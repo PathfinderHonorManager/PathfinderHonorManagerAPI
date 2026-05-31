@@ -114,10 +114,10 @@ namespace PathfinderHonorManager.Service
                     await context.Clubs.AnyAsync(cancellationToken);
                     await context.Honors.AnyAsync(cancellationToken);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Tables don't exist, this is a fresh database
-                    _logger.LogInformation("Application tables not found - fresh database, no baseline needed");
+                    _logger.LogInformation(ex, "Application tables not found - fresh database, no baseline needed");
                     return false;
                 }
 
@@ -135,10 +135,10 @@ namespace PathfinderHonorManager.Service
                     
                     return false;
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Migration table doesn't exist, need baseline
-                    _logger.LogInformation("Cannot read migration history - baseline needed");
+                    _logger.LogInformation(ex, "Cannot read migration history - baseline needed");
                     return true;
                 }
             }
@@ -162,7 +162,7 @@ namespace PathfinderHonorManager.Service
                         ""ProductVersion"" character varying(32) NOT NULL,
                         CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY (""MigrationId"")
                     )
-                ");
+                ", cancellationToken);
 
                 // Add baseline migration entry for existing schema
                 // Since the production database already has all the schema we need,
@@ -171,14 +171,14 @@ namespace PathfinderHonorManager.Service
                     INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
                     VALUES ('20250826224824_InitialSchemaWithProperDeleteBehavior', '9.0.8')
                     ON CONFLICT (""MigrationId"") DO NOTHING
-                ");
+                ", cancellationToken);
 
                 _logger.LogInformation("Baseline migration history created successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to create baseline migration history");
-                throw;
+                throw new InvalidOperationException("Failed to create baseline migration history.", ex);
             }
         }
     }

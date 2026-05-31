@@ -64,7 +64,6 @@ namespace PathfinderHonorManager
             {
                 services.AddApplicationInsightsTelemetry(options =>
                 {
-                    options.EnableAdaptiveSampling = false;
                     options.EnableQuickPulseMetricStream = true;
                     options.EnablePerformanceCounterCollectionModule = true;
                     options.EnableDependencyTrackingTelemetryModule = true;

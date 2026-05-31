@@ -5,7 +5,6 @@ ASP.NET Core API for managing Pathfinder clubs, pathfinders, honors, achievement
 ## Project Layout
 - `PathfinderHonorManager/`: API project (controllers, services, EF Core, DTOs, validators, health checks).
 - `PathfinderHonorManager.Tests/`: NUnit test project with in-memory EF helpers and controller/service tests.
-- `PathfinderHonorManager/Pathfinder-DB/`: database scripts.
 - `EF_MIGRATIONS_README.md`: migration workflow and baseline setup details.
 
 ## Prerequisites

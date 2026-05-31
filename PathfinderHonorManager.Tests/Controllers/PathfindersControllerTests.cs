@@ -345,6 +345,162 @@ namespace PathfinderHonorManager.Tests.Controllers
             Assert.That(multiStatusResult.StatusCode, Is.EqualTo(207));
         }
 
+        [Test]
+        public async Task BulkPut_WithValidItem_ReturnsOkStatusPerItem()
+        {
+            var pathfinderId = Guid.NewGuid();
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = new List<Incoming.BulkPutPathfinderItemDto>
+                    {
+                        new Incoming.BulkPutPathfinderItemDto
+                        {
+                            PathfinderId = pathfinderId,
+                            Grade = 6,
+                            IsActive = true
+                        }
+                    }
+                }
+            };
+
+            var updatedPathfinder = new Outgoing.PathfinderDto
+            {
+                PathfinderID = pathfinderId,
+                FirstName = "Test",
+                LastName = "User",
+                Grade = 6,
+                IsActive = true
+            };
+
+            _pathfinderServiceMock
+                .Setup(x => x.UpdateAsync(pathfinderId, It.IsAny<Incoming.PutPathfinderDto>(), TestClubCode, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(updatedPathfinder);
+
+            var result = await _controller.BulkPutPathfindersAsync(bulkData, new CancellationToken());
+
+            Assert.That(result, Is.Not.Null);
+            var multiStatusResult = result as ObjectResult;
+            Assert.That(multiStatusResult.StatusCode, Is.EqualTo(207));
+            var responses = ((IEnumerable<object>)multiStatusResult.Value).ToList();
+            Assert.That(responses.Count, Is.EqualTo(1));
+            Assert.That(GetAnonymousProperty<int>(responses[0], "status"), Is.EqualTo(StatusCodes.Status200OK));
+        }
+
+        [Test]
+        public async Task BulkPut_WithMissingPathfinder_ReturnsNotFoundStatusPerItem()
+        {
+            var pathfinderId = Guid.NewGuid();
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = new List<Incoming.BulkPutPathfinderItemDto>
+                    {
+                        new Incoming.BulkPutPathfinderItemDto
+                        {
+                            PathfinderId = pathfinderId,
+                            Grade = 6,
+                            IsActive = true
+                        }
+                    }
+                }
+            };
+
+            _pathfinderServiceMock
+                .Setup(x => x.UpdateAsync(pathfinderId, It.IsAny<Incoming.PutPathfinderDto>(), TestClubCode, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Outgoing.PathfinderDto)null);
+
+            var result = await _controller.BulkPutPathfindersAsync(bulkData, new CancellationToken());
+
+            Assert.That(result, Is.Not.Null);
+            var multiStatusResult = result as ObjectResult;
+            Assert.That(multiStatusResult.StatusCode, Is.EqualTo(207));
+            var responses = ((IEnumerable<object>)multiStatusResult.Value).ToList();
+            Assert.That(responses.Count, Is.EqualTo(1));
+            Assert.That(GetAnonymousProperty<int>(responses[0], "status"), Is.EqualTo(StatusCodes.Status404NotFound));
+        }
+
+        [Test]
+        public async Task BulkPut_WithValidationError_ReturnsBadRequestStatusPerItem()
+        {
+            var pathfinderId = Guid.NewGuid();
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = new List<Incoming.BulkPutPathfinderItemDto>
+                    {
+                        new Incoming.BulkPutPathfinderItemDto
+                        {
+                            PathfinderId = pathfinderId,
+                            Grade = 15,
+                            IsActive = true
+                        }
+                    }
+                }
+            };
+
+            var validationErrors = new List<FluentValidation.Results.ValidationFailure>
+            {
+                new FluentValidation.Results.ValidationFailure("Grade", "Grade must be between 5 and 12.")
+            };
+            var validationException = new ValidationException(validationErrors);
+
+            _pathfinderServiceMock
+                .Setup(x => x.UpdateAsync(pathfinderId, It.IsAny<Incoming.PutPathfinderDto>(), TestClubCode, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(validationException);
+
+            var result = await _controller.BulkPutPathfindersAsync(bulkData, new CancellationToken());
+
+            Assert.That(result, Is.Not.Null);
+            var multiStatusResult = result as ObjectResult;
+            Assert.That(multiStatusResult.StatusCode, Is.EqualTo(207));
+            var responses = ((IEnumerable<object>)multiStatusResult.Value).ToList();
+            Assert.That(responses.Count, Is.EqualTo(1));
+            Assert.That(GetAnonymousProperty<int>(responses[0], "status"), Is.EqualTo(StatusCodes.Status400BadRequest));
+        }
+
+        [Test]
+        public async Task BulkPut_WithDatabaseError_ReturnsBadRequestStatusPerItem()
+        {
+            var pathfinderId = Guid.NewGuid();
+            var bulkData = new List<Incoming.BulkPutPathfinderDto>
+            {
+                new Incoming.BulkPutPathfinderDto
+                {
+                    Items = new List<Incoming.BulkPutPathfinderItemDto>
+                    {
+                        new Incoming.BulkPutPathfinderItemDto
+                        {
+                            PathfinderId = pathfinderId,
+                            Grade = 6,
+                            IsActive = true
+                        }
+                    }
+                }
+            };
+
+            _pathfinderServiceMock
+                .Setup(x => x.UpdateAsync(pathfinderId, It.IsAny<Incoming.PutPathfinderDto>(), TestClubCode, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new DbUpdateException("Database error"));
+
+            var result = await _controller.BulkPutPathfindersAsync(bulkData, new CancellationToken());
+
+            Assert.That(result, Is.Not.Null);
+            var multiStatusResult = result as ObjectResult;
+            Assert.That(multiStatusResult.StatusCode, Is.EqualTo(207));
+            var responses = ((IEnumerable<object>)multiStatusResult.Value).ToList();
+            Assert.That(responses.Count, Is.EqualTo(1));
+            Assert.That(GetAnonymousProperty<int>(responses[0], "status"), Is.EqualTo(StatusCodes.Status400BadRequest));
+        }
+
+        private static T GetAnonymousProperty<T>(object instance, string propertyName)
+        {
+            return (T)instance.GetType().GetProperty(propertyName)!.GetValue(instance);
+        }
+
         [TearDown]
         public async Task TearDown()
         {

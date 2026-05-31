@@ -196,50 +196,61 @@ namespace PathfinderHonorManager.Controllers
             {
                 foreach (var item in data.Items)
                 {
-                    try
-                    {
-                        var pathfinder = await _pathfinderService.UpdateAsync(item.PathfinderId, new Incoming.PutPathfinderDto { Grade = item.Grade, IsActive = item.IsActive }, clubCode, token);
-
-                        responses.Add(new
-                        {
-                            status = pathfinder != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
-                            pathfinderId = item.PathfinderId,
-                        });
-                        
-                        if (pathfinder == null)
-                        {
-                            _logger.LogWarning("Pathfinder with ID {PathfinderId} not found during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
-                        }
-                        else
-                        {
-                            _logger.LogInformation("Updated pathfinder with ID {PathfinderId} during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
-                        }
-                    }
-                    catch (FluentValidation.ValidationException ex)
-                    {
-                        _logger.LogWarning(ex, "Validation failed while bulk updating pathfinder with ID {PathfinderId} for club {ClubCode}", item.PathfinderId, clubCode);
-                        responses.Add(new
-                        {
-                            status = StatusCodes.Status400BadRequest,
-                            pathfinderId = item.PathfinderId,
-                            errors = ex.Errors.Select(e => e.ErrorMessage)
-                        });
-                    }
-                    catch (DbUpdateException ex)
-                    {
-                        _logger.LogError(ex, "Database error while bulk updating pathfinder with ID {PathfinderId} for club {ClubCode}", item.PathfinderId, clubCode);
-                        responses.Add(new
-                        {
-                            status = StatusCodes.Status400BadRequest,
-                            pathfinderId = item.PathfinderId,
-                            error = ex.Message
-                        });
-                    }
+                    responses.Add(await BuildBulkUpdateResponseAsync(item, clubCode, token));
                 }
             }
 
             _logger.LogInformation("Completed bulk update of {Count} pathfinders for club {ClubCode}", bulkData.Count(), clubCode);
             return StatusCode(StatusCodes.Status207MultiStatus, responses);
+        }
+
+        private async Task<object> BuildBulkUpdateResponseAsync(Incoming.BulkPutPathfinderItemDto item, string clubCode, CancellationToken token)
+        {
+            try
+            {
+                var pathfinder = await _pathfinderService.UpdateAsync(
+                    item.PathfinderId,
+                    new Incoming.PutPathfinderDto { Grade = item.Grade, IsActive = item.IsActive },
+                    clubCode,
+                    token);
+
+                if (pathfinder == null)
+                {
+                    _logger.LogWarning("Pathfinder with ID {PathfinderId} not found during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
+                    return new
+                    {
+                        status = StatusCodes.Status404NotFound,
+                        pathfinderId = item.PathfinderId
+                    };
+                }
+
+                _logger.LogInformation("Updated pathfinder with ID {PathfinderId} during bulk update for club {ClubCode}", item.PathfinderId, clubCode);
+                return new
+                {
+                    status = StatusCodes.Status200OK,
+                    pathfinderId = item.PathfinderId
+                };
+            }
+            catch (FluentValidation.ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed while bulk updating pathfinder with ID {PathfinderId} for club {ClubCode}", item.PathfinderId, clubCode);
+                return new
+                {
+                    status = StatusCodes.Status400BadRequest,
+                    pathfinderId = item.PathfinderId,
+                    errors = ex.Errors.Select(e => e.ErrorMessage)
+                };
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error while bulk updating pathfinder with ID {PathfinderId} for club {ClubCode}", item.PathfinderId, clubCode);
+                return new
+                {
+                    status = StatusCodes.Status400BadRequest,
+                    pathfinderId = item.PathfinderId,
+                    error = ex.Message
+                };
+            }
         }
     }
 }
