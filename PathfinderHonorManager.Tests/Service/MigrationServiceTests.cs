@@ -47,7 +47,7 @@ namespace PathfinderHonorManager.Tests.Service
         {
             var services = new ServiceCollection().BuildServiceProvider();
             var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?>
+                .AddInMemoryCollection(new Dictionary<string, string>
                 {
                     ["ConnectionStrings:PathfinderMigrationCS"] =
                         "Host=127.0.0.1;Port=1;Database=testdb;Username=test;Password=test;Timeout=1;Command Timeout=1"
