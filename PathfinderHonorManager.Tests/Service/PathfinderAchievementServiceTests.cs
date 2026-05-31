@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
@@ -141,6 +142,16 @@ namespace PathfinderHonorManager.Tests.Service
             Assert.That(result, Is.InstanceOf<PathfinderAchievementDto>());
         }
 
+        [Test]
+        public async Task GetByIdAsync_NotFound_ReturnsNull()
+        {
+            var cancellationToken = new CancellationToken();
+
+            var result = await _pathfinderAchievementService.GetByIdAsync(Guid.NewGuid(), Guid.NewGuid(), cancellationToken);
+
+            Assert.That(result, Is.Null);
+        }
+
         [TestCase]
         public async Task AddAsync_AddsNewPathfinderAchievementAndReturnsDto()
         {
@@ -197,6 +208,19 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
+        public async Task UpdateAsync_NotFound_ReturnsNull()
+        {
+            var updateDto = new Incoming.PutPathfinderAchievementDto
+            {
+                IsAchieved = true
+            };
+
+            var result = await _pathfinderAchievementService.UpdateAsync(Guid.NewGuid(), Guid.NewGuid(), updateDto, CancellationToken.None);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
         public async Task AddAchievementsForPathfinderAsync_AddsAchievementsBasedOnGrade()
         {
             // Arrange
@@ -216,6 +240,38 @@ namespace PathfinderHonorManager.Tests.Service
                 Assert.That(achievement.PathfinderID, Is.EqualTo(pathfinderId));
                 Assert.That(achievement.Grade, Is.EqualTo(grade));
             }
+        }
+
+        [Test]
+        public void AddAchievementsForPathfinderAsync_PathfinderNotFound_ThrowsValidationException()
+        {
+            var ex = Assert.ThrowsAsync<ValidationException>(() =>
+                _pathfinderAchievementService.AddAchievementsForPathfinderAsync(Guid.NewGuid(), CancellationToken.None));
+
+            Assert.That(ex, Is.Not.Null);
+            Assert.That(ex!.Errors.Any(e => e.PropertyName == nameof(Incoming.PathfinderAchievementDto.PathfinderID)), Is.True);
+        }
+
+        [Test]
+        public async Task AddAchievementsForPathfinderAsync_NoAchievementsForGrade_ReturnsEmptyCollection()
+        {
+            var newPathfinder = new Pathfinder
+            {
+                PathfinderID = Guid.NewGuid(),
+                FirstName = "No",
+                LastName = "Matches",
+                Email = "nomatch@example.com",
+                Grade = 999,
+                ClubID = _pathfinders.First().ClubID
+            };
+
+            _dbContext.Pathfinders.Add(newPathfinder);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _pathfinderAchievementService.AddAchievementsForPathfinderAsync(newPathfinder.PathfinderID, CancellationToken.None);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
         }
 
         [Test]
