@@ -14,7 +14,7 @@ namespace PathfinderHonorManager.Tests.Service
     public class MigrationServiceTests
     {
         [Test]
-        public void StartAsync_MissingConnectionString_Throws()
+        public async Task StartAsync_MissingConnectionString_Throws()
         {
             var services = new ServiceCollection().BuildServiceProvider();
             var configuration = new ConfigurationBuilder()
@@ -23,14 +23,14 @@ namespace PathfinderHonorManager.Tests.Service
             var logger = NullLogger<MigrationService>.Instance;
             var service = new MigrationService(services, logger, configuration);
 
-            var ex = Assert.ThrowsAsync<InvalidOperationException>(
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
                 () => service.StartAsync(CancellationToken.None));
 
             Assert.That(ex!.Message, Does.Contain("Migration connection string not configured"));
         }
 
         [Test]
-        public void StopAsync_ReturnsCompletedTask()
+        public async Task StopAsync_ReturnsCompletedTask()
         {
             var services = new ServiceCollection().BuildServiceProvider();
             var configuration = new ConfigurationBuilder()
@@ -39,11 +39,11 @@ namespace PathfinderHonorManager.Tests.Service
             var logger = NullLogger<MigrationService>.Instance;
             var service = new MigrationService(services, logger, configuration);
 
-            Assert.DoesNotThrowAsync(() => service.StopAsync(CancellationToken.None));
+            await Assert.DoesNotThrowAsync(() => service.StopAsync(CancellationToken.None));
         }
 
         [Test]
-        public void StartAsync_InvalidDatabaseConnection_ThrowsWrappedInvalidOperationException()
+        public async Task StartAsync_InvalidDatabaseConnection_ThrowsWrappedInvalidOperationException()
         {
             var services = new ServiceCollection().BuildServiceProvider();
             var configuration = new ConfigurationBuilder()
@@ -56,7 +56,7 @@ namespace PathfinderHonorManager.Tests.Service
             var logger = NullLogger<MigrationService>.Instance;
             var service = new MigrationService(services, logger, configuration);
 
-            var ex = Assert.ThrowsAsync<InvalidOperationException>(
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
                 () => service.StartAsync(CancellationToken.None));
 
             Assert.That(ex!.Message, Does.Contain("Database migration failed during application startup"));

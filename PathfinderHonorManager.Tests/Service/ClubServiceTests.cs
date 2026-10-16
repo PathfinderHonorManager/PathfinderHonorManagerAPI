@@ -167,7 +167,7 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [TestCase]
-        public void CreateAsync_DuplicateClubCode_ThrowsValidationException()
+        public async Task CreateAsync_DuplicateClubCode_ThrowsValidationException()
         {
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
             IMapper mapper = mapperConfiguration.CreateMapper();
@@ -187,7 +187,7 @@ namespace PathfinderHonorManager.Tests.Service
                 };
 
                 // Assert
-                Assert.ThrowsAsync<ValidationException>(() =>
+                await Assert.ThrowsAsync<ValidationException>(() =>
                     _clubService.CreateAsync(newClub, token));
             }
         }
@@ -258,7 +258,7 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [TestCase(0)]
-        public void UpdateAsync_DuplicateClubCode_ThrowsValidationException(int clubIndex)
+        public async Task UpdateAsync_DuplicateClubCode_ThrowsValidationException(int clubIndex)
         {
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperConfig>());
             IMapper mapper = mapperConfiguration.CreateMapper();
@@ -279,7 +279,7 @@ namespace PathfinderHonorManager.Tests.Service
                 };
 
                 // Assert
-                Assert.ThrowsAsync<ValidationException>(() =>
+                await Assert.ThrowsAsync<ValidationException>(() =>
                     _clubService.UpdateAsync(clubId, updatedClub, token));
             }
         }

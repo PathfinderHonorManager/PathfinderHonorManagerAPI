@@ -44,9 +44,9 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public void TryEnqueueAsync_WithNullEvent_ThrowsArgumentNullException()
+        public async Task TryEnqueueAsync_WithNullEvent_ThrowsArgumentNullException()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(async () => 
+            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
                 await _queue.TryEnqueueAsync(null));
         }
 
