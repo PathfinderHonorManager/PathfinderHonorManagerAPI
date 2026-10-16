@@ -464,7 +464,7 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public void AddAsync_WithValidationException_ThrowsValidationException()
+        public async Task AddAsync_WithValidationException_ThrowsValidationException()
         {
             var newPathfinderDto = new Incoming.PathfinderDto
             {
@@ -494,7 +494,7 @@ namespace PathfinderHonorManager.Tests.Service
             
             var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validatorMock.Object, logger, gradeChangeQueueMock.Object);
 
-            var ex = Assert.ThrowsAsync<ValidationException>(
+            var ex = await Assert.ThrowsAsync<ValidationException>(
                 async () => await pathfinderService.AddAsync(newPathfinderDto, "VALIDCLUBCODE", CancellationToken.None));
 
             Assert.That(ex.Errors.First().PropertyName, Is.EqualTo("Email"));
@@ -502,7 +502,7 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public void UpdateAsync_WithValidationException_ThrowsValidationException()
+        public async Task UpdateAsync_WithValidationException_ThrowsValidationException()
         {
             var pathfinderId = _pathfinderSelectorHelper.SelectPathfinderId(true);
             var updatePathfinderDto = new Incoming.PutPathfinderDto
@@ -531,7 +531,7 @@ namespace PathfinderHonorManager.Tests.Service
             
             var pathfinderService = new PathfinderService(_dbContext, _clubServiceMock.Object, mapper, validatorMock.Object, logger, gradeChangeQueueMock.Object);
 
-            var ex = Assert.ThrowsAsync<ValidationException>(
+            var ex = await Assert.ThrowsAsync<ValidationException>(
                 async () => await pathfinderService.UpdateAsync(pathfinderId, updatePathfinderDto, "VALIDCLUBCODE", CancellationToken.None));
 
             Assert.That(ex.Errors.First().PropertyName, Is.EqualTo("Grade"));

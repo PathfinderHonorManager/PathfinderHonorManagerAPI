@@ -243,9 +243,9 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public void AddAchievementsForPathfinderAsync_PathfinderNotFound_ThrowsValidationException()
+        public async Task AddAchievementsForPathfinderAsync_PathfinderNotFound_ThrowsValidationException()
         {
-            var ex = Assert.ThrowsAsync<ValidationException>(() =>
+            var ex = await Assert.ThrowsAsync<ValidationException>(() =>
                 _pathfinderAchievementService.AddAchievementsForPathfinderAsync(Guid.NewGuid(), CancellationToken.None));
 
             Assert.That(ex, Is.Not.Null);

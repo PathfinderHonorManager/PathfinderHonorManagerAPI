@@ -172,7 +172,7 @@ namespace PathfinderHonorManager.Tests.Service
                 var validator = new PathfinderHonorValidator(context);
                 var service = new PathfinderHonorService(context, mapper, validator, logger);
 
-                var exception = Assert.ThrowsAsync<FluentValidation.ValidationException>(() => 
+                var exception = await Assert.ThrowsAsync<FluentValidation.ValidationException>(() =>
                     service.AddAsync(pathfinderId, newHonor, CancellationToken.None));
 
                 Assert.That(exception.Errors.First().ErrorMessage, Is.EqualTo($"Pathfinder {pathfinderId} already has honor {honorId}."));
@@ -222,7 +222,7 @@ namespace PathfinderHonorManager.Tests.Service
                 var mapStatusTask = (System.Threading.Tasks.Task<PathfinderHonorDto>)mapStatusMethod.Invoke(service, new object[] { pathfinderId, updateHonor, default(CancellationToken), honorId });
                 var mappedDto = await mapStatusTask;
 
-                var validationException = Assert.ThrowsAsync<FluentValidation.ValidationException>(async () =>
+                var validationException = await Assert.ThrowsAsync<FluentValidation.ValidationException>(async () =>
                     await validator.ValidateAsync(
                         mappedDto,
                         opts => opts.ThrowOnFailures().IncludeRulesNotInRuleSet(),

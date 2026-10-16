@@ -135,7 +135,7 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public void AddAsync_WithValidationError_ThrowsValidationException()
+        public async Task AddAsync_WithValidationError_ThrowsValidationException()
         {
             // Arrange
             var token = new CancellationToken();
@@ -148,7 +148,7 @@ namespace PathfinderHonorManager.Tests.Service
             };
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ValidationException>(() =>
+            var ex = await Assert.ThrowsAsync<ValidationException>(() =>
                 _honorService.AddAsync(newHonor, token));
             Assert.That(ex.Message, Does.Contain("'Name' must not be empty"));
         }
@@ -217,7 +217,7 @@ namespace PathfinderHonorManager.Tests.Service
         }
 
         [Test]
-        public void UpdateAsync_WithValidationError_ThrowsValidationException()
+        public async Task UpdateAsync_WithValidationError_ThrowsValidationException()
         {
             // Arrange
             var token = new CancellationToken();
@@ -231,7 +231,7 @@ namespace PathfinderHonorManager.Tests.Service
             };
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ValidationException>(() =>
+            var ex = await Assert.ThrowsAsync<ValidationException>(() =>
                 _honorService.UpdateAsync(existingHonor.HonorID, updatedHonor, token));
             Assert.That(ex.Message, Does.Contain("'Name' must not be empty"));
         }
